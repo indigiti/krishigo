@@ -39,6 +39,11 @@ export class JsonStagingClient {
  async create(domain:DemoDomain,fields:Record<string,unknown>){
   return this.call<{demo:boolean;item:DemoRecord;replayed:boolean}>('POST',`/staging/records/${domain}`,fields,crypto.randomUUID());
  }
+ /** Match only moderated sample lots; no enquiry or communication is triggered. */
+ async matches(crop:string,district:string,quantityKg:number){
+  const params=new URLSearchParams({crop,district,quantity_kg:String(quantityKg)});
+  return this.call<{demo:boolean;matched:number;items:DemoRecord[];enquiries_sent:false}>('GET','/staging/marketplace/matches?'+params.toString());
+ }
  async pending(domain:DemoDomain){return this.call<{pending:DemoRecord[]}>('GET',`/staging/admin/records/${domain}`);}
  async decide(domain:DemoDomain,id:number,decision:'approve'|'reject'){
   return this.call<{item:DemoRecord}>('POST',`/staging/admin/records/${domain}/${id}/review`,{decision});
