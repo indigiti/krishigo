@@ -1,5 +1,6 @@
 import {expect,test} from '@playwright/test';
-import descriptor from '../src/config/module-registry.json';
+import {readFileSync} from 'node:fs';
+const descriptor=JSON.parse(readFileSync(new URL('../src/config/module-registry.json',import.meta.url),'utf8')) as {modules:Array<{id:number;key:string;name:string;category:string;summary:string;dependencies:number[];enabled:boolean}>};
 
 test('shared module configuration controls dashboard and public navigation',async({page},info)=>{
  let authorized=false;
