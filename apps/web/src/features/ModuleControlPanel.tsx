@@ -1,9 +1,10 @@
-import {useMemo,useState} from 'react';
+import {lazy,Suspense,useMemo,useState} from 'react';
+const SharedModuleControlPanel=lazy(()=>import('./SharedModuleControlPanel'));
 import {CheckCircle2,RotateCcw,ShieldCheck,Activity,Power,Search} from 'lucide-react';
 import {moduleDescriptors,isEnabled} from '../domain/moduleRegistry';
 import {modulePreferences,useModuleFlags} from '../infrastructure/modulePreferences';
 import {diagnostics,useDiagnostics} from '../infrastructure/diagnostics';
-export default function ModuleControlPanel(){
+function LocalModuleControlPanel(){
  const flags=useModuleFlags(),events=useDiagnostics();
  const [search,setSearch]=useState(''),[status,setStatus]=useState('All'),[notice,setNotice]=useState('');
  const enabled=moduleDescriptors.filter(m=>isEnabled(flags,m.id)).length;
@@ -20,4 +21,11 @@ export default function ModuleControlPanel(){
  {!visible.length&&<p className="studio-empty">No matching modules.</p>}
  <div className="surface-card module-diagnostics"><div className="section-head"><div><span className="section-eyebrow">OBSERVABILITY · LOCAL</span><h3>Safe recovery and error management</h3></div><button className="btn btn-soft" onClick={()=>diagnostics.clear()}>Clear log</button></div><p>Failed screens can be retried. Local configuration restores from a validated snapshot; no external service is automatically restarted.</p><div role="log" className="module-log">{events.length===0?<small>No UI errors recorded.</small>:events.slice().reverse().slice(0,12).map(e=><div key={e.id}><small>{e.at.slice(11,19)} UTC</small><strong>{e.code}</strong><span>{e.area} · {e.severity}</span></div>)}</div></div>
  <p className="page-disclaimer">These public staging controls are browser-only, not privileged authentication. Shared module activation requires the secured PHP admin API.</p></section>;
+}
+
+/** Shared JSON control plane is deliberately opt-in and code-split. */
+export default function ModuleControlPanel(){
+ return import.meta.env.VITE_MODULE_CONTROL_MODE==='api'
+  ? <Suspense fallback={<div role="status">Loading protected controls…</div>}><SharedModuleControlPanel/></Suspense>
+  : <LocalModuleControlPanel/>;
 }
