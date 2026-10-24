@@ -77,3 +77,12 @@ Live mandi data with official sources and freshness, weather, news editorial ver
 - Mock net realization calculator for mandi and price intelligence, using only user-entered amounts.
 - In-memory demo state: no account, network mutation, permanent record, real data or AI diagnosis.
 - Details and remaining production boundaries: [M6 Module Workspaces](M6_MODULE_WORKSPACES.md).
+
+## M8 — real multi-user PHP candidate (not deployed)
+
+- Separate production router behind explicit `KRISHIGO_API_MODE=production`; default staging remains fixture-only and database-free.
+- MySQL schema and repositories for user identity, moderated listings, buyer requirements, enquiries, community posts, private plant notes and audit trails.
+- CSRF-protected sessions, server-side roles/ownership, pending-review workflows and account verification gate.
+- Separate React Connected Operations workspace only enabled for `VITE_DATA_MODE=api` (not in DigiOps mock release).
+- Isolated MySQL-backed integration suite in CI; production rollout requires additional browser, privacy, abuse/identity, Cloudways TLS, and rollback reviews.
+- **Not** real AI diagnosis or public production release. See [M8 API plan](M8_PRODUCTION_API.md).

@@ -26,7 +26,7 @@ function kg_secure_transport(): bool {
 function kg_begin_session(): void {
     if (!kg_secure_transport()) kg_json(403, ['error' => 'https_required']);
     if (session_status() === PHP_SESSION_ACTIVE) return;
-    session_name('krishigo_stage');
+    session_name(kg_env('KRISHIGO_API_MODE') === 'production' ? 'krishigo_prod' : 'krishigo_stage');
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.cookie_httponly', '1');
@@ -48,10 +48,9 @@ function kg_check_csrf(): void {
         if ($host === '' || !hash_equals($expected, rtrim($origin, '/'))) kg_json(403, ['error' => 'origin_forbidden']);
     }
 }
-function kg_json_input(): array {
+function kg_json_input(int $max = 2048): array {
     $type = strtolower(trim(explode(';', (string)($_SERVER['CONTENT_TYPE'] ?? ''))[0]));
     if ($type !== 'application/json') kg_json(415, ['error' => 'json_required']);
-    $max = 2048;
     $raw = file_get_contents('php://input', false, null, 0, $max + 1);
     if (!is_string($raw) || strlen($raw) > $max) kg_json(413, ['error' => 'body_too_large']);
     try { $data = json_decode($raw, true, 8, JSON_THROW_ON_ERROR); }

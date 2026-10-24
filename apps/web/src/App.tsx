@@ -14,8 +14,9 @@ const FarmerOnboarding = lazy(() => import('./features/TradeWorkflows').then(mod
 const TradeDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.TradeDesk})));
 const ReviewDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.ReviewDesk})));
 const WorkflowHub = lazy(() => import('./features/WorkflowHub'));
+const ProductionWorkspace = lazy(() => import('./features/ProductionWorkspace'));
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -33,7 +34,8 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Onboarding', icon: UserRound, desc: 'New member journey' },
   { label: 'Trade Desk', icon: ShoppingBag, desc: 'Listing and enquiry details' },
   { label: 'Workflow Hub', icon: Activity, desc: 'Connected local workflows' },
-  { label: 'Review Desk', icon: ShieldCheck, desc: 'Moderation demo' }
+  { label: 'Review Desk', icon: ShieldCheck, desc: 'Moderation demo' },
+  ...(!isDemo ? [{label: 'Connected Operations' as const, icon: ShieldCheck, desc: 'Production PHP workflows'}] : [])
 ];
 const formatToday = () => new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 function PlantArtwork({ small = false }: { small?: boolean }) {
@@ -81,7 +83,7 @@ function GrowthChart({ compact = false }: { compact?: boolean }) {
     <div className="chart-labels">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => <span key={x}>{x}</span>)}</div>
   </div>;
 }
-const DemoPill = () => isDemo ? <span className="demo-pill"><span/> DEMO DATA</span> : null;
+const DemoPill = () => <span className="demo-pill"><span/> DEMO DATA</span>;
 function App() {
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');
@@ -150,7 +152,7 @@ function App() {
           <div className="theme-switch" aria-label="Choose design theme">{([['forest','Forest'],['sand','Sand'],['night','Night']] as const).map(t => <button title={`${t[1]} design`} aria-label={`${t[1]} theme`} aria-pressed={theme===t[0]} className={theme===t[0]?'current':''} key={t[0]} onClick={() => setTheme(t[0])}><span className={'theme-dot '+t[0]}/><span className="theme-word">{t[1]}</span></button>)}</div>
           <div className="notification-wrap"><button className="icon-button" aria-label="Notifications" aria-expanded={notificationOpen} onClick={() => setNotificationOpen(v => !v)}><Bell size={19}/><span className="notification-dot"/></button>{notificationOpen && <div className="notification-panel"><strong>You're all caught up</strong><p>New crop care tips and buyer enquiries will appear here when connected.</p><DemoPill /></div>}</div><div className="header-avatar">KG</div></div>
       </header>
-      <div className="staging-banner" role="status"><DemoPill/><span>Preview only — fictional mandi prices, listings and weather. No account, diagnosis or trade is real.</span></div>
+      <div className="staging-banner" role="status">{!isDemo && page === 'Connected Operations' ? <span>Connected workspace — restricted production candidate. Server-side verification and launch approval required.</span> : <><DemoPill/><span>Preview only — fictional mandi prices, listings and weather. No account, diagnosis or trade is real.</span></>}</div>
       {mobileSearchOpen && <form className="mobile-search-panel" role="search" onSubmit={e => {e.preventDefault(); setMobileSearchOpen(false); setPage('Marketplace');}}><label htmlFor="mobile-market-search">Search crop and market listings</label><div><Search size={18}/><input ref={mobileSearchRef} id="mobile-market-search" value={q} placeholder="Crops, sellers or district" onChange={e => {setQ(e.target.value); setPage('Marketplace');}}/><button type="button" aria-label="Close search" onClick={() => setMobileSearchOpen(false)}><X size={19}/></button></div></form>}
       <main className="page-content">
         {page === 'Overview' && <>
@@ -198,6 +200,7 @@ function App() {
         </>}
         <Suspense fallback={<div className="surface-card" role="status">Loading this workspace…</div>}>
         {page === 'Workflow Hub' && <WorkflowHub/>}
+        {page === 'Connected Operations' && !isDemo && <ProductionWorkspace/>}
         {page === 'Onboarding' && <FarmerOnboarding/>}
         {page === 'Trade Desk' && <TradeDesk initialListingId={tradeListingId}/> }
         {page === 'Review Desk' && <ReviewDesk/>}

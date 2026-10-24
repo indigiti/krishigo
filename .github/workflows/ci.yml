@@ -91,3 +91,36 @@ jobs:
         run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php
       - name: Exercise PHP HTTP contracts
         run: python3 apps/api-php/tests/integration.py -v
+
+  production-api:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root-only-in-ci
+          MYSQL_DATABASE: krishigo_test
+          MYSQL_USER: krishigo_ci
+          MYSQL_PASSWORD: krishigo-ci-only-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent" --health-interval=10s
+          --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, openssl, session
+          coverage: none
+      - name: Lint production PHP modules
+        run: |
+          for f in apps/api-php/src/Production/*.php apps/api-php/bin/*.php apps/api-php/tests/*.php; do php -l "$f"; done
+      - name: Exercise real multi-user persistence with isolated MySQL
+        env:
+          KRISHIGO_DB_DSN: 'mysql:host=127.0.0.1;port=3306;dbname=krishigo_test;charset=utf8mb4'
+          KRISHIGO_DB_USER: krishigo_ci
+          KRISHIGO_DB_PASSWORD: krishigo-ci-only-password
+          KRISHIGO_RATE_SALT: krishigo-ci-only-not-a-deployable-secret-2026
+        run: python3 apps/api-php/tests/production_integration.py -v
