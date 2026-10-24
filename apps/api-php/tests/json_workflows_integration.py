@@ -78,6 +78,13 @@ class ServerCase(unittest.TestCase):
   self.assertFalse(ok['published_externally'])
   code,_=self.call('POST',review,{'decision':'approve'},csrf);self.assertEqual(code,409)
   code,public=self.call('GET',base+'/records/marketplace');self.assertEqual(code,200);self.assertEqual(len(public['items']),1)
+  code,matching=self.call('GET',base+'/marketplace/matches?crop=Tomato&district=Pune&quantity_kg=250')
+  self.assertEqual(code,200);self.assertEqual(matching['matched'],1)
+  self.assertFalse(matching['enquiries_sent'])
+  code,no_match=self.call('GET',base+'/marketplace/matches?crop=Tomato&district=Pune&quantity_kg=9000')
+  self.assertEqual(code,200);self.assertEqual(no_match['matched'],0)
+  code,_=self.call('GET',base+'/marketplace/matches?crop=Tomato&district=Pune&quantity_kg=invalid')
+  self.assertEqual(code,422)
   for domain,sample in SAMPLES.items():
    if domain=='marketplace':continue
    code,result=self.call('POST',base+'/records/'+domain,sample,csrf,domain+'-'+secrets.token_hex(9))
@@ -85,6 +92,17 @@ class ServerCase(unittest.TestCase):
    self.assertEqual(result['item']['status'],'pending-demo')
   code,_=self.call('GET',base+'/records/plant');self.assertEqual(code,403)
   code,plant=self.call('GET',base+'/records/plant?mine=1');self.assertEqual(code,200);self.assertEqual(len(plant['items']),1)
+  original=plant['items'][0]['id']
+  code,case=self.call('POST',base+'/records/plant',{**SAMPLES['plant'],'followup_of':original},csrf,'plant-followup-'+secrets.token_hex(12))
+  self.assertEqual(code,201)
+  self.assertEqual(case['item']['fields']['followup_of'],original)
+  code,mine=self.call('GET',base+'/records/plant?mine=1');self.assertEqual(code,200)
+  self.assertEqual(len(mine['items']),2)
+  code,_=self.call('POST',base+'/records/plant',{**SAMPLES['plant'],'followup_of':999999},csrf,'plant-unknown-'+secrets.token_hex(12))
+  self.assertEqual(code,404)
+  code,_=self.call('POST',base+'/records/plant',{**SAMPLES['plant'],'followup_of':case['item']['id']},csrf,'plant-chain-'+secrets.token_hex(12))
+  self.assertEqual(code,422)
+
   code,_=self.call('GET',base+'/admin/records/plant');self.assertEqual(code,403)
   code,health=self.call('GET',base+'/workflows/health');self.assertEqual(code,200)
   self.assertEqual(health['database'],'none');self.assertEqual(len(health['domains']),6)

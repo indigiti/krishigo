@@ -82,7 +82,7 @@ jobs:
       - name: Build JSON staging pilot and exercise editorial + operations
         run: |
           VITE_JSON_WORKFLOWS_MODE=api VITE_JSON_API_BASE_URL=/api/v1 npm run build
-          KG_TEST_JSON=1 npx playwright test e2e/json.spec.ts
+          KG_TEST_JSON=1 npx playwright test e2e/json.spec.ts e2e/connected.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:

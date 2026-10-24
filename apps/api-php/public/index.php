@@ -36,7 +36,8 @@ if (str_starts_with($path,'/api/v1/staging/module-drafts/')) {
 }
 
 // Staging-only JSON-backed drafts; the default mode exposes no new write routes.
-if (str_starts_with($path, '/api/v1/staging/records/') ||
+if ($path === '/api/v1/staging/marketplace/matches' ||
+    str_starts_with($path, '/api/v1/staging/records/') ||
     str_starts_with($path, '/api/v1/staging/admin/records/') ||
     $path === '/api/v1/staging/workflows/health' ||
     str_starts_with($path, '/api/v1/staging/jobs')) {
