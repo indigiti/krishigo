@@ -46,3 +46,15 @@ Live mandi data with official sources and freshness, weather, news editorial ver
 - Frontend source-level tests: pass locally.
 - Actual `npm run build` requires a network-enabled environment because the sandbox cannot resolve npmjs.org; GitHub CI is the definitive verification before merge.
 - Cloudways staging not deployed by this milestone.
+
+## M3 — onboarding, trade details and moderation experience
+
+- Three new responsive and theme-aware screens: onboarding wizard, Trade Desk and Review Desk.
+- Marketplace opportunity buttons open the associated Trade Desk listing details.
+- Structured buyer enquiry drafts remain **unsent** and in memory; no database, contact or transactions.
+- Review Desk simulates moderation categories and decisions locally, without granting any permissions.
+- PHP allowlisted `GET /api/v1/marketplace/listings/{id}` and role-restricted `GET /api/v1/admin/review-cases` only.
+- Future onboarding, enquiry and review writes are explicitly blocked with HTTP 501.
+- See [M3 production persistence plan](M3_PRODUCTION_PERSISTENCE.md) for the data model and implementation gates.
+
+**M3 is staging development, not a live business API or Cloudways deployment.**

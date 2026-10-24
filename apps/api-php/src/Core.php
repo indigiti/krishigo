@@ -84,3 +84,17 @@ function kg_fixture(string $key): never {
     if (!isset($payload[$key]) || !is_array($payload[$key])) kg_json(500, ['error' => 'fixture_not_found']);
     kg_json(200, $payload[$key], ['X-KrishiGo-Data' => 'fictional-demo', 'Cache-Control' => 'public, max-age=60']);
 }
+
+/** Allowlisted, read-only fixture detail lookup; never takes a filesystem path from a request. */
+function kg_fixture_record(string $key, int $recordId): never {
+    $path = dirname(__DIR__) . '/fixtures/catalog.json';
+    $catalog = json_decode((string)file_get_contents($path), true, 16, JSON_THROW_ON_ERROR);
+    foreach (($catalog[$key] ?? []) as $entry) {
+        if (is_array($entry) && ($entry['id'] ?? null) === $recordId) {
+            kg_json(200, $entry + ['demo' => true], [
+                'X-KrishiGo-Data' => 'fictional-demo', 'Cache-Control' => 'public, max-age=60'
+            ]);
+        }
+    }
+    kg_json(404, ['error' => 'listing_not_found']);
+}

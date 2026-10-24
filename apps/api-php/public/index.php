@@ -36,6 +36,18 @@ if (in_array($method, ['GET','HEAD'], true)) {
         '/api/v1/modules' => 'modules',
     ];
     if (isset($fixtures[$path])) kg_fixture($fixtures[$path]);
+    if (preg_match('~^/api/v1/marketplace/listings/([1-9][0-9]{0,8})$~D', $path, $matches) === 1) {
+        kg_fixture_record('listings', (int)$matches[1]);
+    }
+    if ($path === '/api/v1/admin/review-cases') {
+        kg_require_roles(['editor','admin']);
+        kg_json(200, ['demo' => true, 'writes_enabled' => false, 'items' => [
+            ['id' => 'RV-101', 'type' => 'profile', 'status' => 'sample_pending', 'reason' => 'Sample seller identity evidence required'],
+            ['id' => 'RV-102', 'type' => 'listing', 'status' => 'sample_pending', 'reason' => 'Sample produce quantity documentation required'],
+            ['id' => 'RV-103', 'type' => 'content', 'status' => 'sample_pending', 'reason' => 'Sample crop advice pending expert review'],
+        ]], ['Cache-Control' => 'private, no-store']);
+    }
+
     if ($path === '/api/v1/auth/csrf') {
         kg_json(200, ['csrf_token' => kg_csrf_token(), 'staging_only' => true]);
     }
@@ -84,7 +96,7 @@ if ($method === 'POST' && $path === '/api/v1/auth/logout') {
     kg_json(200, ['ok' => true]);
 }
 // No real marketplace writes, moderation decisions, user registration, uploads, or diagnoses.
-$protected = ['/api/v1/marketplace/listings', '/api/v1/community/posts', '/api/v1/buyers/requirements', '/api/v1/services', '/api/v1/plant-cases', '/api/v1/admin/moderation'];
+$protected = ['/api/v1/marketplace/listings', '/api/v1/community/posts', '/api/v1/buyers/requirements', '/api/v1/services', '/api/v1/plant-cases', '/api/v1/admin/moderation', '/api/v1/admin/review-cases', '/api/v1/onboarding', '/api/v1/enquiries'];
 if (in_array($path, $protected, true) && in_array($method, ['POST','PUT','PATCH','DELETE'], true)) {
     kg_json(501, ['error' => 'writes_disabled_in_staging']);
 }
