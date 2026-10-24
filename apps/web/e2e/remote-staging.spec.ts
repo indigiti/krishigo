@@ -1,5 +1,6 @@
 import {expect,test} from '@playwright/test';
 test('Cloudways staging page captures actual server and browser performance timings',async({page},info)=>{
+ test.skip(process.env.KG_REMOTE_STAGE!=='1','Remote acceptance only, not a local mock performance check');
  await page.addInitScript(()=>{
   const summary:{lcp:number,cls:number}={lcp:0,cls:0};
   (window as typeof window & {__perfSummary?:typeof summary}).__perfSummary=summary;
