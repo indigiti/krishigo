@@ -92,7 +92,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Lint PHP test API
-        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Queue.php && php -l apps/api-php/src/Json/Api.php
+        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Queue.php && php -l apps/api-php/src/Json/ModuleDrafts.php && php -l apps/api-php/src/Json/Api.php
       - name: Exercise PHP HTTP contracts
         run: python3 apps/api-php/tests/integration.py -v && python3 apps/api-php/tests/test_mode_boundary.py -v && python3 apps/api-php/tests/json_modules_integration.py -v && python3 apps/api-php/tests/json_workflows_integration.py -v && python3 apps/api-php/tests/json_store_concurrency.py -v
 

@@ -110,6 +110,17 @@ class ServerCase(unittest.TestCase):
   code,queue=self.call('GET',base+'/jobs');self.assertEqual(code,200)
   self.assertTrue(queue['health']['recovered'])
   # Fixture controls and the public feed remain separate.
+  # All 25 modules expose independent, private opt-in JSON test-draft contracts.
+  for module in range(1,26):
+   uri=base+f'/module-drafts/{module}'
+   code,draft=self.call('POST',uri,{'title':f'Module {module} test','note':'Fictional record, no service activated'},csrf,'module-'+secrets.token_hex(12))
+   self.assertEqual(code,201,f'module {module}: {draft}')
+   self.assertTrue(draft['private'])
+   code,own=self.call('GET',uri);self.assertEqual(code,200)
+   self.assertEqual(len(own['items']),1)
+   self.assertEqual(own['items'][0]['fields']['title'],f'Module {module} test')
+  code,_=self.call('POST',base+'/module-drafts/26',{'title':'test','note':'sample'},csrf,'module-'+secrets.token_hex(12))
+  self.assertEqual(code,404)
   # Recovery is scoped to the affected domain. Never recreate from scratch after corruption.
   store=Path(self.tmp.name)
   (store/'workflow-marketplace-state.json').write_text('{corrupted')
@@ -118,6 +129,7 @@ class ServerCase(unittest.TestCase):
   code,config=self.call('GET','/api/v1/admin/module-controls');self.assertEqual(code,200)
   code,_=self.call('POST','/api/v1/admin/module-controls/2',
    {'enabled':False,'expected_revision':config['revision']},csrf);self.assertEqual(code,200)
+  code,_=self.call('GET',base+'/module-drafts/2');self.assertEqual(code,404)
   code,_=self.call('GET',base+'/records/marketplace');self.assertEqual(code,404)
   code,_=self.call('POST',base+'/records/marketplace',SAMPLES['marketplace'],csrf,'blocked-'+secrets.token_hex(9));self.assertEqual(code,404)
   code,config=self.call('GET','/api/v1/admin/module-controls');self.assertEqual(code,200)
