@@ -40,7 +40,7 @@ test('shared module configuration controls dashboard and public navigation',asyn
  await page.getByLabel('Password').fill('testing-only');
  await page.getByRole('button',{name:'Sign in to shared controls'}).click();
  await expect(page.getByRole('heading',{name:'Farmer Community'})).toBeVisible();
- await page.getByRole('checkbox',{name:'Farmer Community shared module enabled'}).uncheck();
+ await page.getByRole('checkbox',{name:'Farmer Community shared module enabled'}).click();
  await expect(page.getByRole('checkbox',{name:'Farmer Community shared module enabled'})).not.toBeChecked();
  await expect(page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Community',exact:true})).toHaveCount(0);
  expect(requests.some(x=>x.path==='/admin/module-controls/4'&&x.body?.expected_revision==='a'.repeat(64))).toBe(true);
