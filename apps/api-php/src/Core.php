@@ -55,7 +55,9 @@ function kg_json_input(int $max = 2048): array {
     if (!is_string($raw) || strlen($raw) > $max) kg_json(413, ['error' => 'body_too_large']);
     try { $data = json_decode($raw, true, 8, JSON_THROW_ON_ERROR); }
     catch (JsonException $e) { kg_json(400, ['error' => 'invalid_json']); }
-    if (!is_array($data) || array_is_list($data)) kg_json(422, ['error' => 'object_required']);
+    // json_decode(..., true) maps both {} and [] to []; accept an empty JSON
+    // object but continue rejecting an array as the request body's root.
+    if (!is_array($data) || (array_is_list($data) && preg_match('/^\\{\\s*\\}$/D', trim($raw)) !== 1)) kg_json(422, ['error' => 'object_required']);
     return $data;
 }
 function kg_stage_auth_enabled(): bool {
