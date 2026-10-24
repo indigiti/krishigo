@@ -66,22 +66,43 @@ final class Registry {
   try{if(!flock($fp,LOCK_EX))throw new RuntimeException('LOCK_UNAVAILABLE');return $fn();}
   finally{flock($fp,LOCK_UN);fclose($fp);}
  }
+ private function revision(array $flags):string{
+  return hash('sha256',json_encode(['schema'=>1,'flags'=>$flags],JSON_THROW_ON_ERROR));
+ }
+ private function assertRevision(array $flags,?string $expected):void{
+  if($expected!==null && !hash_equals($this->revision($flags),$expected))throw new RuntimeException('MODULE_VERSION_CONFLICT');
+ }
  public function snapshot():array{return $this->locked(function(){
-  $state=$this->state();return ['schema'=>1,'modules'=>array_map(fn($m)=>[...$m,'enabled'=>$state['flags'][$m['id']]],array_values($this->entries)), 'configured'=>$state['configured'],'recovered'=>$state['recovered'],'database'=>'none'];
+  $state=$this->state();$flags=$state['flags'];$enabled=count(array_filter($flags));
+  return ['schema'=>1,'revision'=>$this->revision($flags),'modules'=>array_map(fn($m)=>[...$m,'enabled'=>$flags[$m['id']]],array_values($this->entries)), 'enabled_count'=>$enabled,'disabled_count'=>count($flags)-$enabled,'configured'=>$state['configured'],'recovered'=>$state['recovered'],'database'=>'none'];
  });}
- public function update(int $id,bool $on):array{
+ public function update(int $id,bool $on,?string $expectedRevision=null):array{
   if(!$this->configured())throw new RuntimeException('STORE_NOT_CONFIGURED');
-  return $this->locked(function()use($id,$on){
+  return $this->locked(function()use($id,$on,$expectedRevision){
    if(!isset($this->entries[$id]))throw new RuntimeException('MODULE_UNKNOWN');
-   $state=$this->state();$flags=$state['flags'];
+   $state=$this->state();$flags=$state['flags'];$this->assertRevision($flags,$expectedRevision);$previous=$flags;
    if($on){foreach($this->entries[$id]['dependencies'] as $d)if(!$flags[$d])throw new RuntimeException('DEPENDENCY_REQUIRED');$flags[$id]=true;}
    else{$flags[$id]=false;do{$repeat=false;foreach($this->entries as $key=>$m)if($flags[$key]&&count(array_filter($m['dependencies'],fn($d)=>!$flags[$d]))){$flags[$key]=false;$repeat=true;}}while($repeat);}
-   $this->write('state',$flags);$this->write('last-good',$flags);
-   return ['ok'=>true,'flags'=>$flags];
+   $this->write('previous',$previous);$this->write('state',$flags);$this->write('last-good',$flags);
+   return ['ok'=>true,'flags'=>$flags,'revision'=>$this->revision($flags)];
   });
  }
- public function reset():array{
+ public function reset(?string $expectedRevision=null):array{
   if(!$this->configured())throw new RuntimeException('STORE_NOT_CONFIGURED');
-  return $this->locked(function(){$this->state();$flags=$this->defaults();$this->write('state',$flags);$this->write('last-good',$flags);return ['ok'=>true,'restored'=>true];});
+  return $this->locked(function()use($expectedRevision){$current=$this->state()['flags'];$this->assertRevision($current,$expectedRevision);$flags=$this->defaults();$this->write('previous',$current);$this->write('state',$flags);$this->write('last-good',$flags);return ['ok'=>true,'restored'=>true,'revision'=>$this->revision($flags)];});
+ }
+ /**
+  * One-step rollback only; previous must be valid, and stale operators cannot overwrite
+  * a newer state. This is configuration recovery, never business-operation replay.
+  */
+ public function rollback(?string $expectedRevision=null):array{
+  if(!$this->configured())throw new RuntimeException('STORE_NOT_CONFIGURED');
+  return $this->locked(function()use($expectedRevision){
+   $current=$this->state()['flags'];$this->assertRevision($current,$expectedRevision);
+   $previous=$this->read('previous');
+   if($previous===null)throw new RuntimeException('ROLLBACK_UNAVAILABLE');
+   $this->write('state',$previous);$this->write('last-good',$previous);$this->write('previous',$current);
+   return ['ok'=>true,'rolled_back'=>true,'revision'=>$this->revision($previous)];
+  });
  }
 }

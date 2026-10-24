@@ -98,3 +98,28 @@ test('M7 multi-layer workflow boundary isolates business rules from React and ne
  assert.match(app,/lazy\(\(\) => import/);
  assert.match(app,/Workflow Hub/);
 });
+
+const remoteConsole=read('../src/features/SharedModuleControlPanel.tsx');
+const moduleConsole=read('../src/features/ModuleControlPanel.tsx');
+test('M10 shared JSON controls are opt-in and use same-origin sessions',()=>{
+ assert.match(moduleConsole,/VITE_MODULE_CONTROL_MODE==='api'/);
+ assert.match(remoteConsole,/credentials:'same-origin'/);
+ assert.match(remoteConsole,/url.origin!==window.location.origin/);
+ assert.doesNotMatch(remoteConsole,/localStorage|sessionStorage|indexedDB/);
+});
+test('M10 shared control mutations use optimistic revisions and are never silently retried',()=>{
+ assert.match(remoteConsole,/expected_revision:snapshot.revision/);
+ assert.match(remoteConsole,/module_state_conflict/);
+ assert.match(remoteConsole,/admin\/module-controls\/rollback/);
+ assert.doesNotMatch(remoteConsole,/setInterval|setTimeout\(/);
+});
+
+const flagsStore=read('../src/infrastructure/modulePreferences.ts');
+test('M10 shared registry public view fails closed and only refreshes on demand or focus',()=>{
+ assert.match(flagsStore,/flags:ModuleFlags=SHARED\?disabled:defaultFlags/);
+ assert.match(flagsStore,/url.origin!==window.location.origin/);
+ assert.match(flagsStore,/doc.configured!==true/);
+ assert.match(flagsStore,/flags=disabled;lastError=/);
+ assert.match(flagsStore,/server_managed_registry/);
+ assert.match(flagsStore,/visibilitychange/);
+});
