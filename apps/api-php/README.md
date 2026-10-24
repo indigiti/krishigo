@@ -52,3 +52,34 @@ python3 tests/production_integration.py -v
 
 
 M9: Optional JSON-backed module control. See docs/M9_JSON_MODULE_CONTROL.md. Requires private configured storage and authenticated stage administrator. No database.
+
+## M11: Private JSON workflow adapters (opt-in, staging ONLY)
+
+The optional `KRISHIGO_JSON_WORKFLOWS=enabled` staging service uses a preexisting private
+`KRISHIGO_JSON_STORE_DIR`, the existing staging session, and module registry. It is NOT
+included in static DigiOps artifacts. No MySQL or database installation is required.
+
+Six fictional domains: `marketplace`, `buyers`, `community`, `plant`,
+`services`, `editorial`. Each has a domain-specific allowlisted field schema.
+No contact with sellers, buyers or experts; no real publication, moderation, AI
+diagnosis, payment or notification. The single configured staging login is not
+real multi-user identity.
+
+- `GET /api/v1/staging/records/{domain}` — reviewed demo records only; `?mine=1`
+  requires a session and returns only that stage login's drafts.
+- `POST /api/v1/staging/records/{domain}` — allowed stage roles, CSRF and a
+  16–64-character `Idempotency-Key` header. Creates a pending-demo draft.
+- `GET /api/v1/staging/admin/records/{domain}` — editor/admin pending review
+  queue, excluding private Plant Care notes.
+- `POST /api/v1/staging/admin/records/{domain}/{id}/review` — editor/admin
+  approve/reject simulation; never publishes to external systems.
+- `GET /api/v1/staging/workflows/health` — editor/admin read-only domain counts
+  and recovery flags; no personal record contents.
+
+The `plant` collection is private and cannot be publicly listed or moderated
+through the sample publishing workflow. All routes enforce module activation.
+Bounded JSON documents (500 entries/domain, <=900 KiB), locked writes,
+atomic state replacement, validated last-good recovery, and request-idempotency
+protect staging correctness. If primary and backup fail validation, the affected
+domain fails closed with HTTP 503 rather than resetting. The session-level write
+cap is 60 changes per 15 minutes and is **not** production abuse protection.
