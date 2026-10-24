@@ -22,7 +22,7 @@ export default function ConnectedModuleDrafts({moduleId}:{moduleId:number}){
  useEffect(()=>{let active=true;(async()=>{
   try{await jsonStagingClient.initialize();
    const session=await jsonStagingClient.identity();
-   if(active){setIdentity(session.identity);await refresh(moduleId);}
+   if(active){setIdentity(session.identity);if(session.identity)await refresh(moduleId);}
   }catch(e){if(active)setError(message(e));}
   finally{if(active)setReady(true);}
  })();return()=>{active=false;};
