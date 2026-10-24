@@ -76,7 +76,7 @@ const studio = read('../src/features/ModuleStudio.tsx');
 test('M6 all 25 planned modules have a tailored interactive demo workspace', () => {
   const specs = studio.match(/\s\d+:{eyebrow:/g) || [];
   assert.equal(specs.length, 25);
-  for (const token of ['studioSpecs','function ModuleStudio','setDrafts','setSaved','setChecks','onBack','No AI diagnosis','No server requests']) assert.ok(studio.includes(token), token);
+  for (const token of ['studioSpecs','function ModuleStudio','moduleDrafts','setSaved','setChecks','onBack','No AI diagnosis','No server requests']) assert.ok(studio.includes(token), token);
   assert.match(workspaces, /setModuleId\(m.id\)/);
   assert.match(workspaces, /<ModuleStudio/);
 });
@@ -85,4 +85,16 @@ test('M6 module actions remain local with no network mutations or browser persis
   assert.match(studio, /No database/);
   assert.match(studio, /No verified data/);
   assert.match(studio, /Number\(price\)-Number\(transport\)\/Number\(quantity\)/);
+});
+
+const workflowUI = read('../src/features/WorkflowHub.tsx');
+const workflowEngine = read('../src/application/workflowEngine.ts');
+const workflowAdapter = read('../src/infrastructure/memoryWorkflowStore.ts');
+test('M7 multi-layer workflow boundary isolates business rules from React and network I/O',()=>{
+ for(const symbol of ['lot/create','enquiry/draft','plant/referral-draft','discussion/flag','module/create'])assert.ok(workflowEngine.includes(symbol));
+ assert.doesNotMatch(workflowEngine,/fetch\(|localStorage|sessionStorage|indexedDB/);
+ assert.match(workflowAdapter,/useSyncExternalStore/);
+ assert.match(workflowUI,/Unsent \u00b7 draft only/);
+ assert.match(app,/lazy\(\(\) => import/);
+ assert.match(app,/Workflow Hub/);
 });

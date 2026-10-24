@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const pages = ['Overview', 'Plant Doctor', 'Marketplace', 'Community', 'Insights', 'Buyers', 'Services', 'Crop Journal', 'Discover', 'Admin', 'My Profile', 'Plant Cases', 'Onboarding', 'Trade Desk', 'Review Desk'];
+const pages = ['Overview', 'Plant Doctor', 'Marketplace', 'Community', 'Insights', 'Buyers', 'Services', 'Crop Journal', 'Discover', 'Admin', 'My Profile', 'Plant Cases', 'Onboarding', 'Trade Desk', 'Review Desk', 'Workflow Hub'];
 
 test('staging shows fiction disclaimer and usable navigation', async ({ page }, testInfo) => {
   const consoleErrors: string[] = [];
@@ -95,4 +95,32 @@ test('module draft is created only locally and can be removed', async ({ page })
   await expect(page.getByText('Harvest assistant')).toBeVisible();
   await page.getByRole('button', { name: 'Remove draft Harvest assistant' }).click();
   await expect(page.getByText('No drafts yet.')).toBeVisible();
+});
+
+
+test('M7 workflow hub validates and stages a buyer enquiry without any network writes',async ({page})=>{
+ const badRequests:string[]=[];
+ page.on('request',r=>{if(r.method()!=='GET')badRequests.push(r.method()+' '+r.url());});
+ await page.goto('/krishigo/');
+ if((await page.getByRole('button',{name:'Open menu'}).isVisible().catch(()=>false)))await page.getByRole('button',{name:'Open menu'}).click();
+ await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Workflow Hub'}).click();
+ await expect(page.getByText('One farm. Connected workflows.')).toBeVisible();
+ const forms=page.locator('.workflow-panel form');
+ await forms.nth(0).getByLabel('Crop').fill('Tomato');
+ await forms.nth(0).getByLabel('District').fill('Pune');
+ await forms.nth(0).getByLabel('Quantity (quintals)').fill('20');
+ await forms.nth(0).getByLabel('Rate (₹/quintal)').fill('1500');
+ await forms.nth(0).getByRole('button',{name:/Create local lot/}).click();
+ await forms.nth(1).getByLabel('Crop').fill('Tomato');
+ await forms.nth(1).getByLabel('Destination district').fill('Satara');
+ await forms.nth(1).getByLabel('Quantity required (quintals)').fill('12');
+ await forms.nth(1).getByRole('button',{name:/Create buyer draft/}).click();
+ await page.getByRole('button',{name:'Request demo review'}).click();
+ await page.getByRole('button',{name:'Mark reviewed (demo)'}).click();
+ await forms.nth(2).getByLabel('Sample-reviewed produce lot').selectOption({index:1});
+ await forms.nth(2).getByLabel('Buyer requirement').selectOption({index:1});
+ await forms.nth(2).getByLabel('Enquiry quantity (quintals)').fill('10');
+ await forms.nth(2).getByRole('button',{name:/Prepare unsent enquiry/}).click();
+ await expect(page.getByText('Unsent · draft only')).toBeVisible();
+ expect(badRequests).toEqual([]);
 });

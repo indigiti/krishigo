@@ -1,10 +1,11 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowRight, Bookmark, CheckCircle2, ClipboardList, Filter, Info, Plus, Search, Trash2, Leaf, ShieldAlert, Calculator, RotateCcw } from 'lucide-react';
 import { scopeModules } from '../data/expanded';
+import { WorkflowValidationError } from '../domain/workflow.ts';
+import { demoWorkflowRepository, useDemoWorkflows } from '../infrastructure/memoryWorkflowStore.ts';
 
 type Field = { label: string; placeholder: string; type?: 'number'|'date'|'text'; required?: boolean };
 type Spec = { eyebrow: string; intro: string; action: string; fields: Field[]; examples: [string,string,string][]; checklist: string[]; caution?: string };
-type Draft = { id: number; title: string; detail: string; district: string; note: string };
 const f=(label:string,placeholder:string,type:'number'|'date'|'text'='text'):Field=>({label,placeholder,type,required:true});
 
 /** Every entry is deliberately fictional. Nothing below is published, verified, traded or diagnosed. */
@@ -42,7 +43,8 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
  const [mode,setMode]=useState<'explore'|'drafts'|'checklist'>('explore');
  const [filter,setFilter]=useState('');
  const [saved,setSaved]=useState<number[]>([]);
- const [drafts,setDrafts]=useState<Draft[]>([]);
+ const globalDrafts=useDemoWorkflows();
+ const drafts=globalDrafts.moduleDrafts.filter(item=>item.moduleId===moduleId);
  const [notice,setNotice]=useState('');
  const [price,setPrice]=useState('2000');
  const [quantity,setQuantity]=useState('10');
@@ -57,8 +59,10 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
    if(parts.some(x=>!x)){setNotice('Complete all required fields before saving.');return;}
    const district=String(data.get('location')||'').trim().slice(0,80);
    const note=String(data.get('note')||'').trim().slice(0,600);
-   setDrafts(prev=>[{id:Date.now(),title:parts[0],detail:parts.slice(1).join(' · '),district,note},...prev]);
-   event.currentTarget.reset();setNotice('Saved to this screen only. No server requests or real-world actions occurred.');setMode('drafts');
+   try {
+     demoWorkflowRepository.execute({type:'module/create',moduleId,title:parts[0],detail:parts.slice(1).join(' · '),district,note});
+     event.currentTarget.reset();setNotice('Draft saved in this browser tab only. No server requests or real-world actions occurred.');setMode('drafts');
+   } catch(error){setNotice(error instanceof WorkflowValidationError?error.message:'Unable to save this demo draft.');}
  };
  const result=(Number(price)-Number(transport)/Number(quantity));
  return <div className="studio-shell">
@@ -76,7 +80,7 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
       <button type="button" className="btn btn-primary studio-cta" onClick={()=>setMode('drafts')}>Open {spec.action.toLowerCase()} <ArrowRight size={17}/></button>
     </>}
     {mode==='drafts'&&<div className="studio-columns"><form className="surface-card studio-form" onSubmit={submit}><div className="section-eyebrow">PRIVATE PREVIEW · NEVER SENT</div><h3>{spec.action}</h3>{spec.fields.map((field,i)=><label key={`${moduleId}-${i}`}>{field.label}<input name={`field-${i}`} type={field.type||'text'} maxLength={field.type==='text'?140:undefined} min={field.type==='number'?'0.01':undefined} step={field.type==='number'?'any':undefined} placeholder={field.placeholder} required={field.required}/></label>)}<label>Location (optional)<input name="location" maxLength={80} placeholder="e.g. Pune"/></label><label>Notes (optional)<textarea name="note" rows={3} maxLength={600} placeholder="Helpful context for this demo draft"/></label><button type="submit" className="btn btn-primary"><Plus size={17}/> Save local draft</button>{spec.caution&&<p className="studio-caution"><Info size={16}/>{spec.caution}</p>}</form>
-      <section className="surface-card studio-drafts"><div className="section-eyebrow">IN-MEMORY RECORDS</div><h3>{drafts.length} demo draft{drafts.length===1?'':'s'}</h3><p>These drafts are not linked to an account and vanish when the page reloads or module closes.</p>{notice&&<div className="workspace-notice" role="status"><CheckCircle2 size={16}/>{notice}</div>}{drafts.length===0?<div className="studio-empty"><ClipboardList size={30}/><p>No drafts yet. Use the form to explore the workflow.</p></div>:drafts.map(item=><article key={item.id} className="studio-draft-row"><div><strong>{item.title}</strong><small>{item.detail}</small>{item.district&&<small>{item.district}</small>}{item.note&&<p>{item.note}</p>}</div><button type="button" title="Remove draft" aria-label={`Remove draft ${item.title}`} onClick={()=>setDrafts(old=>old.filter(d=>d.id!==item.id))}><Trash2 size={18}/></button></article>)}</section></div>}
+      <section className="surface-card studio-drafts"><div className="section-eyebrow">IN-MEMORY RECORDS</div><h3>{drafts.length} demo draft{drafts.length===1?'':'s'}</h3><p>Drafts remain available while navigating modules in this tab, but vanish on reload. No account or server storage is used.</p>{notice&&<div className="workspace-notice" role="status"><CheckCircle2 size={16}/>{notice}</div>}{drafts.length===0?<div className="studio-empty"><ClipboardList size={30}/><p>No drafts yet. Use the form to explore the workflow.</p></div>:drafts.map(item=><article key={item.id} className="studio-draft-row"><div><strong>{item.title}</strong><small>{item.detail}</small>{item.district&&<small>{item.district}</small>}{item.note&&<p>{item.note}</p>}</div><button type="button" title="Remove draft" aria-label={`Remove draft ${item.title}`} onClick={()=>demoWorkflowRepository.execute({type:'module/remove',id:item.id})}><Trash2 size={18}/></button></article>)}</section></div>}
     {mode==='checklist'&&<section className="surface-card studio-checklist"><div className="section-eyebrow">SAFETY & DATA READINESS</div><h3>Before this module goes live</h3><p>Review each requirement. Your selections are temporary and do not certify anything.</p>{spec.checklist.map((item,i)=><label key={i}><input type="checkbox" checked={checks.includes(i)} onChange={event=>setChecks(prev=>event.target.checked?[...prev,i]:prev.filter(v=>v!==i))}/>{item}</label>)}<div className="studio-completion"><CheckCircle2 size={17}/>{checks.length} of {spec.checklist.length} reviewed in this session <button type="button" onClick={()=>setChecks([])}><RotateCcw size={14}/> Reset</button></div>{spec.caution&&<p className="studio-caution"><Info size={16}/>{spec.caution}</p>}</section>}
   </div>;
 }
