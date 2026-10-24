@@ -4,7 +4,7 @@ Status: **code implemented as an opt-in production candidate; not deployed or ap
 
 ## Separation and purpose
 
-The existing React web app is still compiled with `VITE_DATA_MODE=mock` for DigiOps. The entire PHP production service is excluded from that static release. `VITE_DATA_MODE=api` enables the isolated **Connected Operations** React workspace and a same-origin PHP backend (provided separately). Current demo modules remain demos even when API mode is on; they are not represented as live trading experiences.
+The existing React web app is still compiled with `VITE_DATA_MODE=mock` for DigiOps. The entire PHP production service is excluded from that static release. `VITE_DATA_MODE=api` enables the isolated **Connected Operations** React workspace and a same-origin PHP backend (provided separately). Current demo modules remain mock-fixture powered even when API mode is on, preserving their original data contracts and visible DEMO labels; only Connected Operations accesses the new API.
 
 ### Four backend layers
 

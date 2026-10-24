@@ -83,7 +83,7 @@ function GrowthChart({ compact = false }: { compact?: boolean }) {
     <div className="chart-labels">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => <span key={x}>{x}</span>)}</div>
   </div>;
 }
-const DemoPill = () => isDemo ? <span className="demo-pill"><span/> DEMO DATA</span> : null;
+const DemoPill = () => <span className="demo-pill"><span/> DEMO DATA</span>;
 function App() {
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');

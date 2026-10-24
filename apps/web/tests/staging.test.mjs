@@ -8,13 +8,13 @@ const extras = read('../src/data/expanded.ts');
 const workspaces = read('../src/features/Workspaces.tsx');
 test('staging defaults to the no-database mock provider', () => {
   assert.match(provider, /import\.meta\.env\.VITE_DATA_MODE !== 'api'/);
-  assert.match(provider, /isDemo \? mockSource : apiSource/);
+  assert.match(provider, /dataSource: KrishiGoDataSource = mockSource/);
   assert.match(provider, /structuredClone\(buyerRequirements\)/);
 });
-test('production endpoints are isolated in one adapter', () => {
-  assert.match(provider, /\/buyers\/requirements/);
-  assert.match(provider, /\/community\/posts/);
-  assert.match(provider, /\/services/);
+test('production endpoint client is separate from mock UI data provider', () => {
+  const client = read('../src/infrastructure/productionApiClient.ts');
+  for(const path of ['buyers/requirements','community/posts','marketplace/listings']) assert.ok(client.includes(path));
+  assert.doesNotMatch(provider, /fetch\(/);
 });
 test('core workspace screens have actual demo workflows', () => {
   for (const p of ['Buyers','Services','Discover','Crop Journal','Admin']) assert.ok(app.includes(p), p);
