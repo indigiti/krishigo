@@ -25,7 +25,7 @@ class Concurrency(unittest.TestCase):
    self.assertTrue(all(o['created'] for o in outputs))
    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
     replay=list(pool.map(lambda _:run(root,keys[0]),range(4)))
-   self.assertEqual({o['item']['id'] for o in replay},{1})
+   self.assertEqual({o['item']['id'] for o in replay},{outputs[0]['item']['id']})
    self.assertTrue(all(not o['created'] for o in replay))
    data=json.loads((root/'workflow-marketplace-state.json').read_text())
    self.assertEqual(data['next_id'],19)
