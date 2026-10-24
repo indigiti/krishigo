@@ -27,6 +27,14 @@ if (kg_env('KRISHIGO_API_MODE') === 'production') {
     \KrishiGo\Production\Api::dispatch($method, $path);
 }
 
+// All 25 modules have private staging-draft contracts (not live integration).
+if (str_starts_with($path,'/api/v1/staging/module-drafts/')) {
+    require_once dirname(__DIR__).'/src/Modules/Registry.php';
+    require_once dirname(__DIR__).'/src/Json/Store.php';
+    require_once dirname(__DIR__).'/src/Json/ModuleDrafts.php';
+    \KrishiGo\Json\ModuleDrafts::dispatch($method,$path);
+}
+
 // Staging-only JSON-backed drafts; the default mode exposes no new write routes.
 if (str_starts_with($path, '/api/v1/staging/records/') ||
     str_starts_with($path, '/api/v1/staging/admin/records/') ||
