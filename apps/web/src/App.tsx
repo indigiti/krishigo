@@ -10,8 +10,9 @@ import {
 import { type Listing, type CommunityPost, mandiMarkets } from './data/demo';
 import { dataSource, isDemo } from './services/dataSource';
 import Workspaces from './features/Workspaces';
+import { FarmerOnboarding, TradeDesk, ReviewDesk } from './features/TradeWorkflows';
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -25,7 +26,10 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Discover', icon: LayoutGrid, desc: 'All 25 modules' },
   { label: 'Admin', icon: BookOpen, desc: 'Operations preview' },
   { label: 'My Profile', icon: UserRound, desc: 'Role previews' },
-  { label: 'Plant Cases', icon: FileHeart, desc: 'Crop symptom journal' }
+  { label: 'Plant Cases', icon: FileHeart, desc: 'Crop symptom journal' },
+  { label: 'Onboarding', icon: UserRound, desc: 'New member journey' },
+  { label: 'Trade Desk', icon: ShoppingBag, desc: 'Listing and enquiry details' },
+  { label: 'Review Desk', icon: ShieldCheck, desc: 'Moderation demo' }
 ];
 const formatToday = () => new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 function PlantArtwork({ small = false }: { small?: boolean }) {
@@ -81,6 +85,7 @@ function App() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [q, setQ] = useState('');
   const [marketCategory, setMarketCategory] = useState('All');
+  const [tradeListingId, setTradeListingId] = useState<number | null>(null);
   const [saved, setSaved] = useState<number[]>([]);
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [allPosts, setAllPosts] = useState<CommunityPost[]>([]);
@@ -168,7 +173,7 @@ function App() {
           {listingFeedback && <div role="status" className="workspace-notice"><CheckCircle2 size={18}/>{listingFeedback}</div>}
           <section className="market-banner"><div><div className="section-eyebrow">FARM TO MARKET, CONNECTED</div><h2>Good harvests deserve<br/>great opportunities.</h2><p>Find the right buyers and services for your farming journey.</p></div><div className="market-art"><div className="market-emoji">🌽</div><div className="market-bubble">Fresh possibilities <ArrowUpRight size={16}/></div></div></section>
           <div className="filterbar"><div className="category-pills">{['All','Produce','Equipment','Services','Saved'].map(c => <button key={c} className={marketCategory===c?'active':''} onClick={() => setMarketCategory(c)}>{c}</button>)}</div><span className="filter-count"><SlidersHorizontal size={17}/> {marketCategory==='Saved'?saved.length:searchMatches.length} listings</span></div>
-          <div className="product-grid">{allListings.filter(l => (marketCategory==='All'||marketCategory==='Saved'||l.kind===marketCategory) && (marketCategory!=='Saved'||saved.includes(l.id)) && `${l.name} ${l.location} ${l.seller}`.toLowerCase().includes(q.toLowerCase())).map(l => <article className="product-card" key={l.id}><div className={`product-image ${l.tone}`}><span className="product-illustration">{l.icon}</span><span className="product-tag">{l.label}</span><button className={'save-button'+(saved.includes(l.id)?' is-saved':'')} onClick={() => toggleSaved(l.id)} title={saved.includes(l.id)?'Unsave listing':'Save listing'} aria-label={saved.includes(l.id)?'Unsave listing':'Save listing'}><Heart size={18} fill={saved.includes(l.id)?'currentColor':'none'}/></button></div><div className="product-detail"><div className="product-location"><MapPin size={14}/>{l.location}</div><h3>{l.name}</h3><div className="price-row"><strong>{l.price}</strong><small>{l.unit}</small></div><div className="product-bottom"><span>{l.quantity}</span><span className="seller-name">{l.verified && <ShieldCheck size={14}/>} {l.seller}</span></div><button className="contact-btn" onClick={() => alert(`Demo listing: ${l.name}. Buyer enquiries will become available when PHP authentication and messaging are connected.`)}>View opportunity <ArrowRight size={16}/></button></div></article>)}</div>
+          <div className="product-grid">{allListings.filter(l => (marketCategory==='All'||marketCategory==='Saved'||l.kind===marketCategory) && (marketCategory!=='Saved'||saved.includes(l.id)) && `${l.name} ${l.location} ${l.seller}`.toLowerCase().includes(q.toLowerCase())).map(l => <article className="product-card" key={l.id}><div className={`product-image ${l.tone}`}><span className="product-illustration">{l.icon}</span><span className="product-tag">{l.label}</span><button className={'save-button'+(saved.includes(l.id)?' is-saved':'')} onClick={() => toggleSaved(l.id)} title={saved.includes(l.id)?'Unsave listing':'Save listing'} aria-label={saved.includes(l.id)?'Unsave listing':'Save listing'}><Heart size={18} fill={saved.includes(l.id)?'currentColor':'none'}/></button></div><div className="product-detail"><div className="product-location"><MapPin size={14}/>{l.location}</div><h3>{l.name}</h3><div className="price-row"><strong>{l.price}</strong><small>{l.unit}</small></div><div className="product-bottom"><span>{l.quantity}</span><span className="seller-name">{l.verified && <ShieldCheck size={14}/>} {l.seller}</span></div><button className="contact-btn" onClick={() => { setTradeListingId(l.id); nav('Trade Desk'); }}>View opportunity <ArrowRight size={16}/></button></div></article>)}</div>
           {((marketCategory==='Saved' && !saved.length)||(!searchMatches.length && marketCategory!=='Saved')) && <div className="empty-message"><ShoppingBag size={36}/><h3>No matching listings</h3><p>Try another crop, region or listing category.</p><button className="btn btn-primary" onClick={() => { setMarketCategory('All'); setQ(''); }}>See all listings</button></div>}
           <p className="page-disclaimer"><Info size={15}/> All listings, sellers and prices are fictional UI sample records. No real purchases or enquiries can be made in staging.</p>
         </>}
@@ -182,6 +187,9 @@ function App() {
           <div className="insights-grid"><section className="surface-card insights-chart"><div className="section-head"><div><div className="section-eyebrow">COMMODITY OVERVIEW</div><h3>Market activity trends</h3><p>Example trend chart for UI evaluation</p></div><button className="subtle-select" onClick={() => setChartPeriod(chartPeriod==='7 days'?'30 days':'7 days')}>{chartPeriod}<ChevronDown size={16}/></button></div><div className="growth-legend"><span><i className="legend-mark"/> Sample price trend</span><strong>+5.4<span>%</span></strong></div><GrowthChart/></section><section className="surface-card insights-metrics"><div className="section-eyebrow">FIELD METRICS</div><h3>Environmental snapshot</h3><div className="metric-box lime"><span><Droplets size={20}/> Water oversight</span><strong>64<span>%</span></strong><small>Example moisture index</small></div><div className="metric-split"><div><Thermometer size={19}/><strong>28°</strong><small>Temperature</small></div><div><Activity size={19}/><strong>86%</strong><small>Crop health demo</small></div></div></section></div>
           <section className="surface-card market-table"><div className="section-head"><div><div className="section-eyebrow">MANDI EXPLORER</div><h3>Sample commodity prices</h3><p>Structured for future verified market feeds</p></div><span className="small-status"><span/> No live feed</span></div><div className="table-wrap"><table><thead><tr><th>Market</th><th>Commodity</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Change</th></tr></thead><tbody>{mandiMarkets.map(m => <tr key={m.market}><td><strong>{m.market}</strong></td><td>{m.crop}</td><td>{m.min}</td><td>{m.max}</td><td><strong>{m.avg}</strong></td><td><span className={m.trend.startsWith('+')?'positive':'negative'}>{m.trend}</span></td></tr>)}</tbody></table></div><p className="tiny-disclaimer">Prices, changes and charts on this screen are fictitious samples, not trading or agricultural advice.</p></section>
         </>}
+        {page === 'Onboarding' && <FarmerOnboarding/>}
+        {page === 'Trade Desk' && <TradeDesk initialListingId={tradeListingId}/> }
+        {page === 'Review Desk' && <ReviewDesk/>}
         {(['Buyers','Services','Discover','Crop Journal','Admin','My Profile','Plant Cases'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases') && <Workspaces key={page} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases'}/>}
         <footer className="footer"><div><Sprout size={16}/> KrishiGo <span>·</span> Designed for the next generation of farming</div><span>{isDemo ? 'Staging prototype · no database · sample information' : 'Connected application'}</span></footer>
       </main>

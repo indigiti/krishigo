@@ -42,3 +42,17 @@ test('M2 local crop case journal explicitly prohibits AI or upload claims', () =
   assert.match(profileSource,/image\/jpeg/);
   assert.match(app,/Plant Cases/);
 });
+
+const m3 = read('../src/features/TradeWorkflows.tsx');
+test('M3 provides real onboarding flow, listing detail and unsent enquiry drafts', () => {
+  for (const component of ['FarmerOnboarding','TradeDesk','ReviewDesk']) assert.ok(m3.includes(`function ${component}`), component);
+  assert.match(m3,/No seller was contacted/);
+  assert.match(m3,/not a real account/);
+  assert.match(m3,/not an authorized admin panel/);
+  assert.match(m3,/dataSource\.listings\(\)/);
+  assert.match(app,/nav\('Trade Desk'\)/);
+});
+test('M3 screens remain local simulations without a client-side write API', () => {
+  assert.doesNotMatch(m3,/fetch\(|localStorage|sessionStorage|indexedDB/);
+  for (const page of ['Onboarding','Trade Desk','Review Desk']) assert.ok(app.includes(`page === '${page}'`));
+});

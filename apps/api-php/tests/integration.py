@@ -67,6 +67,27 @@ class AppTests(unittest.TestCase):
         for path in ['/api/v1/marketplace/listings','/api/v1/plant-cases','/api/v1/admin/moderation']:
             status,body,_ = self.request('POST',path,{'title':'hi'})
             self.assertEqual(status,501);self.assertEqual(body['error'],'writes_disabled_in_staging')
+    def test_m3_listing_details_are_allowlisted(self):
+        status,body,headers = self.request('GET','/api/v1/marketplace/listings/1')
+        self.assertEqual(status,200)
+        self.assertEqual(body['id'],1)
+        self.assertTrue(body['demo'])
+        self.assertEqual({k.lower():v for k,v in headers.items()}.get('x-krishigo-data'),'fictional-demo')
+        for path in ['/api/v1/marketplace/listings/0','/api/v1/marketplace/listings/999','/api/v1/marketplace/listings/abc','/api/v1/marketplace/listings/1/other']:
+            status,_,_=self.request('GET',path)
+            self.assertEqual(status,404)
+    def test_m3_review_queue_requires_editor_and_all_writes_stay_off(self):
+        status,_,_=self.request('GET','/api/v1/admin/review-cases')
+        self.assertEqual(status,401)
+        _,body,_=self.request('GET','/api/v1/auth/csrf')
+        status,_,_=self.request('POST','/api/v1/auth/login',{'username':'test_editor','password':PASSWORD}, {'X-CSRF-Token':body['csrf_token']})
+        self.assertEqual(status,200)
+        status,body,_=self.request('GET','/api/v1/admin/review-cases')
+        self.assertEqual(status,200);self.assertTrue(body['demo']);self.assertFalse(body['writes_enabled'])
+        self.assertEqual(len(body['items']),3)
+        for path in ['/api/v1/onboarding','/api/v1/enquiries','/api/v1/admin/review-cases']:
+            status,body,_ = self.request('POST',path,{'demo':True})
+            self.assertEqual(status,501);self.assertEqual(body['error'],'writes_disabled_in_staging')
     def test_input_validation_and_origin(self):
         status,body,_ = self.request('GET','/api/v1/auth/csrf');csrf=body['csrf_token']
         status, _, _=self.request('POST','/api/v1/auth/login',{'username':'test_editor','password':PASSWORD},{'X-CSRF-Token':csrf,'Origin':'https://evil.example'})
