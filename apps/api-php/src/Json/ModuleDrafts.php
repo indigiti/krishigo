@@ -33,6 +33,15 @@ final class ModuleDrafts {
    if($method==='POST'){
     if(!$contract->authorized($module,$user['role']))\kg_json(403,['error'=>'role_forbidden']);
     \kg_check_csrf();
+    // Session-scoped staging throttle. Production abuse protection needs its own
+    // shared limiter and verified user identity.
+    \kg_begin_session();
+    $now=time();$since=(int)($_SESSION['module_draft_window']??$now);
+    $count=(int)($_SESSION['module_draft_count']??0);
+    if($now-$since>900){$since=$now;$count=0;}
+    if($count>=50)\kg_json(429,['error'=>'staging_draft_rate_limit']);
+    $_SESSION['module_draft_window']=$since;
+    $_SESSION['module_draft_count']=$count+1;
     $key=(string)($_SERVER['HTTP_IDEMPOTENCY_KEY']??'');
     if(!preg_match('/^[A-Za-z0-9_-]{16,64}$/D',$key))\kg_json(422,['error'=>'idempotency_key_required']);
     $input=\kg_json_input(2048);
