@@ -53,3 +53,46 @@ test('demo does not transmit any plant images or real buyer enquiries', async ({
   await expect(page.getByText('DEMO DATA').first()).toBeVisible();
   expect(methods).toEqual([]);
 });
+
+test('25 module catalogue opens specialized demo workflows without network writes', async ({ page }) => {
+  test.setTimeout(90_000);
+  const mutations: string[] = [];
+  page.on('request', request => { if (!['GET','HEAD'].includes(request.method())) mutations.push(request.method()+' '+request.url()); });
+  await page.goto('/krishigo/');
+  if (test.info().project.name.startsWith('mobile')) await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('button', { name: 'Discover' }).click();
+  const examples = [
+    { name: 'Mandi Prices', field: 'Commodity' },
+    { name: 'Government Schemes', field: 'Scheme name' },
+    { name: 'Machinery Marketplace', field: 'Equipment' },
+    { name: 'AI Farming Assistant', field: 'Crop' },
+    { name: 'Agriculture Jobs', field: 'Role' },
+    { name: 'Farmer Recognition', field: 'Story title' },
+  ];
+  for (const example of examples) {
+    await page.getByRole('button', { name: `Explore ${example.name}` }).click();
+    await expect(page.getByRole('heading', { name: example.name, exact: true })).toBeVisible();
+    await expect(page.getByText('Interactive demonstration only').first()).toBeVisible();
+    await page.getByRole('tab', { name: 'Create & drafts' }).click();
+    await expect(page.locator('.studio-form').getByText(example.field)).toBeVisible();
+    await page.getByRole('button', { name: 'All modules' }).click();
+  }
+  expect(mutations).toEqual([]);
+});
+
+test('module draft is created only locally and can be removed', async ({ page }) => {
+  await page.goto('/krishigo/');
+  if (test.info().project.name.startsWith('mobile')) await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('button', { name: 'Discover' }).click();
+  await page.getByRole('button', { name: 'Explore Agriculture Jobs' }).click();
+  await page.getByRole('tab', { name: 'Create & drafts' }).click();
+  const form = page.locator('.studio-form');
+  await form.locator('input[name="field-0"]').fill('Harvest assistant');
+  await form.locator('input[name="field-1"]').fill('Pune');
+  await form.locator('input[name="field-2"]').fill('3 days');
+  await form.getByRole('button', { name: 'Save local draft' }).click();
+  await expect(page.getByText('Saved to this screen only.')).toBeVisible();
+  await expect(page.getByText('Harvest assistant')).toBeVisible();
+  await page.getByRole('button', { name: 'Remove draft Harvest assistant' }).click();
+  await expect(page.getByText('No drafts yet.')).toBeVisible();
+});

@@ -71,3 +71,18 @@ test('M4 photo acceptance stays to supported raster formats', () => {
   assert.match(app, /image\/png/);
   assert.match(app, /image\/webp/);
 });
+
+const studio = read('../src/features/ModuleStudio.tsx');
+test('M6 all 25 planned modules have a tailored interactive demo workspace', () => {
+  const specs = studio.match(/\s\d+:{eyebrow:/g) || [];
+  assert.equal(specs.length, 25);
+  for (const token of ['studioSpecs','function ModuleStudio','setDrafts','setSaved','setChecks','onBack','No AI diagnosis','No server requests']) assert.ok(studio.includes(token), token);
+  assert.match(workspaces, /setModuleId\(m.id\)/);
+  assert.match(workspaces, /<ModuleStudio/);
+});
+test('M6 module actions remain local with no network mutations or browser persistence', () => {
+  assert.doesNotMatch(studio, /fetch\(|localStorage|sessionStorage|indexedDB|XMLHttpRequest/);
+  assert.match(studio, /No database/);
+  assert.match(studio, /No verified data/);
+  assert.match(studio, /Number\(price\)-Number\(transport\)\/Number\(quantity\)/);
+});

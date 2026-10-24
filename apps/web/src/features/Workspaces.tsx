@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, CheckCircle2, ClipboardList, Filter, Info, Leaf, 
 import { type BuyerRequirement, type ContentEntry, type FarmService, type ScopeModule } from '../data/expanded';
 import { dataSource } from '../services/dataSource';
 import { ProfileWorkspace, CasesWorkspace } from './IdentityCases';
+import { ModuleStudio } from './ModuleStudio';
 
 type Workspace = 'Buyers' | 'Services' | 'Discover' | 'Crop Journal' | 'Admin' | 'My Profile' | 'Plant Cases';
 type JournalEntry = { id: number; crop: string; observation: string; date: string };
@@ -49,14 +50,15 @@ function ServicesBoard() {
 function DiscoverBoard(){
   const [modules,setModules]=useState<ScopeModule[]>([]);const [content,setContent]=useState<ContentEntry[]>([]);const [filter,setFilter]=useState('All');const [phase,setPhase]=useState(0);
   useEffect(()=>{let active=true;Promise.all([dataSource.scopeModules(),dataSource.contentEntries()]).then(([m,c])=>{if(active){setModules(m);setContent(c);}}).catch(()=>{if(active){setModules([]);setContent([]);}});return()=>{active=false;};},[]);
-  const [selected,setSelected]=useState<number|null>(null);const chosen=content.find(c=>c.id===selected);
+  const [selected,setSelected]=useState<number|null>(null); const [moduleId,setModuleId]=useState<number|null>(null); const chosen=content.find(c=>c.id===selected);
   const groups=['All','Market','Plant Care','Circle','Insights','Learn','Services','Business'];
   const visible=modules.filter(m=>(filter==='All'||m.category===filter)&&(!phase||m.phase===phase));
+  if(moduleId!==null) return <ModuleStudio key={moduleId} moduleId={moduleId} onBack={()=>setModuleId(null)}/>;
   return <><SectionTitle eyebrow="KRISHIGO ECOSYSTEM" title="Everything agriculture. One place." copy="Explore all 25 planned modules, crop knowledge and the future services roadmap."/>
     <div className="surface-card content-library"><div className="section-head"><div><div className="section-eyebrow">EDITORIAL LIBRARY · DRAFTS</div><h3>Knowledge, news and schemes</h3></div><BookOpen size={20}/></div><div className="workspace-card-grid compact">{content.map(c=><button className="content-teaser" key={c.id} onClick={()=>setSelected(c.id)}><span>{c.kind}</span><strong>{c.title}</strong><small>{c.source}</small><ArrowRight size={15}/></button>)}</div>{chosen&&<div className="content-detail" role="region" aria-label="Sample content detail"><button className="text-arrow" onClick={()=>setSelected(null)}>Close ×</button><strong>{chosen.title}</strong><p>{chosen.summary}</p><small>{chosen.source} · {chosen.updated}</small></div>}</div>
     <div className="workspace-toolbar"><div className="category-pills workspace-pills">{groups.map(g=><button key={g} className={filter===g?'active':''} onClick={()=>setFilter(g)}>{g}</button>)}</div><label className="workspace-phase"><Filter size={16}/><select value={phase} onChange={e=>setPhase(Number(e.target.value))} aria-label="Filter development phase"><option value={0}>All phases</option><option value={1}>Phase 1</option><option value={2}>Phase 2</option><option value={3}>Phase 3</option></select></label></div>
-    <div className="workspace-card-grid compact">{visible.map(m=><article className="surface-card scope-tile" key={m.id}><div className="section-eyebrow">MODULE {String(m.id).padStart(2,'0')} · PHASE {m.phase}</div><h3>{m.name}</h3><p>{m.summary}</p><span className="scope-tag">{m.category}</span></article>)}</div>
-    <DemoNote>Module cards describe planned scope, not implemented functionality. News, scheme and learning cards are editorial drafts, not sourced current information.</DemoNote>
+    <div className="workspace-card-grid compact">{visible.map(m=><article className="surface-card scope-tile" key={m.id}><div className="section-eyebrow">MODULE {String(m.id).padStart(2,'0')} · PHASE {m.phase}</div><h3>{m.name}</h3><p>{m.summary}</p><span className="scope-tag">{m.category}</span><button type="button" className="text-arrow" onClick={()=>setModuleId(m.id)} aria-label={`Explore ${m.name}`}>Open module <ArrowRight size={16}/></button></article>)}</div>
+    <DemoNote>All 25 cards now open interactive module-specific staging exercises. They are not live integrated agricultural services. News, scheme and learning content remain editorial drafts.</DemoNote>
   </>;
 }
 function CropJournal(){

@@ -69,3 +69,11 @@ Live mandi data with official sources and freshness, weather, news editorial ver
 - GitHub CI runs web build, PHP tests, artifact validation, and browser tests before considering merge.
 - Safe static ZIP packaging for protected Cloudways staging; **no live deployment, database or real services**.
 - Detailed deployment, rollback and remaining gaps documented in `CLOUDWAYS_STAGING.md`.
+
+## M6 — 25 module-specific interactive staging workspaces
+
+- Discover opens a dedicated exercise workspace for each of the 25 catalogue modules.
+- Tailored activity examples, module-specific draft inputs, saved ideas, checklists and honest disclaimers.
+- Mock net realization calculator for mandi and price intelligence, using only user-entered amounts.
+- In-memory demo state: no account, network mutation, permanent record, real data or AI diagnosis.
+- Details and remaining production boundaries: [M6 Module Workspaces](M6_MODULE_WORKSPACES.md).
