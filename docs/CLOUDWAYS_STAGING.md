@@ -33,3 +33,52 @@ Keep the previous **static staging** web root ZIP and the Cloudways application 
 ## Production readiness gaps
 
 Actual PHP API integration and auth hardening, database migrations, verified mandi data, asynchronous Python model inference, privacy/consent, PWA offline policy, public SEO rendering, CSP, full accessibility audit and production load testing remain separate milestones. A green CI run is not production acceptance.
+
+
+## M5 — DigiOps verified deployment at `/krishigo/`
+
+DigiOps is configured for `indigiti/krishigo`, branch `main`, artifact name
+`digiops-release`, browser route `/krishigo/`, public folder
+`public_html/krishigo/` and private folder `private_html/krishigo/`.
+
+The workflow now creates an additional **unnested** GitHub Actions artifact named
+`digiops-release`, containing:
+
+```text
+RELEASE.json                 # not publicly served by DigiOps
+public/index.html
+public/assets/...
+public/manifest.webmanifest
+public/favicon.svg
+public/.htaccess             # hidden files explicitly included
+public/robots.txt
+public/STAGING_ONLY.txt
+```
+
+DigiOps extracts `public/` into the **configured public folder**. The initial
+release carries **no** `private/` payload, PHP backend or database; the configured
+private folder remains untouched. Vite uses the prefix `/krishigo/` for its JS,
+CSS and public asset URLs. The manifest scope/start URL are also prefixed.
+
+### Operator release gate
+
+1. Open KrishiGo in DigiOps > Deploy, and use **Check update**.
+2. Confirm a **successful full CI workflow** on `main`, artifact name exactly
+   `digiops-release`, artifact ID, unexpired status and latest expected 40-digit
+   commit SHA. The artifact should be associated with the run checked in DigiOps.
+3. Confirm this is your intended staging application, access is restricted and
+   the public root maps to `public_html/krishigo/`. The application path
+   `/krishigo/` is under the DigiOps host; the screenshot alone does not establish
+   its external domain or confirm TLS/access restrictions.
+4. Only then click **Deploy** in DigiOps. DigiOps performs an atomic public
+   release switch and retains previous releases for rollback.
+5. Visit the actual `https://<verified-host>/krishigo/`, check both loaded JS and
+   CSS assets under `/krishigo/assets/`, mobile UI, noindex, all demo disclaimers,
+   and absence of real network writes. Use Health and Releases views for
+   post-deploy verification and rollback if necessary.
+
+An Actions success means **release candidate ready**, not proof that it was
+published or that the live host is healthy. Neither GitHub CI nor this code
+initiates a Cloudways deployment. Do not choose the legacy
+`krishigo-staging-static-zip` artifact inside DigiOps; it contains a nested ZIP
+and is intended for a manual static deployment process.
