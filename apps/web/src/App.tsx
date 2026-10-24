@@ -18,8 +18,10 @@ const TradeDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({d
 const ReviewDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.ReviewDesk})));
 const WorkflowHub = lazy(() => import('./features/WorkflowHub'));
 const ProductionWorkspace = lazy(() => import('./features/ProductionWorkspace'));
+const JsonOperations = lazy(() => import('./features/JsonOperations'));
+const showJsonOperations=import.meta.env.VITE_JSON_WORKFLOWS_MODE==='api';
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations' | 'JSON Workflows';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -38,7 +40,8 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Trade Desk', icon: ShoppingBag, desc: 'Listing and enquiry details' },
   { label: 'Workflow Hub', icon: Activity, desc: 'Connected local workflows' },
   { label: 'Review Desk', icon: ShieldCheck, desc: 'Moderation demo' },
-  ...(!isDemo ? [{label: 'Connected Operations' as const, icon: ShieldCheck, desc: 'Production PHP workflows'}] : [])
+  ...(!isDemo ? [{label: 'Connected Operations' as const, icon: ShieldCheck, desc: 'Production PHP workflows'}] : []),
+  ...(showJsonOperations ? [{label: 'JSON Workflows' as const, icon: Activity, desc: 'Protected JSON service pilot'}] : [])
 ];
 const formatToday = () => new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 function PlantArtwork({ small = false }: { small?: boolean }) {
@@ -208,6 +211,7 @@ function App() {
         <Suspense fallback={<div className="surface-card" role="status">Loading this workspace…</div>}>
         {page === 'Workflow Hub' && <WorkflowHub/>}
         {page === 'Connected Operations' && !isDemo && <ProductionWorkspace/>}
+        {page === 'JSON Workflows' && showJsonOperations && <JsonOperations/>}
         {page === 'Onboarding' && <FarmerOnboarding/>}
         {page === 'Trade Desk' && <TradeDesk initialListingId={tradeListingId}/> }
         {page === 'Review Desk' && <ReviewDesk/>}
