@@ -79,6 +79,10 @@ jobs:
         run: |
           VITE_MODULE_CONTROL_MODE=api VITE_MODULE_API_BASE_URL=/api/v1 npm run build
           KG_TEST_SHARED=1 npx playwright test e2e/shared.spec.ts
+      - name: Build JSON staging pilot and exercise editorial + operations
+        run: |
+          VITE_JSON_WORKFLOWS_MODE=api VITE_JSON_API_BASE_URL=/api/v1 npm run build
+          KG_TEST_JSON=1 npx playwright test e2e/json.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -95,4 +99,12 @@ jobs:
         run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Api.php
       - name: Exercise PHP HTTP contracts
         run: python3 apps/api-php/tests/integration.py -v && python3 apps/api-php/tests/test_mode_boundary.py -v && python3 apps/api-php/tests/json_modules_integration.py -v && python3 apps/api-php/tests/json_workflows_integration.py -v && python3 apps/api-php/tests/json_store_concurrency.py -v
+      - name: Synthetic local PHP latency baseline (not Cloudways RUM)
+        run: python3 tools/benchmark_json_api.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: krishigo-m12-api-benchmark
+          path: reports/m12-api-benchmark.json
+          if-no-files-found: error
+          retention-days: 14
 

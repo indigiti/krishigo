@@ -89,6 +89,38 @@ class ServerCase(unittest.TestCase):
   code,health=self.call('GET',base+'/workflows/health');self.assertEqual(code,200)
   self.assertEqual(health['database'],'none');self.assertEqual(len(health['domains']),6)
   for domain in SAMPLES:self.assertGreaterEqual(health['domains'][domain]['records'],1)
+  # Protected queue: no unauthenticated reads/writes, and only allowlisted no-side-effect jobs.
+  code,empty=self.call('GET',base+'/jobs');self.assertEqual(code,200)
+  self.assertEqual(empty['health']['database'],'none')
+  code,_=self.call('POST',base+'/jobs',{'kind':'execute_shell','domain':'marketplace'},csrf);self.assertEqual(code,422)
+  code,_=self.call('POST',base+'/jobs',{'kind':'domain_snapshot','domain':'marketplace'});self.assertEqual(code,419)
+  code,enqueued=self.call('POST',base+'/jobs',{'kind':'domain_snapshot','domain':'marketplace'},csrf)
+  self.assertEqual(code,202);self.assertFalse(enqueued['deduplicated'])
+  code,duplicate=self.call('POST',base+'/jobs',{'kind':'domain_snapshot','domain':'marketplace'},csrf)
+  self.assertEqual(code,202);self.assertTrue(duplicate['deduplicated'])
+  self.assertEqual(duplicate['job']['id'],enqueued['job']['id'])
+  code,processed=self.call('POST',base+'/jobs/process',{},csrf);self.assertEqual(code,200)
+  self.assertEqual(processed['processed'],1);self.assertFalse(processed['external_actions'])
+  code,queue=self.call('GET',base+'/jobs');self.assertEqual(code,200)
+  self.assertEqual(queue['items'][0]['status'],'succeeded')
+  self.assertNotIn('token',queue['items'][0])
+  code,restored=self.call('POST',base+'/jobs/recover',{},csrf);self.assertEqual(code,200)
+  self.assertEqual(restored['recovered_jobs'],0)
+  (Path(self.tmp.name)/'safe-jobs-state.json').write_text('{corrupted')
+  code,queue=self.call('GET',base+'/jobs');self.assertEqual(code,200)
+  self.assertTrue(queue['health']['recovered'])
+  # Fixture controls and the public feed remain separate.
+  # All 25 modules expose independent, private opt-in JSON test-draft contracts.
+  for module in range(1,26):
+   uri=base+f'/module-drafts/{module}'
+   code,draft=self.call('POST',uri,{'title':f'Module {module} test','note':'Fictional record, no service activated'},csrf,'module-'+secrets.token_hex(12))
+   self.assertEqual(code,201,f'module {module}: {draft}')
+   self.assertTrue(draft['private'])
+   code,own=self.call('GET',uri);self.assertEqual(code,200)
+   self.assertEqual(len(own['items']),1)
+   self.assertEqual(own['items'][0]['fields']['title'],f'Module {module} test')
+  code,_=self.call('POST',base+'/module-drafts/26',{'title':'test','note':'sample'},csrf,'module-'+secrets.token_hex(12))
+  self.assertEqual(code,404)
   # Recovery is scoped to the affected domain. Never recreate from scratch after corruption.
   store=Path(self.tmp.name)
   (store/'workflow-marketplace-state.json').write_text('{corrupted')
@@ -97,6 +129,7 @@ class ServerCase(unittest.TestCase):
   code,config=self.call('GET','/api/v1/admin/module-controls');self.assertEqual(code,200)
   code,_=self.call('POST','/api/v1/admin/module-controls/2',
    {'enabled':False,'expected_revision':config['revision']},csrf);self.assertEqual(code,200)
+  code,_=self.call('GET',base+'/module-drafts/2');self.assertEqual(code,404)
   code,_=self.call('GET',base+'/records/marketplace');self.assertEqual(code,404)
   code,_=self.call('POST',base+'/records/marketplace',SAMPLES['marketplace'],csrf,'blocked-'+secrets.token_hex(9));self.assertEqual(code,404)
   code,config=self.call('GET','/api/v1/admin/module-controls');self.assertEqual(code,200)
