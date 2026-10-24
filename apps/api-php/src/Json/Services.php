@@ -59,7 +59,7 @@ final class Services {
             $value=$input[$name]??null;
             if(!is_string($value))throw new RuntimeException('FIELD_INVALID');
             $value=trim($value);
-            if($value===''||mb_strlen($value)>$max)throw new RuntimeException('FIELD_INVALID');
+            if($value===''||strlen($value)>$max)throw new RuntimeException('FIELD_INVALID');
             $out[$name]=$value;
         }
         if($domain==='marketplace'||$domain==='buyers') {
