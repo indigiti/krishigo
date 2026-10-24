@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "modules": [
+    {
+      "id": 1,
+      "key": "mandi-prices",
+      "name": "Mandi Prices",
+      "category": "Insights",
+      "phase": 1,
+      "summary": "APMC quotations, data freshness and regional comparisons",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 2,
+      "key": "buy-sell-marketplace",
+      "name": "Buy & Sell Marketplace",
+      "category": "Market",
+      "phase": 1,
+      "summary": "Farmer listings, quantities, images and enquiries",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 3,
+      "key": "buyer-requirements",
+      "name": "Buyer Requirements",
+      "category": "Market",
+      "phase": 1,
+      "summary": "Procurement requests, filters and matching",
+      "enabled": true,
+      "dependencies": [
+        2
+      ],
+      "mode": "demo"
+    },
+    {
+      "id": 4,
+      "key": "farmer-community",
+      "name": "Farmer Community",
+      "category": "Circle",
+      "phase": 1,
+      "summary": "Crop groups, posts and moderated replies",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 5,
+      "key": "agriculture-news",
+      "name": "Agriculture News",
+      "category": "Learn",
+      "phase": 1,
+      "summary": "Verified, sourced agricultural reporting",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 6,
+      "key": "weather-alerts",
+      "name": "Weather & Alerts",
+      "category": "Insights",
+      "phase": 1,
+      "summary": "Location-based forecasts and warnings",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 7,
+      "key": "farming-knowledge",
+      "name": "Farming Knowledge",
+      "category": "Learn",
+      "phase": 1,
+      "summary": "Cultivation guides and safe field practices",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 8,
+      "key": "government-schemes",
+      "name": "Government Schemes",
+      "category": "Learn",
+      "phase": 1,
+      "summary": "Eligibility, documentation and official links",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 9,
+      "key": "machinery-marketplace",
+      "name": "Machinery Marketplace",
+      "category": "Services",
+      "phase": 2,
+      "summary": "New and used implements and equipment",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 10,
+      "key": "equipment-rentals",
+      "name": "Equipment Rentals",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Tractors, harvesters and tools to hire",
+      "enabled": true,
+      "dependencies": [
+        9
+      ],
+      "mode": "demo"
+    },
+    {
+      "id": 11,
+      "key": "agricultural-inputs",
+      "name": "Agricultural Inputs",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Business directory for seeds and farm supplies",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 12,
+      "key": "transport-logistics",
+      "name": "Transport & Logistics",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Transport quotes and pickup coordination",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 13,
+      "key": "agriculture-services",
+      "name": "Agriculture Services",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Labour, soil testing, repairs and spraying",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 14,
+      "key": "fpo-cooperative-hub",
+      "name": "FPO & Cooperative Hub",
+      "category": "Business",
+      "phase": 2,
+      "summary": "Bulk aggregation and procurement management",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 15,
+      "key": "local-business-directory",
+      "name": "Local Business Directory",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Farm-related dealers and providers",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 16,
+      "key": "video-learning",
+      "name": "Video & Learning",
+      "category": "Learn",
+      "phase": 2,
+      "summary": "Guides, webinars and agriculture training",
+      "enabled": true,
+      "dependencies": [
+        7
+      ],
+      "mode": "demo"
+    },
+    {
+      "id": 17,
+      "key": "storage-warehousing",
+      "name": "Storage & Warehousing",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Cold-storage and warehouse enquiries",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 18,
+      "key": "ai-farming-assistant",
+      "name": "AI Farming Assistant",
+      "category": "Plant Care",
+      "phase": 2,
+      "summary": "Crop-related multilingual assistance with safeguards",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 19,
+      "key": "livestock-marketplace",
+      "name": "Livestock Marketplace",
+      "category": "Market",
+      "phase": 3,
+      "summary": "Permitted livestock categories with verification",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 20,
+      "key": "crop-price-intelligence",
+      "name": "Crop Price Intelligence",
+      "category": "Insights",
+      "phase": 3,
+      "summary": "Longitudinal regional price analysis",
+      "enabled": true,
+      "dependencies": [
+        1
+      ],
+      "mode": "demo"
+    },
+    {
+      "id": 21,
+      "key": "soil-crop-health",
+      "name": "Soil & Crop Health",
+      "category": "Plant Care",
+      "phase": 3,
+      "summary": "Soil reports and extended crop health",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 22,
+      "key": "agriculture-jobs",
+      "name": "Agriculture Jobs",
+      "category": "Services",
+      "phase": 3,
+      "summary": "Seasonal labour and farm employment",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 23,
+      "key": "finance-insurance",
+      "name": "Finance & Insurance",
+      "category": "Business",
+      "phase": 3,
+      "summary": "Educational tools and regulated partner referrals",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    },
+    {
+      "id": 24,
+      "key": "export-marketplace",
+      "name": "Export Marketplace",
+      "category": "Market",
+      "phase": 3,
+      "summary": "Export leads and quality requirements",
+      "enabled": true,
+      "dependencies": [
+        2
+      ],
+      "mode": "demo"
+    },
+    {
+      "id": 25,
+      "key": "farmer-recognition",
+      "name": "Farmer Recognition",
+      "category": "Circle",
+      "phase": 3,
+      "summary": "Farmer stories, awards and knowledge sharing",
+      "enabled": true,
+      "dependencies": [],
+      "mode": "demo"
+    }
+  ]
+}

@@ -49,3 +49,6 @@ python3 tests/integration.py -v                           # no-database staging 
 # In isolated _test MySQL configuration only:
 python3 tests/production_integration.py -v
 ```
+
+
+M9: Optional JSON-backed module control. See docs/M9_JSON_MODULE_CONTROL.md. Requires private configured storage and authenticated stage administrator. No database.
