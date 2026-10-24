@@ -1,38 +1,51 @@
-# KrishiGo Custom PHP API — M2 staging foundation
+# KrishiGo Custom PHP API — isolated modes, no Laravel
 
-Custom PHP 8.3+ with no Laravel, no Composer dependencies and **no database**. This is a safe test harness, **not a production authentication or trading system**.
+Two deliberately separate HTTP execution paths are supported:
 
-## Public read-only endpoints
+- **Staging default** (`KRISHIGO_API_MODE=staging`, or unset): fictional read-only fixture endpoints; optional single-account session tests; all business writes blocked with HTTP 501. Runs without any database. The DigiOps web artifact never includes PHP API files.
+- **Production candidate** (`KRISHIGO_API_MODE=production`): real MySQL 8.0+/MariaDB 10.6+ tables, separate database-backed user identities and server-side authorization. Mode requires a configured MySQL DSN, database username and high-entropy rate-limit salt. An incomplete configuration fails closed (HTTP 503).
 
-- `GET /healthz` — minimal service health.
-- `GET /api/v1/status` (also `capabilities`) — staging capabilities (always labels fictional data).
-- `GET /api/v1/marketplace/listings`, `/community/posts`, `/buyers/requirements`, `/services`, `/content`, `/modules` — JSON fixtures from `fixtures/catalog.json` (fictional and non-actionable).
+## Layering
 
-## Optional staging session
+- `public/index.php`: security headers, transport and route dispatch.
+- `src/Core.php`: CSRF/session helpers, JSON transport and sandbox fixtures.
+- `src/Production/Validation.php`: normalized domain field constraints.
+- `src/Production/Api.php`: workflows, roles, ownership and request dispatch.
+- `src/Production/Repository.php`: prepared SQL access and transactions.
+- `src/Production/Connection.php`: MySQL/PDO configuration gate.
+- `database/migrations/001_core.sql`: explicit MySQL schema, not used for staging.
 
-By default **authentication is disabled**. For controlled HTTPS staging tests, configure server environment variables described in `.env.example`: `KRISHIGO_STAGE_AUTH=enabled`, `KRISHIGO_STAGE_USERNAME`, `KRISHIGO_STAGE_PASSWORD_HASH` (generated using PHP `password_hash`), `KRISHIGO_STAGE_ROLE` (farmer, buyer, fpo, editor, admin). Never commit passwords or hashes. The `.env.example` is explanatory and **is not automatically loaded**.
+## Production JSON API v1
 
-Routes:
+- `GET /api/v1/auth/csrf`, `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `POST /api/v1/auth/logout`
+- `GET/POST /api/v1/marketplace/listings`, `GET /api/v1/marketplace/listings/{id}`, `GET /api/v1/marketplace/listings/mine`
+- `GET/POST /api/v1/buyers/requirements`, `GET /api/v1/buyers/requirements/mine`
+- `GET/POST /api/v1/community/posts`, `GET /api/v1/community/posts/mine`
+- `GET/POST /api/v1/plant-cases/mine` (GET), `POST /api/v1/plant-cases` (private notes only, no diagnosis)
+- `POST /api/v1/enquiries`, `GET /api/v1/enquiries/mine` (stored enquiries; no messaging or outbound notifications)
+- `GET /api/v1/admin/review-cases`; `POST /api/v1/admin/review-cases/{listing|requirement|post}/{id}/decision`
+- `POST /api/v1/admin/users/{id}/verify` — admin attests externally checked evidence, logged in audit events.
 
-- `GET /api/v1/auth/csrf` — creates a session and returns a CSRF token.
-- `POST /api/v1/auth/login` — HTTPS, JSON, `X-CSRF-Token`, configured staging account only.
-- `GET /api/v1/auth/me` — public anonymous or current demo session metadata.
-- `POST /api/v1/auth/logout` — JSON and current CSRF token.
-- `GET /api/v1/admin/moderation` — protected by editor/admin role, returns only fictional cases.
+All business objects begin pending moderation, plant cases are private, published results are read-only, and review operations require server-side editor/admin roles. Listing approval additionally requires a verified seller. FPO and other roles must be authorized per endpoint, not by a browser selection. Listings and buyer requirements paginate with `before` numeric ID cursors (max 30 records). Auth failure limits are enforced in a MySQL table keyed by salted HMAC of IP/email. The production service requires same-origin frontend API access; cross-origin CORS is not enabled.
 
-The server enforces HTTPS except on loopback with the opt-in `KRISHIGO_ALLOW_HTTP_LOCAL=1`. Behind a reverse proxy, `KRISHIGO_TRUSTED_PROXY_IPS` must contain verified proxy IPs before forwarding `X-Forwarded-Proto` is trusted. Cloudways process/session sharing, TLS termination, cache bypass and session cookie attributes must be validated before public exposure.
+## Setup — not an automatic staging migration
 
-Sessions use PHP's file-based session handler, not MySQL. Failed login limits are per session only and **do not replace** edge IP throttling, bot controls or production abuse prevention. A single environment-based staging account cannot support production account management, password recovery, MFA, revocation across deployments, or organization-level permission assignment.
+1. Provision separate **production-candidate** Cloudways Custom PHP application and MySQL database, never reuse the DigiOps staging root.
+2. Create DB user with least privileges; configure PHP 8.3+, `pdo_mysql`, TLS, server-side protected environment variables. See `.env.example` (no credentials committed).
+3. Review schema, back up database, apply `database/migrations/001_core.sql` via your approved deployment/migration mechanism.
+4. Set a high-entropy `KRISHIGO_RATE_SALT` (min. 32 characters). All PHP processes must share its value. Set `KRISHIGO_API_MODE=production` only on the isolated backend.
+5. Create initial admin once through `bin/bootstrap_admin.php` with one-time environment values. Then remove those values from the host.
+6. Run functional/database/ownership/CSRF tests with an isolated `_test` MySQL database before accepting the candidate. Deploy backend code outside a public source directory; make `public/` the web document root.
 
-All public business writes (listings, buyer enquiries, community posts, plant cases, moderation) return HTTP 501. No uploads, AI inference, payments, real identity verification or private user data are supported. Public read routes are sample-only. Turn staging auth **off** on any public preview where it is unnecessary.
+## Launch blockers / known limitations
 
-## Test locally
+**Do not activate this PHP API for public users yet.** Pending: real email/phone ownership verification, password reset and recovery, MFA for moderators, independent security review, migration rollback strategy, security and abuse monitoring, media virus scanning, user consent and deletion workflows, origin/proxy validation on actual Cloudways, role review, notifications, and integrated frontend browser acceptance. Manual administrator verification does not itself prove an account's identity. Plant Doctor is a private observation log only and provides no AI diagnosis, pest-treatment prescription, or photo upload.
+
+### Test commands
 
 ```sh
-php -l src/Core.php && php -l public/index.php
-python3 tests/integration.py -v
+php -l src/Production/Api.php
+python3 tests/integration.py -v                           # no-database staging tests
+# In isolated _test MySQL configuration only:
+python3 tests/production_integration.py -v
 ```
-
-## Production gap
-
-A separate milestone must add database-backed identity, granular authorization, password-reset design, request rate limiting, encrypted storage, protected media uploads, auditing and moderation persistence, queue processing, and production acceptance testing. Do not reuse this staging account mechanism as the production login system.

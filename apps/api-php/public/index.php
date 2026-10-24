@@ -18,6 +18,15 @@ $path = '/' . trim($path, '/');
 if (!in_array($method, ['GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS'], true)) {
     kg_json(405, ['error' => 'method_not_allowed'], ['Allow' => 'GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS']);
 }
+
+// The existing database-free demo is the default. Production is an explicit, fail-closed mode.
+if (kg_env('KRISHIGO_API_MODE') === 'production') {
+    foreach (['Validation','Connection','Repository','Api'] as $module) {
+        require_once dirname(__DIR__) . '/src/Production/' . $module . '.php';
+    }
+    \KrishiGo\Production\Api::dispatch($method, $path);
+}
+
 if ($method === 'OPTIONS') kg_json(405, ['error' => 'cross_origin_not_supported'], ['Allow' => 'GET, HEAD, POST, PUT, PATCH, DELETE']);
 
 if (in_array($method, ['GET','HEAD'], true)) {
