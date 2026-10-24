@@ -35,16 +35,20 @@ if ($path === '/api/v1/modules/registry' || $path === '/api/v1/modules/health' |
         if ($method==='GET' && $path==='/api/v1/modules/registry') kg_json(200,$modules->snapshot());
         if ($method==='GET' && $path==='/api/v1/modules/health') {
             $state=$modules->snapshot();
-            kg_json(200,['ok'=>true,'catalog_count'=>count($state['modules']),'store_configured'=>$state['configured'],'recovered_from_snapshot'=>$state['recovered'],'database'=>'none']);
+            kg_json(200,['ok'=>true,'catalog_count'=>count($state['modules']),'store_configured'=>$state['configured'],'recovered_from_snapshot'=>$state['recovered'],'database'=>'none','revision'=>$state['revision'],'enabled_count'=>$state['enabled_count'],'disabled_count'=>$state['disabled_count']]);
         }
         kg_require_roles(['admin']);
         if ($method==='GET' && $path==='/api/v1/admin/module-controls') kg_json(200,$modules->snapshot());
         if ($method==='POST') {
             kg_check_csrf();
-            if($path==='/api/v1/admin/module-controls/reset')kg_json(200,$modules->reset());
+            $body=kg_json_input(256);
+            $expected=$body['expected_revision']??null;
+            if($expected!==null && (!is_string($expected)||!preg_match('/^[a-f0-9]{64}$/D',$expected)))kg_json(422,['error'=>'invalid_revision']);
+            if($path==='/api/v1/admin/module-controls/reset')kg_json(200,$modules->reset($expected));
+            if($path==='/api/v1/admin/module-controls/rollback')kg_json(200,$modules->rollback($expected));
             if(preg_match('~^/api/v1/admin/module-controls/([1-9][0-9]{0,2})$~D',$path,$parts)===1){
-                $body=kg_json_input(256);if(!isset($body['enabled'])||!is_bool($body['enabled']))kg_json(422,['error'=>'enabled_boolean_required']);
-                kg_json(200,$modules->update((int)$parts[1],$body['enabled']));
+                if(!isset($body['enabled'])||!is_bool($body['enabled']))kg_json(422,['error'=>'enabled_boolean_required']);
+                kg_json(200,$modules->update((int)$parts[1],$body['enabled'],$expected));
             }
         }
         kg_json(405,['error'=>'method_not_allowed']);
@@ -52,6 +56,8 @@ if ($path === '/api/v1/modules/registry' || $path === '/api/v1/modules/health' |
         $error=$exception->getMessage();
         if($error==='MODULE_UNKNOWN')kg_json(404,['error'=>'module_unknown']);
         if($error==='DEPENDENCY_REQUIRED')kg_json(409,['error'=>'module_dependency_required']);
+        if($error==='MODULE_VERSION_CONFLICT')kg_json(409,['error'=>'module_state_conflict']);
+        if($error==='ROLLBACK_UNAVAILABLE')kg_json(409,['error'=>'rollback_unavailable']);
         if($error==='STORE_NOT_CONFIGURED')kg_json(503,['error'=>'module_store_not_configured']);
         kg_json(503,['error'=>'module_store_unavailable']);
     }
