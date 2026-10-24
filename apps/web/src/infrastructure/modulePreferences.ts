@@ -12,7 +12,7 @@ async function refreshShared():Promise<void>{
  pending=(async()=>{
   try{
    const base=import.meta.env.VITE_MODULE_API_BASE_URL||'/api/v1';
-   const url=new URL(base.replace(/\\/$/,'')+'/modules/registry',window.location.origin);
+      const url=new URL(base.replace(/\/$/,'')+'/modules/registry',window.location.origin);
    if(url.origin!==window.location.origin)throw Error('same_origin_api_required');
    const response=await fetch(url.toString(),{credentials:'same-origin',cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(8000)});
    if(!response.ok)throw Error('registry_unavailable');
