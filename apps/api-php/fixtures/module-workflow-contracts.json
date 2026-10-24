@@ -1,0 +1,879 @@
+{
+  "schema": 1,
+  "stage": "fictional-test-drafts-only",
+  "modules": {
+    "1": {
+      "purpose": "Monitor verified market quotations",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "commodity",
+          "label": "Commodity",
+          "type": "text",
+          "max": 150,
+          "example": "Onion"
+        },
+        {
+          "key": "apmc_market",
+          "label": "APMC market",
+          "type": "text",
+          "max": 150,
+          "example": "Lasalgaon"
+        },
+        {
+          "key": "target_rate",
+          "label": "Target INR/quintal",
+          "type": "integer",
+          "max": 1000000,
+          "example": 2400
+        }
+      ]
+    },
+    "2": {
+      "purpose": "Prepare produce lot details",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Tomato"
+        },
+        {
+          "key": "grade",
+          "label": "Produce grade",
+          "type": "text",
+          "max": 150,
+          "example": "A"
+        },
+        {
+          "key": "quantity_kg",
+          "label": "Quantity in kilograms",
+          "type": "integer",
+          "max": 10000000,
+          "example": 1000
+        },
+        {
+          "key": "price_per_kg",
+          "label": "Price INR/kg",
+          "type": "integer",
+          "max": 1000000,
+          "example": 24
+        }
+      ]
+    },
+    "3": {
+      "purpose": "Define a procurement requirement",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Tomato"
+        },
+        {
+          "key": "district",
+          "label": "Delivery district",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "quantity_kg",
+          "label": "Required kg",
+          "type": "integer",
+          "max": 10000000,
+          "example": 1200
+        }
+      ]
+    },
+    "4": {
+      "purpose": "Prepare a moderated discussion",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "topic",
+          "label": "Discussion topic",
+          "type": "text",
+          "max": 150,
+          "example": "Soil moisture"
+        },
+        {
+          "key": "body",
+          "label": "Post content",
+          "type": "text",
+          "max": 600,
+          "example": "Fictional soil moisture observation for review."
+        },
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Soybean"
+        }
+      ]
+    },
+    "5": {
+      "purpose": "Prepare verified news drafts",
+      "roles": [
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "headline",
+          "label": "Draft headline",
+          "type": "text",
+          "max": 150,
+          "example": "Agricultural technology update"
+        },
+        {
+          "key": "source_url",
+          "label": "Original source URL",
+          "type": "https_url",
+          "max": 300,
+          "example": "https://example.org/official"
+        },
+        {
+          "key": "section",
+          "label": "Section",
+          "type": "enum",
+          "options": [
+            "News",
+            "Policy",
+            "Markets",
+            "Technology"
+          ],
+          "example": "News"
+        }
+      ]
+    },
+    "6": {
+      "purpose": "Plan weather watch criteria",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Cotton"
+        },
+        {
+          "key": "risk",
+          "label": "Weather risk",
+          "type": "enum",
+          "options": [
+            "Heavy rain",
+            "Heatwave",
+            "Frost",
+            "High wind"
+          ],
+          "example": "Heavy rain"
+        }
+      ]
+    },
+    "7": {
+      "purpose": "Draft an agronomy guide",
+      "roles": [
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Tomato"
+        },
+        {
+          "key": "subject",
+          "label": "Guide subject",
+          "type": "text",
+          "max": 150,
+          "example": "Seedling stage"
+        },
+        {
+          "key": "stage",
+          "label": "Growth stage",
+          "type": "enum",
+          "options": [
+            "Sowing",
+            "Seedling",
+            "Vegetative",
+            "Harvest"
+          ],
+          "example": "Sowing"
+        }
+      ]
+    },
+    "8": {
+      "purpose": "Record scheme research",
+      "roles": [
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "scheme",
+          "label": "Scheme name",
+          "type": "text",
+          "max": 150,
+          "example": "Example benefit"
+        },
+        {
+          "key": "jurisdiction",
+          "label": "Jurisdiction",
+          "type": "text",
+          "max": 150,
+          "example": "Maharashtra"
+        },
+        {
+          "key": "official_url",
+          "label": "Official URL",
+          "type": "https_url",
+          "max": 300,
+          "example": "https://example.org/official"
+        }
+      ]
+    },
+    "9": {
+      "purpose": "Draft a machinery listing",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "equipment",
+          "label": "Equipment",
+          "type": "text",
+          "max": 150,
+          "example": "Power tiller"
+        },
+        {
+          "key": "condition",
+          "label": "Condition",
+          "type": "enum",
+          "options": [
+            "New",
+            "Used"
+          ],
+          "example": "New"
+        },
+        {
+          "key": "asking_price_rs",
+          "label": "Asking INR",
+          "type": "integer",
+          "max": 99999999,
+          "example": 150000
+        }
+      ]
+    },
+    "10": {
+      "purpose": "Plan an equipment rental",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "equipment",
+          "label": "Equipment",
+          "type": "text",
+          "max": 150,
+          "example": "Harvester"
+        },
+        {
+          "key": "needed_on",
+          "label": "Requested date",
+          "type": "date",
+          "example": "2026-11-01"
+        },
+        {
+          "key": "hours",
+          "label": "Required hours",
+          "type": "integer",
+          "max": 1000,
+          "example": 5
+        }
+      ]
+    },
+    "11": {
+      "purpose": "Record a farm input enquiry",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "input_category",
+          "label": "Input category",
+          "type": "text",
+          "max": 150,
+          "example": "Certified seed"
+        },
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Chilli"
+        },
+        {
+          "key": "units",
+          "label": "Required units",
+          "type": "integer",
+          "max": 100000,
+          "example": 10
+        }
+      ]
+    },
+    "12": {
+      "purpose": "Prepare a transport request",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "pickup",
+          "label": "Pickup district",
+          "type": "text",
+          "max": 150,
+          "example": "Nashik"
+        },
+        {
+          "key": "destination",
+          "label": "Destination district",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "load_kg",
+          "label": "Load kilograms",
+          "type": "integer",
+          "max": 10000000,
+          "example": 2000
+        }
+      ]
+    },
+    "13": {
+      "purpose": "Prepare a service request",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "service_type",
+          "label": "Service type",
+          "type": "enum",
+          "options": [
+            "Soil testing",
+            "Equipment repairs",
+            "Farm labour",
+            "Irrigation"
+          ],
+          "example": "Soil testing"
+        },
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "details",
+          "label": "Required work",
+          "type": "text",
+          "max": 300,
+          "example": "Illustrative request only."
+        }
+      ]
+    },
+    "14": {
+      "purpose": "Plan FPO aggregation",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "fpo_name",
+          "label": "FPO or cooperative",
+          "type": "text",
+          "max": 150,
+          "example": "Example FPO"
+        },
+        {
+          "key": "commodity",
+          "label": "Commodity",
+          "type": "text",
+          "max": 150,
+          "example": "Onion"
+        },
+        {
+          "key": "aggregation_kg",
+          "label": "Aggregation kilograms",
+          "type": "integer",
+          "max": 100000000,
+          "example": 25000
+        }
+      ]
+    },
+    "15": {
+      "purpose": "Prepare a directory listing",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "business_name",
+          "label": "Business name",
+          "type": "text",
+          "max": 150,
+          "example": "Sample agri dealer"
+        },
+        {
+          "key": "category",
+          "label": "Category",
+          "type": "enum",
+          "options": [
+            "Dealership",
+            "Services",
+            "Inputs",
+            "Logistics"
+          ],
+          "example": "Dealership"
+        },
+        {
+          "key": "locality",
+          "label": "Locality",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        }
+      ]
+    },
+    "16": {
+      "purpose": "Draft a training resource",
+      "roles": [
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "course_topic",
+          "label": "Topic",
+          "type": "text",
+          "max": 150,
+          "example": "Soil preparation"
+        },
+        {
+          "key": "language",
+          "label": "Language",
+          "type": "enum",
+          "options": [
+            "Marathi",
+            "Hindi",
+            "English"
+          ],
+          "example": "Marathi"
+        },
+        {
+          "key": "source_url",
+          "label": "Training source URL",
+          "type": "https_url",
+          "max": 300,
+          "example": "https://example.org/official"
+        }
+      ]
+    },
+    "17": {
+      "purpose": "Prepare a storage enquiry",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "storage_type",
+          "label": "Storage type",
+          "type": "enum",
+          "options": [
+            "Dry warehouse",
+            "Cold storage",
+            "Silo"
+          ],
+          "example": "Dry warehouse"
+        },
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "capacity_kg",
+          "label": "Capacity kilograms",
+          "type": "integer",
+          "max": 10000000,
+          "example": 10000
+        }
+      ]
+    },
+    "18": {
+      "purpose": "Draft a guarded farm assistant question",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Onion"
+        },
+        {
+          "key": "question",
+          "label": "Farming question",
+          "type": "text",
+          "max": 400,
+          "example": "Fictional crop rotation question."
+        },
+        {
+          "key": "language",
+          "label": "Language",
+          "type": "enum",
+          "options": [
+            "Marathi",
+            "Hindi",
+            "English"
+          ],
+          "example": "Marathi"
+        }
+      ]
+    },
+    "19": {
+      "purpose": "Draft a livestock record",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "animal_type",
+          "label": "Animal category",
+          "type": "enum",
+          "options": [
+            "Cattle",
+            "Buffalo",
+            "Goat",
+            "Sheep"
+          ],
+          "example": "Cattle"
+        },
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "age_months",
+          "label": "Age months",
+          "type": "integer",
+          "max": 600,
+          "example": 18
+        }
+      ]
+    },
+    "20": {
+      "purpose": "Plan crop price research",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "commodity",
+          "label": "Commodity",
+          "type": "text",
+          "max": 150,
+          "example": "Onion"
+        },
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "comparison_rate",
+          "label": "Sample INR/quintal",
+          "type": "integer",
+          "max": 1000000,
+          "example": 2500
+        }
+      ]
+    },
+    "21": {
+      "purpose": "Document soil or crop observations",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "crop",
+          "label": "Crop",
+          "type": "text",
+          "max": 150,
+          "example": "Soybean"
+        },
+        {
+          "key": "soil_observation",
+          "label": "Soil observation",
+          "type": "text",
+          "max": 400,
+          "example": "Dry topsoil visible."
+        },
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        }
+      ]
+    },
+    "22": {
+      "purpose": "Draft an agriculture job post",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "role_name",
+          "label": "Job role",
+          "type": "text",
+          "max": 150,
+          "example": "Harvester operator"
+        },
+        {
+          "key": "district",
+          "label": "District",
+          "type": "text",
+          "max": 150,
+          "example": "Pune"
+        },
+        {
+          "key": "duration_days",
+          "label": "Duration days",
+          "type": "integer",
+          "max": 365,
+          "example": 10
+        }
+      ]
+    },
+    "23": {
+      "purpose": "Draft a finance education question",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "topic",
+          "label": "Topic",
+          "type": "enum",
+          "options": [
+            "Loan literacy",
+            "Crop insurance literacy",
+            "Budget planning"
+          ],
+          "example": "Loan literacy"
+        },
+        {
+          "key": "question",
+          "label": "Question",
+          "type": "text",
+          "max": 450,
+          "example": "Explain general terminology."
+        },
+        {
+          "key": "language",
+          "label": "Language",
+          "type": "enum",
+          "options": [
+            "Marathi",
+            "Hindi",
+            "English"
+          ],
+          "example": "Marathi"
+        }
+      ]
+    },
+    "24": {
+      "purpose": "Prepare an export requirements note",
+      "roles": [
+        "farmer",
+        "buyer",
+        "fpo",
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "commodity",
+          "label": "Commodity",
+          "type": "text",
+          "max": 150,
+          "example": "Pomegranate"
+        },
+        {
+          "key": "destination_country",
+          "label": "Destination country",
+          "type": "text",
+          "max": 150,
+          "example": "UAE"
+        },
+        {
+          "key": "quantity_kg",
+          "label": "Quantity kilograms",
+          "type": "integer",
+          "max": 10000000,
+          "example": 2000
+        }
+      ]
+    },
+    "25": {
+      "purpose": "Draft a recognition nomination",
+      "roles": [
+        "editor",
+        "admin"
+      ],
+      "fields": [
+        {
+          "key": "nominee_alias",
+          "label": "Nominee display alias",
+          "type": "text",
+          "max": 150,
+          "example": "Example farmer"
+        },
+        {
+          "key": "achievement",
+          "label": "Achievement summary",
+          "type": "text",
+          "max": 450,
+          "example": "Sustainable irrigation method."
+        },
+        {
+          "key": "consent_state",
+          "label": "Consent state",
+          "type": "enum",
+          "options": [
+            "Not requested",
+            "Awaiting written consent",
+            "Verified separately"
+          ],
+          "example": "Not requested"
+        }
+      ]
+    }
+  }
+}

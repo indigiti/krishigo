@@ -95,7 +95,7 @@ jobs:
       - name: Build JSON staging pilot and exercise editorial + operations
         run: |
           VITE_JSON_WORKFLOWS_MODE=api VITE_JSON_API_BASE_URL=/api/v1 npm run build
-          KG_TEST_JSON=1 npx playwright test e2e/json.spec.ts e2e/connected.spec.ts
+          KG_TEST_JSON=1 npx playwright test e2e/json.spec.ts e2e/connected.spec.ts e2e/module-contracts.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -109,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Lint PHP test API
-        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Doctor.php && php -l apps/api-php/src/Json/Api.php
+        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Doctor.php && php -l apps/api-php/src/Json/Contracts.php && php -l apps/api-php/src/Json/Api.php
       - name: Exercise PHP HTTP contracts
         run: python3 apps/api-php/tests/integration.py -v && python3 apps/api-php/tests/test_mode_boundary.py -v && python3 apps/api-php/tests/json_modules_integration.py -v && python3 apps/api-php/tests/json_workflows_integration.py -v && python3 apps/api-php/tests/json_store_concurrency.py -v
       - name: Synthetic local PHP latency baseline (not Cloudways RUM)

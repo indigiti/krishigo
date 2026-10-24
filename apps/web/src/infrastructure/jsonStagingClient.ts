@@ -8,6 +8,8 @@ export const domainFields: Record<DemoDomain, Array<{key:string;label:string;kin
  services:[{key:'service_type',label:'Service category',hint:'Tractor rental'},{key:'district',label:'District',hint:'Pune'},{key:'description',label:'Request details',hint:'Fictional service request'}],
  editorial:[{key:'title',label:'Headline',hint:'Draft agricultural update'},{key:'summary',label:'Summary',hint:'Requires official source verification'},{key:'category',label:'Category: News / Guide / Scheme / Learning',hint:'News'}]
 };
+export type ModuleDraftField={key:string;label:string;type:'text'|'integer'|'date'|'enum'|'https_url';max?:number;options?:string[];example:string|number};
+export type ModuleDraftSchema={schema:1;module_id:number;staging_only:true;delivery_enabled:false;purpose:string;roles:string[];fields:ModuleDraftField[]};
 export type DemoIdentity = {name:string;role:string;demo:boolean}|null;
 export type DemoRecord={id:number;owner:string;status:string;fields:Record<string,string|number>;created_at:string};
 export type QueueJob={id:number;kind:string;status:string;attempts:number;max_attempts:number;created_at:string;result?:Record<string,unknown>;last_error?:string};
@@ -43,6 +45,11 @@ export class JsonStagingClient {
  async matches(crop:string,district:string,quantityKg:number){
   const params=new URLSearchParams({crop,district,quantity_kg:String(quantityKg)});
   return this.call<{demo:boolean;matched:number;items:DemoRecord[];enquiries_sent:false}>('GET','/staging/marketplace/matches?'+params.toString());
+ }
+ async moduleSchema(moduleId:number){return this.call<ModuleDraftSchema>('GET',`/staging/module-drafts/${moduleId}/schema`);}
+ async moduleDrafts(moduleId:number){return this.call<{demo:true;private:true;items:DemoRecord[]}>('GET',`/staging/module-drafts/${moduleId}`);}
+ async saveModuleDraft(moduleId:number,title:string,note:string,details:Record<string,string|number>){
+  return this.call<{demo:true;private:true;item:DemoRecord}>('POST',`/staging/module-drafts/${moduleId}`,{title,note,details},crypto.randomUUID());
  }
  async pending(domain:DemoDomain){return this.call<{pending:DemoRecord[]}>('GET',`/staging/admin/records/${domain}`);}
  async decide(domain:DemoDomain,id:number,decision:'approve'|'reject'){

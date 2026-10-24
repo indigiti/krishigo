@@ -139,8 +139,15 @@ class ServerCase(unittest.TestCase):
   # All 25 modules expose independent, private opt-in JSON test-draft contracts.
   for module in range(1,26):
    uri=base+f'/module-drafts/{module}'
-   code,draft=self.call('POST',uri,{'title':f'Module {module} test','note':'Fictional record, no service activated'},csrf,'module-'+secrets.token_hex(12))
+   code,spec=self.call('GET',uri+'/schema');self.assertEqual(code,200)
+   self.assertEqual(spec['module_id'],module)
+   self.assertFalse(spec['delivery_enabled'])
+   details={field['key']:field['example'] for field in spec['fields']}
+   code,invalid=self.call('POST',uri,{'title':'Invalid','note':'No details'},csrf,'invalid-'+secrets.token_hex(12))
+   self.assertEqual(code,422,f'module {module}: {invalid}')
+   code,draft=self.call('POST',uri,{'title':f'Module {module} test','note':'Fictional record, no service activated','details':details},csrf,'module-'+secrets.token_hex(12))
    self.assertEqual(code,201,f'module {module}: {draft}')
+   for field in spec['fields']:self.assertEqual(draft['item']['fields'][field['key']],field['example'])
    self.assertTrue(draft['private'])
    code,own=self.call('GET',uri);self.assertEqual(code,200)
    self.assertEqual(len(own['items']),1)

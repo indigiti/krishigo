@@ -20,6 +20,7 @@ BACKEND = (
     'src/Json/Services.php', 'src/Json/Store.php',
     'src/Json/Queue.php', 'src/Json/ModuleDrafts.php',
     'fixtures/catalog.json', 'fixtures/module-registry.json',
+    'fixtures/module-workflow-contracts.json', 'src/Json/Contracts.php',
 )
 
 FRONT = r'''<?php
