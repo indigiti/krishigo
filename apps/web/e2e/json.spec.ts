@@ -22,6 +22,7 @@ test('JSON staging workspace authenticates and performs fictional drafts, review
   if(p.match(/^\/staging\/admin\/records\/marketplace\/\d+\/review$/)){
    const target=pending[Number(p.split('/')[5])-1];target.status='reviewed-demo';return route.fulfill(respond({item:target,published_externally:false}));
   }
+  if(p==='/staging/operations/doctor')return route.fulfill(respond({schema:1,ok:true,status:'healthy',database:'none',checks:[{id:'safe_staging_mode',severity:'ok',message:'Staging session boundary enabled'}],summary:{diagnostic_domains:6,enabled_diagnostic_domains:6,restored_snapshots:0,queue_pending:0,queue_failed:0,queue_dead:0,available_private_storage_mb:1024}}));
   if(p==='/staging/workflows/health')return route.fulfill(respond({database:'none',domains:{marketplace:{records:pending.length,pending:pending.filter(x=>x.status==='pending-demo').length,enabled:true,recovered:false}}}));
   if(p==='/staging/jobs'&&method==='GET')return route.fulfill(respond({items:[],health:{ok:true,database:'none',counts:{pending:0},recovered:false}}));
   if(p==='/staging/jobs'&&method==='POST')return route.fulfill(respond({job:{id:1,kind:'domain_snapshot',status:'pending'},deduplicated:false},202));

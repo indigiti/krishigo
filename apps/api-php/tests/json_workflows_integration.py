@@ -54,6 +54,7 @@ class ServerCase(unittest.TestCase):
  def test_json_workflows(self):
   base='/api/v1/staging'
   code,_=self.call('GET',base+'/workflows/health');self.assertEqual(code,401)
+  code,_=self.call('GET',base+'/operations/doctor');self.assertEqual(code,401)
   code,data=self.call('GET',base+'/records/marketplace');self.assertEqual(code,200);self.assertEqual(data['items'],[])
   code,_=self.call('POST',base+'/records/marketplace',SAMPLES['marketplace']);self.assertEqual(code,401)
   csrf=self.auth()
@@ -105,6 +106,13 @@ class ServerCase(unittest.TestCase):
 
   code,_=self.call('GET',base+'/admin/records/plant');self.assertEqual(code,403)
   code,health=self.call('GET',base+'/workflows/health');self.assertEqual(code,200)
+  code,doctor=self.call('GET',base+'/operations/doctor');self.assertEqual(code,200)
+  self.assertEqual(doctor['schema'],1)
+  self.assertEqual(doctor['database'],'none')
+  self.assertFalse(doctor['external_actions'])
+  self.assertGreaterEqual(len(doctor['checks']),8)
+  self.assertEqual(doctor['summary']['diagnostic_domains'],6)
+  self.assertIn(doctor['status'],('healthy','attention'))
   self.assertEqual(health['database'],'none');self.assertEqual(len(health['domains']),6)
   for domain in SAMPLES:self.assertGreaterEqual(health['domains'][domain]['records'],1)
   # Protected queue: no unauthenticated reads/writes, and only allowlisted no-side-effect jobs.
