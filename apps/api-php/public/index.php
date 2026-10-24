@@ -27,6 +27,15 @@ if (kg_env('KRISHIGO_API_MODE') === 'production') {
     \KrishiGo\Production\Api::dispatch($method, $path);
 }
 
+// Staging-only JSON-backed drafts; the default mode exposes no new write routes.
+if (str_starts_with($path, '/api/v1/staging/records/') ||
+    str_starts_with($path, '/api/v1/staging/admin/records/') ||
+    $path === '/api/v1/staging/workflows/health') {
+    require_once dirname(__DIR__).'/src/Modules/Registry.php';
+    foreach (['Store','Services','Api'] as $part) require_once dirname(__DIR__).'/src/Json/'.$part.'.php';
+    \KrishiGo\Json\Api::dispatch($method,$path);
+}
+
 // Optional database-free control plane. All writes require admin + CSRF.
 if ($path === '/api/v1/modules/registry' || $path === '/api/v1/modules/health' || str_starts_with($path, '/api/v1/admin/module-controls')) {
     require_once dirname(__DIR__).'/src/Modules/Registry.php';
