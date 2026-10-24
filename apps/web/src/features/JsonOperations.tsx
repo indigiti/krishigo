@@ -13,6 +13,7 @@ export default function JsonOperations(){
  const [records,setRecords]=useState<DemoRecord[]>([]),[pending,setPending]=useState<DemoRecord[]>([]);
  const [health,setHealth]=useState<Record<string,{records:number;pending:number;enabled:boolean;recovered:boolean}>>({});
  const [jobs,setJobs]=useState<QueueJob[]>([]);
+ const [doctor,setDoctor]=useState<{ok:boolean;status:string;checks:Array<{id:string;severity:string;message:string}>;summary:{diagnostic_domains:number;restored_snapshots:number;queue_dead:number;available_private_storage_mb:number|null}}|null>(null);
  const [fields,setFields]=useState<Record<string,string>>({});
  const [tab,setTab]=useState<'records'|'editorial'|'operations'>('records');
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
@@ -25,8 +26,8 @@ export default function JsonOperations(){
   const result=await jsonStagingClient.pending(d);setPending(result.pending);
  },[]);
  const fetchOps=useCallback(async()=>{
-  const [status,queue]=await Promise.all([jsonStagingClient.health(),jsonStagingClient.queue()]);
-  setHealth(status.domains);setJobs(queue.items);
+  const [status,queue,diagnosis]=await Promise.all([jsonStagingClient.health(),jsonStagingClient.queue(),jsonStagingClient.doctor()]);
+  setHealth(status.domains);setJobs(queue.items);setDoctor(diagnosis);
  },[]);
  useEffect(()=>{let active=true;(async()=>{try{
   await jsonStagingClient.initialize();const a=await jsonStagingClient.identity();
@@ -99,6 +100,13 @@ export default function JsonOperations(){
      <button className="btn btn-soft" onClick={()=>task(async()=>{await jsonStagingClient.recover();await fetchOps();},'Expired diagnostic leases examined.')} disabled={busy}>Recover expired</button>
     </div>
     <div className="module-status-grid">{Object.entries(health).map(([name,item])=><div className="surface-card" key={name}><Activity size={18}/><strong>{name}</strong><small>{item.records} records · {item.pending} pending · {item.enabled?'enabled':'disabled'} · {item.recovered?'recovered':'healthy'}</small></div>)}</div>
+    <section className="surface-card connected-results" aria-label="Operational diagnostics">
+     <div className="section-head"><div><div className="section-eyebrow">M14 · PROTECTED OPERATIONS</div><h3>Runtime doctor</h3></div>
+      <strong>{doctor?.status==='healthy'?'Healthy':doctor?'Attention required':'Not checked'}</strong></div>
+     <p>Authenticated, read-only assessment. Recovery and retries always require an explicit administrator action.</p>
+     {doctor?.checks.map(c=><div key={c.id} className="connected-record"><strong>{c.severity==='ok'?'✓':'!'} {c.id.replaceAll('_',' ')}</strong><p>{c.message}</p></div>)}
+     <p className="page-disclaimer">Snapshot recoveries: {doctor?.summary.restored_snapshots??'—'} · Dead diagnostic jobs: {doctor?.summary.queue_dead??'—'} · Private free storage: {doctor?.summary.available_private_storage_mb??'Unknown'} MB</p>
+    </section>
     <h3>Bounded diagnostic jobs</h3><div className="module-settings">{jobs.length===0?<p>No diagnostic jobs.</p>:jobs.map(j=><article className="surface-card module-setting" key={j.id}><div><strong>#{j.id} · {j.kind}</strong><p>{j.status} · {j.attempts}/{j.max_attempts} attempts {j.last_error?(' · '+j.last_error):''}</p></div></article>)}</div>
     <p className="page-disclaimer">Jobs only read fictional store counts. No retries of purchases, messages, notifications or AI inference.</p></>}
   </>}
