@@ -1,40 +1,30 @@
-# KrishiGo 🌱
+# KrishiGo — agricultural platform
 
-**Status: database-free UI staging prototype (not a production application).**
+**Development milestone M1 (in progress).** React/TypeScript mobile-first staging application + custom PHP API scaffold. No Laravel and **no database used in staging**.
 
-KrishiGo is planned as an Indian agricultural platform combining:
-- Produce marketplace and buyer requirements
-- Farmer community
-- Plant Doctor (future AI-assisted screening)
-- Mandi rates and agricultural intelligence
-- Machinery, rental, logistics, FPO, and agricultural services
+## Application
 
-## Try the staging preview
+```
+cd apps/web
+npm install
+npm run dev
+npm test
+npm run build
+```
 
-Open **[preview/index.html](preview/index.html)** locally in a browser, or deploy the `preview/` folder as static HTTPS content.
+- Five original premium screens: Overview, Plant Doctor, Marketplace, Community, Insights.
+- New screens: Buyer Requirements, Services, Crop Journal, Discover (all 25 scope modules), Admin staging readiness.
+- Demo listing drafts, mock buyer requirements, guided photo preview, notes and community posts are session-only. They are not real transactions, medical/agronomic diagnoses or persistent posts.
+- Forest, Sand and Night design themes.
 
-The standalone preview uses fictional sample data. No database, PHP runtime, API credentials, or AI inference is required.
+The API boundary is in `apps/web/src/services/dataSource.ts`. Mock mode is the default. A PHP scaffold lives in `apps/api-php/` and intentionally returns HTTP 501 for business endpoints.
 
-## Documents
+## Repository documentation
 
-- [Final product and engineering master plan](docs/KRISHIGO_MASTER_PLAN.md)
-- [Staging and production boundaries](docs/STAGING.md)
+- [Full product master plan](docs/KRISHIGO_MASTER_PLAN.md)
+- [Staging vs production](docs/STAGING.md)
+- [Development milestone tracker](docs/DEVELOPMENT.md)
 
-## Technology direction
+## Important restrictions
 
-- **No Laravel**
-- React + TypeScript + Vite for the cross-platform application
-- Custom PHP API on Cloudways in production
-- Python workers for evaluated crop AI and specialist processing
-- MySQL/Redis only when moving to production
-- Capacitor for Android/iOS; PWA first for desktop
-
-The current published staging preview is a *standalone HTML demonstration*. Do not mistake it for the React/Vite source tree or a live API-based application. React source, real Plant Doctor inference, user accounts, live mandi feeds, and production persistence are separate milestones.
-
-## Safety and data integrity
-
-All sample market prices, weather, forecasts, user posts, and Plant Doctor outputs are illustrative, not verified live information. Plant photos are not medically or agronomically diagnosed by the preview.
-
-## Next development milestone
-
-Move the full React/Vite source tree into `apps/web/`, expand the data-adapter boundary, add dedicated Buyer Requirements and Services UIs, then validate a production build and mobile layout. Never add credentials to version control.
+No real produce orders, payments, AI diagnosis, unverified chemical advice or external marketplace contact in this release. M2 will implement secure authentication, persistence, moderation, and contracted PHP APIs; M3 requires verified market data and independent field validation before real crop inference.

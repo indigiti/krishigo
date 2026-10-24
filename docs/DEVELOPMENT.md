@@ -1,0 +1,30 @@
+# KrishiGo — implementation status and next engineering milestones
+
+## Milestone M1 deliverables (current source)
+
+- React 19 + TypeScript + Vite starting from the approved prototype.
+- Existing dashboard, Plant Doctor, marketplace, community, mandi insights, three themes and mobile navigation.
+- New buyer requirements board: filters, local demo draft creation, empty state and clear no-enquiry notice.
+- New services directory: category selection and non-actionable sample cards.
+- New crop journal: in-session observations, safe notes and no remote image uploads.
+- New discover/catalogue page: complete 25-module roadmap + draft editorial cards.
+- New staging operations screen: immutable mock-readiness summary, not a real administration backend.
+- Marketplace demo listing composer; no permanent records or real buyer contact.
+- Central typed `KrishiGoDataSource` read interface: mock now, contracted PHP API later.
+- Custom PHP API scaffold returning health status and HTTP 501 for unimplemented writes/resources.
+- Unit-level staging invariants and GitHub Actions workflow.
+
+## M1 acceptance pending
+
+- `npm ci`, `npm test`, `npm run build` in GitHub Actions (local sandbox cannot resolve npm registry).
+- Browser interaction and responsive QA against actual compiled React application.
+- Accessible language/locality preferences and production-quality localization strings.
+- Real production PHP API is NOT implemented; use mock mode for UI review.
+
+## M2 planned
+
+Secure PHP API, CSRF/auth/RBAC, audit trail, validation, moderation, private media uploads, MySQL migrations, Redis cache, rate limits, queue processing and API contract tests. No Laravel.
+
+## M3 and beyond
+
+Live mandi data with official sources and freshness, weather, news editorial verification, farmer onboarding and local language coverage. Pilot plant screening only after tests on representative field imagery, confidence and ambiguity controls, and independent expert review. Capacitor mobile packaging follows successful PWA and security gates.
