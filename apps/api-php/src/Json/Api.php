@@ -31,6 +31,12 @@ final class Api {
             $repo=new Store($dir);
             $modules=new \KrishiGo\Modules\Registry(dirname(__DIR__,2).'/fixtures/module-registry.json',$dir);
             $service=new Services($repo,$modules);
+            if($path==='/api/v1/staging/operations/doctor') {
+                if($method!=='GET')\kg_json(405,['error'=>'method_not_allowed']);
+                \kg_require_roles(['admin','editor']);
+                $doctor=new Doctor($service,new Queue($dir),$dir);
+                \kg_json(200,$doctor->report());
+            }
             if($path==='/api/v1/staging/jobs'||
                $path==='/api/v1/staging/jobs/process'||
                $path==='/api/v1/staging/jobs/recover'){
