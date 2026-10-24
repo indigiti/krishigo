@@ -41,12 +41,13 @@ test('themes and mobile search work; layout does not overflow', async ({ page },
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 });
 
-test('demo does not transmit any plant images or real buyer enquiries', async ({ page }) => {
+test('demo does not transmit any plant images or real buyer enquiries', async ({ page }, testInfo) => {
   const methods: string[] = [];
   page.on('request', request => {
     if (request.method() !== 'GET' && !request.url().startsWith('data:')) methods.push(`${request.method()} ${request.url()}`);
   });
   await page.goto('/');
+  if (testInfo.project.name.startsWith('mobile')) await page.getByRole('button', { name: 'Open menu' }).click();
   await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('button', { name: 'Plant Doctor' }).click();
   await expect(page.getByText(/does not analyze the photo or diagnose disease/i)).toBeVisible();
   await expect(page.getByText('DEMO DATA').first()).toBeVisible();
