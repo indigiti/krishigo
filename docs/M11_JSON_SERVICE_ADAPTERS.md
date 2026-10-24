@@ -57,3 +57,5 @@ transactional multi-user persistence. Verified account ownership, production rol
 audit/retention and deletion, user-media isolation, background queue durability,
 origin configuration under Cloudways, real sources, trade delivery, and validated
 Plant Doctor inference remain unfinished.
+
+- Parallel-process JSON writes maintain unique sequential IDs under file lock; repeated idempotency keys return the original record without duplication.
