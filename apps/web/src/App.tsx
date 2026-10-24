@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type CSSProperties } from 'react';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, Bell, CalendarDays, Camera,
   Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CloudSun, Compass,
@@ -101,7 +101,7 @@ function App() {
   const navigate = (p: Page) => { setPage(p); setMobileNav(false); setQ(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const toggleSaved = (id: number) => setSaved(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]);
   const handleFile = (file?: File) => { if (!file || !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) return; setSelectedFile(file); setPreviewUrl(URL.createObjectURL(file)); setPlantResult(false); };
-  const addListing = (e: React.FormEvent<HTMLFormElement>) => {
+  const addListing = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const name = String(form.get('name') || '').trim().slice(0, 100);

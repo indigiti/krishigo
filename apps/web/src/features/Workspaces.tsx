@@ -47,7 +47,7 @@ function ServicesBoard() {
 }
 function DiscoverBoard(){
   const [modules,setModules]=useState<ScopeModule[]>([]);const [content,setContent]=useState<ContentEntry[]>([]);const [filter,setFilter]=useState('All');const [phase,setPhase]=useState(0);
-  useEffect(()=>{let active=true;Promise.all([dataSource.scopeModules(),dataSource.contentEntries()]).then(([m,c])=>{if(active){setModules(m);setContent(c);}});return()=>{active=false;};},[]);
+  useEffect(()=>{let active=true;Promise.all([dataSource.scopeModules(),dataSource.contentEntries()]).then(([m,c])=>{if(active){setModules(m);setContent(c);}}).catch(()=>{if(active){setModules([]);setContent([]);}});return()=>{active=false;};},[]);
   const [selected,setSelected]=useState<number|null>(null);const chosen=content.find(c=>c.id===selected);
   const groups=['All','Market','Plant Care','Circle','Insights','Learn','Services','Business'];
   const visible=modules.filter(m=>(filter==='All'||m.category===filter)&&(!phase||m.phase===phase));
