@@ -5,13 +5,13 @@ import {
   Droplets, Filter, Heart, HeartPulse, Home, Info, Leaf, MapPin, Menu, MessageCircle,
   MoreHorizontal, Plus, Search, Send, ShieldCheck, ShoppingBag, SlidersHorizontal,
   Sparkles, Sprout, Sun, Thermometer, TrendingUp, UploadCloud, Users, Wind, X,
-  ChartNoAxesCombined, Bookmark, ScanLine, Zap, RefreshCw, Volume2, BookOpen, BriefcaseBusiness, ClipboardList, LayoutGrid, NotebookPen
+  ChartNoAxesCombined, Bookmark, ScanLine, Zap, RefreshCw, Volume2, BookOpen, BriefcaseBusiness, ClipboardList, LayoutGrid, NotebookPen, UserRound, FileHeart
 } from 'lucide-react';
 import { type Listing, type CommunityPost, mandiMarkets } from './data/demo';
 import { dataSource, isDemo } from './services/dataSource';
 import Workspaces from './features/Workspaces';
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -23,7 +23,9 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Services', icon: BriefcaseBusiness, desc: 'Farm businesses' },
   { label: 'Crop Journal', icon: NotebookPen, desc: 'Field notes' },
   { label: 'Discover', icon: LayoutGrid, desc: 'All 25 modules' },
-  { label: 'Admin', icon: BookOpen, desc: 'Operations preview' }
+  { label: 'Admin', icon: BookOpen, desc: 'Operations preview' },
+  { label: 'My Profile', icon: UserRound, desc: 'Role previews' },
+  { label: 'Plant Cases', icon: FileHeart, desc: 'Crop symptom journal' }
 ];
 const formatToday = () => new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 function PlantArtwork({ small = false }: { small?: boolean }) {
@@ -145,7 +147,7 @@ function App() {
           <div className="bottom-grid"><section className="surface-card focus-card"><div className="section-head"><div><div className="section-eyebrow">CURATED FOR YOU</div><h3>Today’s focus</h3></div><button className="text-arrow" onClick={() => nav('Plant Doctor')}>Plant care <ArrowRight size={15}/></button></div><div className="task-row"><span className="task-icon yellow"><Droplets size={19}/></span><div><strong>Check irrigation schedule</strong><small>Monitor field moisture before watering</small></div><span className="priority-tag">Suggested</span></div><div className="task-row"><span className="task-icon green"><Leaf size={19}/></span><div><strong>Review your crop symptoms</strong><small>Use Plant Doctor to organize observations</small></div><ChevronRight size={17}/></div><div className="task-row"><span className="task-icon rose"><ShoppingBag size={19}/></span><div><strong>Explore new buyer requirements</strong><small>Discover produce opportunities nearby</small></div><ChevronRight size={17}/></div></section><section className="surface-card mandi-mini"><div className="section-head"><div><div className="section-eyebrow">MARKET INTELLIGENCE</div><h3>Mandi snapshot</h3></div><button className="text-arrow" onClick={() => nav('Insights')}>See all <ArrowRight size={15}/></button></div>{mandiMarkets.slice(0,3).map(m => <div className="mandi-mini-row" key={m.market}><div className="crop-round">{m.crop==='Tomato'?'🍅':m.crop==='Onion'?'🧅':'🌾'}</div><div><strong>{m.crop}</strong><small>{m.market}</small></div><strong className="mandi-val">{m.avg}</strong><span className={m.trend.startsWith('+')?'positive':'negative'}>{m.trend}</span></div>)}<p className="tiny-disclaimer">Sample prices for UI demonstration only.</p></section></div>
         </>}
         {page === 'Plant Doctor' && <>
-          <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> SMART CROP CARE <DemoPill/></div><h1>Meet your Plant Doctor <span className="wave">✳</span></h1><p>Understand plant symptoms and take the next step with confidence.</p></div><div className="date-chip"><ShieldCheck size={17}/> Guided screening</div></div>
+          <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> SMART CROP CARE <DemoPill/></div><h1>Meet your Plant Doctor <span className="wave">✳</span></h1><p>Understand plant symptoms and take the next step with confidence.</p></div><button className="btn btn-primary" onClick={() => nav('Plant Cases')}><ClipboardList size={17}/> Open plant case journal</button></div>
           <section className="doctor-header"><div><div className="hero-kicker">YOUR CROP CARE ASSISTANT</div><h2>A little attention.<br/><em>A healthier harvest.</em></h2><p>Upload your plant photo, tell us what you've noticed, and explore an example of how guided screening can work.</p></div><div className="doctor-art"><PlantArtwork small/></div></section>
           <div className="doctor-grid"><section className="surface-card scan-form"><div className="section-head"><div><div className="section-eyebrow">STEP 01 · ADD A PHOTO</div><h3>Scan your crop</h3></div><span className="small-status"><span/> Prototype</span></div>
               <input type="file" accept="image/*" capture="environment" ref={fileRef} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFile(e.target.files?.[0])} hidden/>
@@ -180,7 +182,7 @@ function App() {
           <div className="insights-grid"><section className="surface-card insights-chart"><div className="section-head"><div><div className="section-eyebrow">COMMODITY OVERVIEW</div><h3>Market activity trends</h3><p>Example trend chart for UI evaluation</p></div><button className="subtle-select" onClick={() => setChartPeriod(chartPeriod==='7 days'?'30 days':'7 days')}>{chartPeriod}<ChevronDown size={16}/></button></div><div className="growth-legend"><span><i className="legend-mark"/> Sample price trend</span><strong>+5.4<span>%</span></strong></div><GrowthChart/></section><section className="surface-card insights-metrics"><div className="section-eyebrow">FIELD METRICS</div><h3>Environmental snapshot</h3><div className="metric-box lime"><span><Droplets size={20}/> Water oversight</span><strong>64<span>%</span></strong><small>Example moisture index</small></div><div className="metric-split"><div><Thermometer size={19}/><strong>28°</strong><small>Temperature</small></div><div><Activity size={19}/><strong>86%</strong><small>Crop health demo</small></div></div></section></div>
           <section className="surface-card market-table"><div className="section-head"><div><div className="section-eyebrow">MANDI EXPLORER</div><h3>Sample commodity prices</h3><p>Structured for future verified market feeds</p></div><span className="small-status"><span/> No live feed</span></div><div className="table-wrap"><table><thead><tr><th>Market</th><th>Commodity</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Change</th></tr></thead><tbody>{mandiMarkets.map(m => <tr key={m.market}><td><strong>{m.market}</strong></td><td>{m.crop}</td><td>{m.min}</td><td>{m.max}</td><td><strong>{m.avg}</strong></td><td><span className={m.trend.startsWith('+')?'positive':'negative'}>{m.trend}</span></td></tr>)}</tbody></table></div><p className="tiny-disclaimer">Prices, changes and charts on this screen are fictitious samples, not trading or agricultural advice.</p></section>
         </>}
-        {(['Buyers','Services','Discover','Crop Journal','Admin'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin') && <Workspaces key={page} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'}/>}
+        {(['Buyers','Services','Discover','Crop Journal','Admin','My Profile','Plant Cases'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases') && <Workspaces key={page} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases'}/>}
         <footer className="footer"><div><Sprout size={16}/> KrishiGo <span>·</span> Designed for the next generation of farming</div><span>{isDemo ? 'Staging prototype · no database · sample information' : 'Connected application'}</span></footer>
       </main>
     </div>

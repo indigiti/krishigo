@@ -28,3 +28,21 @@ Secure PHP API, CSRF/auth/RBAC, audit trail, validation, moderation, private med
 ## M3 and beyond
 
 Live mandi data with official sources and freshness, weather, news editorial verification, farmer onboarding and local language coverage. Pilot plant screening only after tests on representative field imagery, confidence and ambiguity controls, and independent expert review. Capacitor mobile packaging follows successful PWA and security gates.
+
+## Milestone M2 — database-free security/API integration (October 2026)
+
+- Functional PHP read-only APIs serving the same fictional listing, community, procurement, service, content and 25-module fixtures as the frontend.
+- Custom PHP request validation, HTTP security headers and opt-in HTTPS-only staging sessions.
+- CSRF login/logout, session rotation and editor/admin authorization for fictional moderation records.
+- Account/profile role preview for five target account types; roles never grant real browser-side permissions.
+- Plant Cases: local photograph preview and temporary crop observation entries, without remote uploads or AI results.
+- Python standard-library PHP HTTP integration suite and updated frontend tests/CI.
+- **No database, real user identities, live trading, persisted moderation, or machine-learning crop diagnoses.**
+- Production identity, audit trails, uploads and MySQL migration remain later milestones.
+
+## M2 acceptance status
+
+- Offline PHP HTTP tests: pass locally (sample fixture contracts, CSRF, session/login/logout, editor role, no write endpoints).
+- Frontend source-level tests: pass locally.
+- Actual `npm run build` requires a network-enabled environment because the sandbox cannot resolve npmjs.org; GitHub CI is the definitive verification before merge.
+- Cloudways staging not deployed by this milestone.

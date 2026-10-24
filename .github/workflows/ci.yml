@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # No lockfile is committed yet; generate it once dependencies are accessible.
+      # Staging source has no lockfile yet; produce one once registry access is available.
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build
@@ -29,5 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Lint scaffold
-        run: php -l apps/api-php/public/index.php
+      - name: Lint API
+        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php
+      - name: Exercise PHP HTTP contracts
+        run: python3 apps/api-php/tests/integration.py -v
