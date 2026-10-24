@@ -15,5 +15,5 @@ test('M12 draft workflows cannot be mistaken for real trading or diagnosis',()=>
  const ui=read('../src/features/JsonOperations.tsx');
  assert.match(ui,/No payments, delivery, AI diagnosis or live agricultural feed/);
  assert.match(ui,/Fictional pending draft saved/);
- assert.match(ui,/Never/ig);
+ assert.match(ui,/No real customer identity was created/);
 });
