@@ -67,7 +67,7 @@ export default function ConnectedDomainPanel({domain}:{domain:DemoDomain}){
  function save(e:FormEvent){e.preventDefault();
   const data:Record<string,unknown>={};
   for(const field of domainFields[domain]){
-   const val=(fields[field.key]||'').trim();
+   const val=(fields[field.key] || (field.key==='category'?'News':'')).trim();
    data[field.key]=field.kind==='number'?Number(val):val;
   }
   if(domain==='plant' && followup)data.followup_of=Number(followup);
