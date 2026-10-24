@@ -23,33 +23,39 @@ DirectoryIndex index.html
 </IfModule>
 <IfModule mod_rewrite.c>
  RewriteEngine On
+ RewriteBase /krishigo/
  RewriteCond %{REQUEST_FILENAME} !-f
  RewriteCond %{REQUEST_FILENAME} !-d
  RewriteRule ^ index.html [L]
 </IfModule>
 '''
 
-def package(output: Path) -> dict:
-    if not DIST.is_dir():
-        raise ValueError('Missing apps/web/dist: run npm run build in mock mode')
-    index = DIST / 'index.html'
-    if not index.exists() or not (DIST / 'assets').is_dir():
-        raise ValueError('Missing static entrypoint or bundled assets')
+def assert_safe_dist(dist: Path, base: str = '/krishigo/') -> None:
+    if not dist.is_dir():
+        raise ValueError('Missing apps/web/dist: run Vite in mock mode')
+    index = dist / 'index.html'
+    if not index.exists() or not (dist / 'assets').is_dir():
+        raise ValueError('Missing static entrypoint or compiled assets')
     html = index.read_text(encoding='utf-8')
     if not re.search(r'<meta\s+name="robots"\s+content="noindex,nofollow,noarchive"', html):
         raise ValueError('Staging must not be indexed by crawlers')
-    if not re.search(r'<script[^>]+/assets/', html):
-        raise ValueError('Missing Vite-compiled JavaScript entrypoint')
-    # Reject accidental file exposure even when a developer has additional local files in dist.
+    if not re.search(r'<script[^>]+(?:src=|src=["\'])[^>]*' + re.escape(base) + r'assets/', html):
+        raise ValueError('Vite assets are not built for the configured /krishigo/ browser path')
+    if re.search(r'<(?:script|link)[^>]+(?:src|href)=["\']/(?:assets|favicon\.svg|manifest\.webmanifest)', html):
+        raise ValueError('Root-relative app assets would break under /krishigo/')
     blocked = {'.env', '.env.local', 'config.php', 'db.php', '.htpasswd', 'id_rsa', '.git', 'node_modules'}
-    for path in DIST.rglob('*'):
+    for path in dist.rglob('*'):
         if not path.is_file():
             continue
-        relative = path.relative_to(DIST)
+        relative = path.relative_to(dist)
         if any(part in blocked or part.startswith('.env.') for part in relative.parts):
             raise ValueError(f'Sensitive file in static dist: {relative}')
         if path.suffix.lower() in {'.php', '.sql', '.py', '.pem', '.key', '.map'}:
             raise ValueError(f'Unexpected executable, secret or source map in dist: {relative}')
+
+
+def package(output: Path) -> dict:
+    assert_safe_dist(DIST)
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED) as z:
         for path in sorted(DIST.rglob('*')):

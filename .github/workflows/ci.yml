@@ -29,7 +29,17 @@ jobs:
         working-directory: .
         run: |
           python3 tools/test_package_staging.py
+          python3 tools/test_package_digiops.py
           python3 tools/package_staging.py --output krishigo-staging-static.zip
+          python3 tools/package_digiops.py --output release
+      - name: Upload DigiOps release for public_html/krishigo/
+        uses: actions/upload-artifact@v4
+        with:
+          name: digiops-release
+          path: release/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
           name: krishigo-staging-dist
