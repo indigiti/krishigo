@@ -1,5 +1,6 @@
 import {useCallback,useEffect,useState} from 'react';
 import {Activity,CheckCircle2,LockKeyhole,RefreshCw,RotateCcw,ShieldAlert,ShieldCheck} from 'lucide-react';
+import {modulePreferences} from '../infrastructure/modulePreferences';
 
 /** Opt-in, same-origin PHP staging control plane. Never enabled in the static demo. */
 type RemoteModule={id:number;key:string;name:string;category:string;summary:string;dependencies:number[];enabled:boolean};
@@ -37,7 +38,7 @@ export default function SharedModuleControlPanel(){
  const refresh=useCallback(async()=>{
   const data=await request<Snapshot>('/admin/module-controls');
   if(data.schema!==1||!Array.isArray(data.modules)||data.modules.length!==25||!(/^[a-f0-9]{64}$/.test(data.revision)))throw new Error('invalid_module_registry');
-  setSnapshot(data);return data;
+  setSnapshot(data);void modulePreferences.refresh();return data;
  },[]);
  useEffect(()=>{
   let active=true;

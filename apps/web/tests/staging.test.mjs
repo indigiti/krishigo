@@ -113,3 +113,13 @@ test('M10 shared control mutations use optimistic revisions and are never silent
  assert.match(remoteConsole,/admin\/module-controls\/rollback/);
  assert.doesNotMatch(remoteConsole,/setInterval|setTimeout\(/);
 });
+
+const flagsStore=read('../src/infrastructure/modulePreferences.ts');
+test('M10 shared registry public view fails closed and only refreshes on demand or focus',()=>{
+ assert.match(flagsStore,/flags:ModuleFlags=SHARED\?disabled:defaultFlags/);
+ assert.match(flagsStore,/url.origin!==window.location.origin/);
+ assert.match(flagsStore,/doc.configured!==true/);
+ assert.match(flagsStore,/flags=disabled;lastError=/);
+ assert.match(flagsStore,/server_managed_registry/);
+ assert.match(flagsStore,/visibilitychange/);
+});
