@@ -1,0 +1,10 @@
+{
+  "name": "KrishiGo — Farming intelligence",
+  "short_name": "KrishiGo",
+  "description": "Marketplace, community, farm insights and plant care",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#edf2ea",
+  "theme_color": "#194e39",
+  "icons": [{"src":"/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
