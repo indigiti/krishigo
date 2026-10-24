@@ -124,3 +124,20 @@ test('M7 workflow hub validates and stages a buyer enquiry without any network w
  await expect(page.getByText('Unsent · draft only')).toBeVisible();
  expect(badRequests).toEqual([]);
 });
+
+test('M9 local module switches cascade and persist without network writes',async ({page})=>{
+ const mutations:string[]=[];page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))mutations.push(r.method());});
+ await page.goto('/krishigo/');
+ if(test.info().project.name.startsWith('mobile'))await page.getByRole('button',{name:'Open menu'}).click();
+ await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Admin'}).click();
+ await expect(page.getByRole('heading',{name:'Modular control center.'})).toBeVisible();
+ await page.getByRole('checkbox',{name:'Buy & Sell Marketplace module enabled'}).uncheck();
+ await expect(page.getByRole('checkbox',{name:'Buyer Requirements module enabled'})).not.toBeChecked();
+ await page.reload();
+ if(test.info().project.name.startsWith('mobile'))await page.getByRole('button',{name:'Open menu'}).click();
+ await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Admin'}).click();
+ await expect(page.getByRole('checkbox',{name:'Buy & Sell Marketplace module enabled'})).not.toBeChecked();
+ await page.getByRole('button',{name:'Restore defaults'}).click();
+ await expect(page.getByRole('checkbox',{name:'Buy & Sell Marketplace module enabled'})).toBeChecked();
+ expect(mutations).toEqual([]);
+});

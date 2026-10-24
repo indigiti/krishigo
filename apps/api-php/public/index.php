@@ -27,6 +27,49 @@ if (kg_env('KRISHIGO_API_MODE') === 'production') {
     \KrishiGo\Production\Api::dispatch($method, $path);
 }
 
+// Optional database-free control plane. All writes require admin + CSRF.
+if ($path === '/api/v1/modules/registry' || $path === '/api/v1/modules/health' || str_starts_with($path, '/api/v1/admin/module-controls')) {
+    require_once dirname(__DIR__).'/src/Modules/Registry.php';
+    try {
+        $modules = new \KrishiGo\Modules\Registry(dirname(__DIR__).'/fixtures/module-registry.json',kg_env('KRISHIGO_JSON_STORE_DIR'));
+        if ($method==='GET' && $path==='/api/v1/modules/registry') kg_json(200,$modules->snapshot());
+        if ($method==='GET' && $path==='/api/v1/modules/health') {
+            $state=$modules->snapshot();
+            kg_json(200,['ok'=>true,'catalog_count'=>count($state['modules']),'store_configured'=>$state['configured'],'recovered_from_snapshot'=>$state['recovered'],'database'=>'none']);
+        }
+        kg_require_roles(['admin']);
+        if ($method==='GET' && $path==='/api/v1/admin/module-controls') kg_json(200,$modules->snapshot());
+        if ($method==='POST') {
+            kg_check_csrf();
+            if($path==='/api/v1/admin/module-controls/reset')kg_json(200,$modules->reset());
+            if(preg_match('~^/api/v1/admin/module-controls/([1-9][0-9]{0,2})$~D',$path,$parts)===1){
+                $body=kg_json_input(256);if(!isset($body['enabled'])||!is_bool($body['enabled']))kg_json(422,['error'=>'enabled_boolean_required']);
+                kg_json(200,$modules->update((int)$parts[1],$body['enabled']));
+            }
+        }
+        kg_json(405,['error'=>'method_not_allowed']);
+    }catch(\RuntimeException $exception){
+        $error=$exception->getMessage();
+        if($error==='MODULE_UNKNOWN')kg_json(404,['error'=>'module_unknown']);
+        if($error==='DEPENDENCY_REQUIRED')kg_json(409,['error'=>'module_dependency_required']);
+        if($error==='STORE_NOT_CONFIGURED')kg_json(503,['error'=>'module_store_not_configured']);
+        kg_json(503,['error'=>'module_store_unavailable']);
+    }
+}
+// Module-off sample API routes cannot accidentally publish disabled content.
+if (in_array($method,['GET','HEAD'],true)) {
+    $routeIds=['/api/v1/marketplace/listings'=>2,'/api/v1/buyers/requirements'=>3,'/api/v1/community/posts'=>4,'/api/v1/services'=>13,'/api/v1/content'=>7];
+    $moduleId=$routeIds[$path]??null;
+    if($moduleId===null&&preg_match('~^/api/v1/marketplace/listings/[1-9][0-9]{0,8}$~D',$path))$moduleId=2;
+    if($moduleId!==null){
+        require_once dirname(__DIR__).'/src/Modules/Registry.php';
+        try {
+            $guard=new \KrishiGo\Modules\Registry(dirname(__DIR__).'/fixtures/module-registry.json',kg_env('KRISHIGO_JSON_STORE_DIR'));
+            foreach($guard->snapshot()['modules'] as $row)if($row['id']===$moduleId&&!$row['enabled'])kg_json(404,['error'=>'module_disabled']);
+        }catch(\RuntimeException $exception){kg_json(503,['error'=>'module_state_unavailable']);}
+    }
+}
+
 if ($method === 'OPTIONS') kg_json(405, ['error' => 'cross_origin_not_supported'], ['Allow' => 'GET, HEAD, POST, PUT, PATCH, DELETE']);
 
 if (in_array($method, ['GET','HEAD'], true)) {

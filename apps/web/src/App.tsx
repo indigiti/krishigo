@@ -9,6 +9,9 @@ import {
 } from 'lucide-react';
 import { type Listing, type CommunityPost, mandiMarkets } from './data/demo';
 import { dataSource, isDemo } from './services/dataSource';
+import {useModuleFlags} from './infrastructure/modulePreferences';
+import {isEnabled} from './domain/moduleRegistry';
+import {WorkspaceBoundary} from './features/WorkspaceBoundary';
 const Workspaces = lazy(() => import('./features/Workspaces'));
 const FarmerOnboarding = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.FarmerOnboarding})));
 const TradeDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.TradeDesk})));
@@ -85,6 +88,9 @@ function GrowthChart({ compact = false }: { compact?: boolean }) {
 }
 const DemoPill = () => <span className="demo-pill"><span/> DEMO DATA</span>;
 function App() {
+  const moduleFlags=useModuleFlags();
+  const pageModule:Partial<Record<Page,number>>={'Plant Doctor':18,'Marketplace':2,'Community':4,'Insights':1,'Buyers':3,'Services':13,'Crop Journal':21,'Plant Cases':21,'Trade Desk':2};
+  const allowed=(target:Page)=>!pageModule[target]||isEnabled(moduleFlags,pageModule[target]!);
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');
   const [mobileNav, setMobileNav] = useState(false);
@@ -114,7 +120,7 @@ function App() {
   useEffect(() => { let active = true; Promise.all([dataSource.listings(), dataSource.communityPosts()]).then(([l, p]) => { if (active) { setAllListings(l); setAllPosts(p); } }).catch(() => { if (active) { setAllListings([]); setAllPosts([]); } }); return () => { active = false; }; }, []);
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
   useEffect(() => { if (mobileSearchOpen) mobileSearchRef.current?.focus(); }, [mobileSearchOpen]);
-  const navigate = (p: Page) => { setPage(p); setMobileNav(false); setMobileSearchOpen(false); setQ(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const navigate = (p: Page) => { if(!allowed(p)){setPage('Discover');return;} setPage(p); setMobileNav(false); setMobileSearchOpen(false); setQ(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const toggleSaved = (id: number) => setSaved(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]);
   const handleFile = (file?: File) => { if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) return; setSelectedFile(file); setPreviewUrl(URL.createObjectURL(file)); setPlantResult(false); };
   const addListing = (e: FormEvent<HTMLFormElement>) => {
@@ -136,7 +142,7 @@ function App() {
       <button className="brand" onClick={() => nav('Overview')} aria-label="KrishiGo homepage"><span className="brand-mark"><Sprout size={27} strokeWidth={2.2}/></span><span className="brand-words"><strong>krishi<span>go</span></strong><small>GROW BETTER, EVERY DAY</small></span></button>
       <div className="side-group-label">WORKSPACE</div>
       <nav className="side-nav" aria-label="Primary navigation">
-        {navigation.map(n => <button key={n.label} className={'side-link' + (page === n.label ? ' selected' : '')} onClick={() => nav(n.label)}><n.icon size={19} strokeWidth={1.9}/><span>{n.label}</span>{n.label === 'Plant Doctor' && <span className="new-dot"/>}</button>)}
+        {navigation.filter(n=>allowed(n.label)).map(n => <button key={n.label} className={'side-link' + (page === n.label ? ' selected' : '')} onClick={() => nav(n.label)}><n.icon size={19} strokeWidth={1.9}/><span>{n.label}</span>{n.label === 'Plant Doctor' && <span className="new-dot"/>}</button>)}
       </nav>
       <div className="side-group-label side-label-space">YOUR SPACE</div>
       <button className="side-link secondary" onClick={() => nav('Plant Doctor')}><HeartPulse size={19}/>Crop health</button>
@@ -148,13 +154,14 @@ function App() {
     {mobileNav && <button className="mobile-backdrop" aria-label="Close menu" onClick={() => setMobileNav(false)}/>}
     <div className="main-shell">
       <header className="topbar"><button className="mobile-menu icon-button" aria-label="Open menu" onClick={() => setMobileNav(true)}><Menu size={23}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/> <strong>{page}</strong></div>
-        <div className="top-actions"><button className="mobile-search-trigger icon-button" type="button" aria-label="Search listings" aria-expanded={mobileSearchOpen} onClick={() => setMobileSearchOpen(v => !v)}><Search size={19}/></button><div className="searchbox"><Search size={17}/><input aria-label="Search market listings" placeholder="Search crops, listings, topics..." value={q} onChange={e => { setQ(e.target.value); if (e.target.value) setPage('Marketplace'); }}/><span>⌘ K</span></div>
+        <div className="top-actions"><button className="mobile-search-trigger icon-button" type="button" aria-label="Search listings" aria-expanded={mobileSearchOpen} onClick={() => setMobileSearchOpen(v => !v)}><Search size={19}/></button><div className="searchbox"><Search size={17}/><input aria-label="Search market listings" placeholder="Search crops, listings, topics..." value={q} onChange={e => { setQ(e.target.value); if (e.target.value && allowed('Marketplace')) setPage('Marketplace'); }}/><span>⌘ K</span></div>
           <div className="theme-switch" aria-label="Choose design theme">{([['forest','Forest'],['sand','Sand'],['night','Night']] as const).map(t => <button title={`${t[1]} design`} aria-label={`${t[1]} theme`} aria-pressed={theme===t[0]} className={theme===t[0]?'current':''} key={t[0]} onClick={() => setTheme(t[0])}><span className={'theme-dot '+t[0]}/><span className="theme-word">{t[1]}</span></button>)}</div>
           <div className="notification-wrap"><button className="icon-button" aria-label="Notifications" aria-expanded={notificationOpen} onClick={() => setNotificationOpen(v => !v)}><Bell size={19}/><span className="notification-dot"/></button>{notificationOpen && <div className="notification-panel"><strong>You're all caught up</strong><p>New crop care tips and buyer enquiries will appear here when connected.</p><DemoPill /></div>}</div><div className="header-avatar">KG</div></div>
       </header>
       <div className="staging-banner" role="status">{!isDemo && page === 'Connected Operations' ? <span>Connected workspace — restricted production candidate. Server-side verification and launch approval required.</span> : <><DemoPill/><span>Preview only — fictional mandi prices, listings and weather. No account, diagnosis or trade is real.</span></>}</div>
       {mobileSearchOpen && <form className="mobile-search-panel" role="search" onSubmit={e => {e.preventDefault(); setMobileSearchOpen(false); setPage('Marketplace');}}><label htmlFor="mobile-market-search">Search crop and market listings</label><div><Search size={18}/><input ref={mobileSearchRef} id="mobile-market-search" value={q} placeholder="Crops, sellers or district" onChange={e => {setQ(e.target.value); setPage('Marketplace');}}/><button type="button" aria-label="Close search" onClick={() => setMobileSearchOpen(false)}><X size={19}/></button></div></form>}
       <main className="page-content">
+      {!allowed(page)?<section className="surface-card workspace-recovery"><h2>Module disabled</h2><button className="btn btn-primary" onClick={()=>nav('Admin')}>Open module controls</button></section>:<WorkspaceBoundary area={page}>
         {page === 'Overview' && <>
           <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> YOUR FARM COMPANION <DemoPill/></div><h1>Good morning, farmer <span className="wave">✳</span></h1><p>Here's what's happening across your agricultural world.</p></div><div className="date-chip"><CalendarDays size={17}/>{formatToday()}</div></div>
           <section className="hero-panel"><div className="hero-noise"/><div className="hero-copy"><div className="hero-kicker"><span className="kicker-glow"/> INTRODUCING KRISHIGO INTELLIGENCE</div><h2>From soil to<br/><em>success.</em></h2><p>A smarter way to care for your crops, connect with buyers and grow your farming business.</p><div className="hero-buttons"><button className="btn btn-lime" onClick={() => nav('Plant Doctor')}>Scan a plant <ArrowRight size={18}/></button><button className="btn btn-ghostlight" onClick={() => nav('Marketplace')}>Explore marketplace <ChevronRight size={18}/></button></div></div><div className="hero-plant"><div className="halo halo-one"/><div className="halo halo-two"/><PlantArtwork/><div className="float-pill float-one"><span className="float-icon"><Leaf size={15}/></span><div><small>Crop wellness</small><strong>Growing smarter</strong></div></div><div className="float-pill float-two"><span className="float-icon sun"><Sun size={15}/></span><div><small>Smart insights</small><strong>Always learning</strong></div></div></div><div className="hero-index">01 / 03 <span>━</span></div></section>
@@ -206,6 +213,7 @@ function App() {
         {page === 'Review Desk' && <ReviewDesk/>}
         {(['Buyers','Services','Discover','Crop Journal','Admin','My Profile','Plant Cases'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases') && <Workspaces key={page} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases'}/>}
         </Suspense>
+      </WorkspaceBoundary>}
         <footer className="footer"><div><Sprout size={16}/> KrishiGo <span>·</span> Designed for the next generation of farming</div><span>{isDemo ? 'Staging prototype · no database · sample information' : 'Connected application'}</span></footer>
       </main>
     </div>

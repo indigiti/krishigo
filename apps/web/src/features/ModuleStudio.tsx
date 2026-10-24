@@ -1,6 +1,8 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowRight, Bookmark, CheckCircle2, ClipboardList, Filter, Info, Plus, Search, Trash2, Leaf, ShieldAlert, Calculator, RotateCcw } from 'lucide-react';
 import { scopeModules } from '../data/expanded';
+import {useModuleFlags} from '../infrastructure/modulePreferences';
+import {isEnabled} from '../domain/moduleRegistry';
 import { WorkflowValidationError } from '../domain/workflow.ts';
 import { demoWorkflowRepository, useDemoWorkflows } from '../infrastructure/memoryWorkflowStore.ts';
 
@@ -38,6 +40,7 @@ export const studioSpecs: Record<number,Spec> = {
 };
 
 export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}){
+ const flags=useModuleFlags();
  const module=scopeModules.find(m=>m.id===moduleId);
  const spec=studioSpecs[moduleId];
  const [mode,setMode]=useState<'explore'|'drafts'|'checklist'>('explore');
@@ -51,6 +54,7 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
  const [transport,setTransport]=useState('500');
  const [checks,setChecks]=useState<number[]>([]);
  const selected=useMemo(()=>spec?.examples.map((item,index)=>({item,index})).filter(({item})=>item.join(' ').toLowerCase().includes(filter.toLowerCase()))??[],[spec,filter]);
+ if(!isEnabled(flags,moduleId))return <section className="surface-card"><h2>Module disabled</h2><button onClick={onBack}>All modules</button></section>;
  if(!module||!spec)return <div className="surface-card"><h2>Module unavailable</h2><button className="btn btn-primary" onClick={onBack}>Back to modules</button></div>;
  const submit=(event:FormEvent<HTMLFormElement>)=>{
    event.preventDefault();

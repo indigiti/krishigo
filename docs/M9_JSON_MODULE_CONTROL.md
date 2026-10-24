@@ -1,0 +1,9 @@
+# M9 — JSON-first, module controls and safe recovery
+The KrishiGo 25-module catalogue now has JSON descriptors, dependency-based activation and a local dashboard in Admin. No database is installed, provisioned, or required for M9. Previous MySQL-backed code is dormant and production mode remains disabled.
+## Static DigiOps staging
+Each module's existing sample UI can be enabled/disabled locally. Browser-only JSON preferences are not access control and do not affect other visitors. Disabling a module hides Discover and associated navigation; module studio refuses to render it. React errors are isolated and allow manual retry. A bounded in-memory log stores only event codes.
+## Optional separately hosted PHP JSON API
+Keep KRISHIGO_API_MODE=staging. Configure KRISHIGO_JSON_STORE_DIR to a private directory outside the public web root. Never ship those files in the static release. GET /api/v1/modules/registry and GET /api/v1/modules/health expose safe read-only data. GET /api/v1/admin/module-controls and POST /api/v1/admin/module-controls/{id}, POST /api/v1/admin/module-controls/reset require staging admin session; writes require CSRF.
+State is protected with a lock and atomic file replacement; corrupted primary reads recover from the validated last-known-good snapshot. If neither copy is valid, fail closed with HTTP 503, never automatically reset modules to enabled. No arbitrary console, trading replay or external-service restarts.
+## Remaining development
+Live feeds, farmer verification, external transactions, notifications, model inference, cross-user persistence, regulated finance and full production permission management remain unimplemented. Having a switch does not make integrations production-ready. Keep the existing DigiOps deployment untouched until separate browser/API/security acceptance passes.
