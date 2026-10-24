@@ -52,6 +52,28 @@ final class Api {
             if($path==='/api/v1/staging/workflows/health'&&$method==='GET'){
                 \kg_require_roles(['admin','editor']);\kg_json(200,$service->health());
             }
+            // Demonstration matching only: reviewed produce lots, exact crop/district and sufficient quantity.
+            if($path==='/api/v1/staging/marketplace/matches' && $method==='GET') {
+                $service->assertEnabled('marketplace');
+                $service->assertEnabled('buyers');
+                $crop=$_GET['crop']??null;$district=$_GET['district']??null;
+                $quantity=$_GET['quantity_kg']??null;
+                if(!is_string($crop)||!is_string($district)||!is_string($quantity)||
+                    trim($crop)===''||trim($district)===''||strlen($crop)>80||strlen($district)>80||
+                    !preg_match('/^[1-9][0-9]{0,6}$/D',$quantity))
+                    \kg_json(422,['error'=>'invalid_match_query']);
+                $lots=$repo->records('marketplace')['items'];
+                $result=[];
+                foreach($lots as $lot){
+                    $f=$lot['fields'];
+                    if(strcasecmp(trim((string)($f['crop']??'')),trim($crop))!==0 ||
+                       strcasecmp(trim((string)($f['district']??'')),trim($district))!==0 ||
+                       (int)($f['quantity_kg']??0)<(int)$quantity)continue;
+                    $result[]=$lot;
+                    if(count($result)===10)break;
+                }
+                \kg_json(200,['demo'=>true,'matched'=>count($result),'items'=>$result,'enquiries_sent'=>false]);
+            }
             if(preg_match('~^/api/v1/staging/records/([a-z]+)$~D',$path,$match)){
                 $domain=$match[1];$service->assertEnabled($domain);
                 if($method==='GET'){
@@ -69,6 +91,10 @@ final class Api {
                     $key=(string)($_SERVER['HTTP_IDEMPOTENCY_KEY']??'');
                     if(!preg_match('/^[A-Za-z0-9_-]{16,64}$/D',$key))\kg_json(422,['error'=>'idempotency_key_required']);
                     $fields=$service->validate($domain,\kg_json_input(2048));
+                    if($domain==='plant' && isset($fields['followup_of'])) {
+                        $original=$repo->owned('plant',$fields['followup_of'],$identity['name']);
+                        if(isset($original['fields']['followup_of']))\kg_json(422,['error'=>'followup_must_link_to_original_case']);
+                    }
                     $result=$repo->create($domain,$identity['name'],$fields,$key);
                     \kg_json($result['created']?201:200,['demo'=>true,'delivered'=>false,'item'=>$result['item'],'replayed'=>!$result['created']]);
                 }

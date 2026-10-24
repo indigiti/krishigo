@@ -134,6 +134,17 @@ final class Store {
         return $record;
     }
 
+    /** Find a private case by owner, not by untrusted browser assertions. */
+    public function owned(string $domain, int $id, string $owner): array {
+        return $this->synchronized($domain, function(array $state) use ($id,$owner) {
+            foreach($state['doc']['records'] as $record) {
+                if($record['id']===$id && hash_equals($record['owner'],$owner))
+                    return self::visible($record);
+            }
+            throw new RuntimeException('RECORD_NOT_FOUND');
+        });
+    }
+
     public function create(string $domain, string $owner, array $fields, string $requestKey): array {
         return $this->synchronized($domain, function(array $state) use ($domain,$owner,$fields,$requestKey) {
             $doc = $state['doc'];

@@ -72,6 +72,10 @@ final class Services {
             if(!is_int($price)||$price<1||$price>1000000)throw new RuntimeException('FIELD_INVALID');
             $out['price_per_kg']=$price;
         }
+        if($domain==='plant' && array_key_exists('followup_of',$input)) {
+            if(!is_int($input['followup_of']) || $input['followup_of']<1)throw new RuntimeException('FIELD_INVALID');
+            $out['followup_of']=$input['followup_of'];
+        }
         if($domain==='editorial'&&!in_array($out['category'],['News','Guide','Scheme','Learning'],true))throw new RuntimeException('FIELD_INVALID');
         return $out;
     }
