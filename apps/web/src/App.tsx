@@ -82,6 +82,7 @@ function App() {
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');
   const [mobileNav, setMobileNav] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [q, setQ] = useState('');
   const [marketCategory, setMarketCategory] = useState('All');
@@ -102,12 +103,14 @@ function App() {
   const [listingComposer, setListingComposer] = useState(false);
   const [listingFeedback, setListingFeedback] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { let active = true; Promise.all([dataSource.listings(), dataSource.communityPosts()]).then(([l, p]) => { if (active) { setAllListings(l); setAllPosts(p); } }).catch(() => { if (active) { setAllListings([]); setAllPosts([]); } }); return () => { active = false; }; }, []);
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
-  const navigate = (p: Page) => { setPage(p); setMobileNav(false); setQ(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  useEffect(() => { if (mobileSearchOpen) mobileSearchRef.current?.focus(); }, [mobileSearchOpen]);
+  const navigate = (p: Page) => { setPage(p); setMobileNav(false); setMobileSearchOpen(false); setQ(''); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const toggleSaved = (id: number) => setSaved(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]);
-  const handleFile = (file?: File) => { if (!file || !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) return; setSelectedFile(file); setPreviewUrl(URL.createObjectURL(file)); setPlantResult(false); };
+  const handleFile = (file?: File) => { if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) return; setSelectedFile(file); setPreviewUrl(URL.createObjectURL(file)); setPlantResult(false); };
   const addListing = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -139,10 +142,12 @@ function App() {
     {mobileNav && <button className="mobile-backdrop" aria-label="Close menu" onClick={() => setMobileNav(false)}/>}
     <div className="main-shell">
       <header className="topbar"><button className="mobile-menu icon-button" aria-label="Open menu" onClick={() => setMobileNav(true)}><Menu size={23}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/> <strong>{page}</strong></div>
-        <div className="top-actions"><div className="searchbox"><Search size={17}/><input aria-label="Search market listings" placeholder="Search crops, listings, topics..." value={q} onChange={e => { setQ(e.target.value); if (e.target.value) setPage('Marketplace'); }}/><span>⌘ K</span></div>
+        <div className="top-actions"><button className="mobile-search-trigger icon-button" type="button" aria-label="Search listings" aria-expanded={mobileSearchOpen} onClick={() => setMobileSearchOpen(v => !v)}><Search size={19}/></button><div className="searchbox"><Search size={17}/><input aria-label="Search market listings" placeholder="Search crops, listings, topics..." value={q} onChange={e => { setQ(e.target.value); if (e.target.value) setPage('Marketplace'); }}/><span>⌘ K</span></div>
           <div className="theme-switch" aria-label="Choose design theme">{([['forest','Forest'],['sand','Sand'],['night','Night']] as const).map(t => <button title={`${t[1]} design`} aria-label={`${t[1]} theme`} aria-pressed={theme===t[0]} className={theme===t[0]?'current':''} key={t[0]} onClick={() => setTheme(t[0])}><span className={'theme-dot '+t[0]}/><span className="theme-word">{t[1]}</span></button>)}</div>
           <div className="notification-wrap"><button className="icon-button" aria-label="Notifications" aria-expanded={notificationOpen} onClick={() => setNotificationOpen(v => !v)}><Bell size={19}/><span className="notification-dot"/></button>{notificationOpen && <div className="notification-panel"><strong>You're all caught up</strong><p>New crop care tips and buyer enquiries will appear here when connected.</p><DemoPill /></div>}</div><div className="header-avatar">KG</div></div>
       </header>
+      <div className="staging-banner" role="status"><DemoPill/><span>Preview only — fictional mandi prices, listings and weather. No account, diagnosis or trade is real.</span></div>
+      {mobileSearchOpen && <form className="mobile-search-panel" role="search" onSubmit={e => {e.preventDefault(); setMobileSearchOpen(false); setPage('Marketplace');}}><label htmlFor="mobile-market-search">Search crop and market listings</label><div><Search size={18}/><input ref={mobileSearchRef} id="mobile-market-search" value={q} placeholder="Crops, sellers or district" onChange={e => {setQ(e.target.value); setPage('Marketplace');}}/><button type="button" aria-label="Close search" onClick={() => setMobileSearchOpen(false)}><X size={19}/></button></div></form>}
       <main className="page-content">
         {page === 'Overview' && <>
           <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> YOUR FARM COMPANION <DemoPill/></div><h1>Good morning, farmer <span className="wave">✳</span></h1><p>Here's what's happening across your agricultural world.</p></div><div className="date-chip"><CalendarDays size={17}/>{formatToday()}</div></div>

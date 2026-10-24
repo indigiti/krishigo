@@ -56,3 +56,18 @@ test('M3 screens remain local simulations without a client-side write API', () =
   assert.doesNotMatch(m3,/fetch\(|localStorage|sessionStorage|indexedDB/);
   for (const page of ['Onboarding','Trade Desk','Review Desk']) assert.ok(app.includes(`page === '${page}'`));
 });
+
+const css = read('../src/styles.css');
+const html = read('../index.html');
+test('M4 adds accessible mobile search, noindex meta, and global demo warning', () => {
+  assert.match(app, /aria-label="Search listings"/);
+  assert.match(app, /mobile-market-search/);
+  assert.match(app, /Preview only — fictional mandi prices/);
+  assert.match(css, /mobile-search-panel/);
+  assert.match(html, /noindex,nofollow,noarchive/);
+});
+test('M4 photo acceptance stays to supported raster formats', () => {
+  assert.match(app, /image\/jpeg/);
+  assert.match(app, /image\/png/);
+  assert.match(app, /image\/webp/);
+});
