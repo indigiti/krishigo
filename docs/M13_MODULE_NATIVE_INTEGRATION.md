@@ -27,6 +27,7 @@ The original screens and default mock data remain unchanged in the standard Digi
 - Trusted HTTPS forwarding from verified proxy peers only; no CORS and no public admin credentials.
 - Same-origin forwarding for `/krishigo/api/v1/*` to the PHP router `/api/v1/*` with actual rewrite/proxy configuration validated before enabling frontend JSON mode.
 - Browser build `VITE_JSON_WORKFLOWS_MODE=api`, `VITE_JSON_API_BASE_URL=/krishigo/api/v1`, `VITE_DATA_MODE=mock`. Compile this pilot separately, not as a replacement for #86.
+- For the same pilot's Admin switches to follow **server-wide** configuration, also build with `VITE_MODULE_CONTROL_MODE=api` and `VITE_MODULE_API_BASE_URL=/krishigo/api/v1`. Without these additional flags the Admin module remains browser-local; PHP endpoints themselves still enforce server-side module activation.
 - A **single staging role** remains the identity limitation. Real users and multi-role login cannot be accepted until separate production identity work.
 
 ## Safety and workflow behaviour
