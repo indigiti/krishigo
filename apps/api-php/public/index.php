@@ -30,9 +30,10 @@ if (kg_env('KRISHIGO_API_MODE') === 'production') {
 // Staging-only JSON-backed drafts; the default mode exposes no new write routes.
 if (str_starts_with($path, '/api/v1/staging/records/') ||
     str_starts_with($path, '/api/v1/staging/admin/records/') ||
-    $path === '/api/v1/staging/workflows/health') {
+    $path === '/api/v1/staging/workflows/health' ||
+    str_starts_with($path, '/api/v1/staging/jobs')) {
     require_once dirname(__DIR__).'/src/Modules/Registry.php';
-    foreach (['Store','Services','Api'] as $part) require_once dirname(__DIR__).'/src/Json/'.$part.'.php';
+    foreach (['Store','Services','Queue','Api'] as $part) require_once dirname(__DIR__).'/src/Json/'.$part.'.php';
     \KrishiGo\Json\Api::dispatch($method,$path);
 }
 

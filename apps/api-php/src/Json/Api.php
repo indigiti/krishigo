@@ -31,6 +31,24 @@ final class Api {
             $repo=new Store($dir);
             $modules=new \KrishiGo\Modules\Registry(dirname(__DIR__,2).'/fixtures/module-registry.json',$dir);
             $service=new Services($repo,$modules);
+            if($path==='/api/v1/staging/jobs'||
+               $path==='/api/v1/staging/jobs/process'||
+               $path==='/api/v1/staging/jobs/recover'){
+                \kg_require_roles(['admin','editor']);
+                $queue=new Queue($dir);
+                if($path==='/api/v1/staging/jobs'&&$method==='GET')\kg_json(200,$queue->list());
+                if($method!=='POST')\kg_json(405,['error'=>'method_not_allowed']);
+                \kg_check_csrf();self::throttle();
+                $body=\kg_json_input(256);
+                if($path==='/api/v1/staging/jobs'){
+                    if(($body['kind']??null)!=='domain_snapshot'||
+                       !is_string($body['domain']??null))\kg_json(422,['error'=>'unsupported_job']);
+                    $service->assertEnabled($body['domain']);
+                    \kg_json(202,$queue->enqueue($body['domain']));
+                }
+                if($path==='/api/v1/staging/jobs/process')\kg_json(200,$queue->process($repo));
+                \kg_json(200,$queue->recover());
+            }
             if($path==='/api/v1/staging/workflows/health'&&$method==='GET'){
                 \kg_require_roles(['admin','editor']);\kg_json(200,$service->health());
             }
