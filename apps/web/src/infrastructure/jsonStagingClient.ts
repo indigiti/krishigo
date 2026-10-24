@@ -48,6 +48,7 @@ export class JsonStagingClient {
  async decide(domain:DemoDomain,id:number,decision:'approve'|'reject'){
   return this.call<{item:DemoRecord}>('POST',`/staging/admin/records/${domain}/${id}/review`,{decision});
  }
+ async doctor(){return this.call<{schema:number;ok:boolean;status:'healthy'|'attention';checks:Array<{id:string;severity:'ok'|'attention'|'critical';message:string}>;summary:{diagnostic_domains:number;enabled_diagnostic_domains:number;restored_snapshots:number;queue_pending:number;queue_failed:number;queue_dead:number;available_private_storage_mb:number|null};database:'none';generated_at:string}>('GET','/staging/operations/doctor');}
  async health(){return this.call<{domains:Record<string,{records:number;pending:number;enabled:boolean;recovered:boolean}>;database:string}>('GET','/staging/workflows/health');}
  async queue(){return this.call<{items:QueueJob[];health:QueueHealth}>('GET','/staging/jobs');}
  async enqueue(domain:DemoDomain){return this.call('POST','/staging/jobs',{kind:'domain_snapshot',domain});}
