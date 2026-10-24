@@ -25,6 +25,11 @@ jobs:
         env:
           VITE_DATA_MODE: mock
           VITE_API_BASE_URL: ''
+      - name: Verify web transfer-size budgets
+        working-directory: .
+        run: |
+          python3 tools/test_web_budget.py
+          python3 tools/check_web_budget.py
       - name: Verify and package static staging artifact
         working-directory: .
         run: |

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ChangeEvent, type FormEvent, type CSSProperties } from 'react';
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight, Bell, CalendarDays, Camera,
   Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CloudSun, Compass,
@@ -9,10 +9,13 @@ import {
 } from 'lucide-react';
 import { type Listing, type CommunityPost, mandiMarkets } from './data/demo';
 import { dataSource, isDemo } from './services/dataSource';
-import Workspaces from './features/Workspaces';
-import { FarmerOnboarding, TradeDesk, ReviewDesk } from './features/TradeWorkflows';
+const Workspaces = lazy(() => import('./features/Workspaces'));
+const FarmerOnboarding = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.FarmerOnboarding})));
+const TradeDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.TradeDesk})));
+const ReviewDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.ReviewDesk})));
+const WorkflowHub = lazy(() => import('./features/WorkflowHub'));
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -29,6 +32,7 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Plant Cases', icon: FileHeart, desc: 'Crop symptom journal' },
   { label: 'Onboarding', icon: UserRound, desc: 'New member journey' },
   { label: 'Trade Desk', icon: ShoppingBag, desc: 'Listing and enquiry details' },
+  { label: 'Workflow Hub', icon: Activity, desc: 'Connected local workflows' },
   { label: 'Review Desk', icon: ShieldCheck, desc: 'Moderation demo' }
 ];
 const formatToday = () => new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
@@ -192,10 +196,13 @@ function App() {
           <div className="insights-grid"><section className="surface-card insights-chart"><div className="section-head"><div><div className="section-eyebrow">COMMODITY OVERVIEW</div><h3>Market activity trends</h3><p>Example trend chart for UI evaluation</p></div><button className="subtle-select" onClick={() => setChartPeriod(chartPeriod==='7 days'?'30 days':'7 days')}>{chartPeriod}<ChevronDown size={16}/></button></div><div className="growth-legend"><span><i className="legend-mark"/> Sample price trend</span><strong>+5.4<span>%</span></strong></div><GrowthChart/></section><section className="surface-card insights-metrics"><div className="section-eyebrow">FIELD METRICS</div><h3>Environmental snapshot</h3><div className="metric-box lime"><span><Droplets size={20}/> Water oversight</span><strong>64<span>%</span></strong><small>Example moisture index</small></div><div className="metric-split"><div><Thermometer size={19}/><strong>28°</strong><small>Temperature</small></div><div><Activity size={19}/><strong>86%</strong><small>Crop health demo</small></div></div></section></div>
           <section className="surface-card market-table"><div className="section-head"><div><div className="section-eyebrow">MANDI EXPLORER</div><h3>Sample commodity prices</h3><p>Structured for future verified market feeds</p></div><span className="small-status"><span/> No live feed</span></div><div className="table-wrap"><table><thead><tr><th>Market</th><th>Commodity</th><th>Minimum</th><th>Maximum</th><th>Average</th><th>Change</th></tr></thead><tbody>{mandiMarkets.map(m => <tr key={m.market}><td><strong>{m.market}</strong></td><td>{m.crop}</td><td>{m.min}</td><td>{m.max}</td><td><strong>{m.avg}</strong></td><td><span className={m.trend.startsWith('+')?'positive':'negative'}>{m.trend}</span></td></tr>)}</tbody></table></div><p className="tiny-disclaimer">Prices, changes and charts on this screen are fictitious samples, not trading or agricultural advice.</p></section>
         </>}
+        <Suspense fallback={<div className="surface-card" role="status">Loading this workspace…</div>}>
+        {page === 'Workflow Hub' && <WorkflowHub/>}
         {page === 'Onboarding' && <FarmerOnboarding/>}
         {page === 'Trade Desk' && <TradeDesk initialListingId={tradeListingId}/> }
         {page === 'Review Desk' && <ReviewDesk/>}
         {(['Buyers','Services','Discover','Crop Journal','Admin','My Profile','Plant Cases'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases') && <Workspaces key={page} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases'}/>}
+        </Suspense>
         <footer className="footer"><div><Sprout size={16}/> KrishiGo <span>·</span> Designed for the next generation of farming</div><span>{isDemo ? 'Staging prototype · no database · sample information' : 'Connected application'}</span></footer>
       </main>
     </div>
