@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { ArrowRight, BookOpen, CheckCircle2, ClipboardList, Filter, Info, Leaf, MapPin, Plus, Search, ShieldCheck, SlidersHorizontal, Sprout, Users } from 'lucide-react';
 import { type BuyerRequirement, type ContentEntry, type FarmService, type ScopeModule } from '../data/expanded';
 import { dataSource } from '../services/dataSource';
+import { ProfileWorkspace, CasesWorkspace } from './IdentityCases';
 
-type Workspace = 'Buyers' | 'Services' | 'Discover' | 'Crop Journal' | 'Admin';
+type Workspace = 'Buyers' | 'Services' | 'Discover' | 'Crop Journal' | 'Admin' | 'My Profile' | 'Plant Cases';
 type JournalEntry = { id: number; crop: string; observation: string; date: string };
 const DemoNote = ({children}: {children: ReactNode}) => <p className="page-disclaimer"><Info size={15}/> {children}</p>;
 const SectionTitle = ({eyebrow,title,copy}: {eyebrow:string;title:string;copy:string}) => <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> {eyebrow} <span className="demo-pill"><span/> DEMO DATA</span></div><h1>{title}</h1><p>{copy}</p></div></div>;
@@ -74,4 +75,4 @@ function AdminBoard(){
  <section className="surface-card"><div className="section-head"><div><div className="section-eyebrow">INTEGRATION READINESS</div><h3>System boundaries</h3></div><SlidersHorizontal size={19}/></div><div className="admin-rows">{rows.map(r=><div key={r.label}><div><strong>{r.label}</strong><small>{r.detail}</small></div><span className="scope-tag">{r.state}</span></div>)}</div></section><DemoNote>Admin is a public staging preview, not an authenticated or production management interface. Do not expose real operational controls here.</DemoNote>
  </>;
 }
-export default function Workspaces({page}: {page:Workspace}) { switch(page){case 'Buyers':return <BuyerBoard/>;case 'Services':return <ServicesBoard/>;case 'Discover':return <DiscoverBoard/>;case 'Crop Journal':return <CropJournal/>;case 'Admin':return <AdminBoard/>;} }
+export default function Workspaces({page}: {page:Workspace}) { switch(page){case 'Buyers':return <BuyerBoard/>;case 'Services':return <ServicesBoard/>;case 'Discover':return <DiscoverBoard/>;case 'Crop Journal':return <CropJournal/>;case 'Admin':return <AdminBoard/>;case 'My Profile':return <ProfileWorkspace/>;case 'Plant Cases':return <CasesWorkspace/>;} }

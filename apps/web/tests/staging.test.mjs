@@ -30,3 +30,15 @@ test('Plant Doctor and market samples state clear limitations', () => {
   assert.match(app, /fictional UI sample records/);
   assert.match(workspaces, /in-memory state only/);
 });
+const profileSource = read('../src/features/IdentityCases.tsx');
+test('M2 has role previews but they never claim backend authorization', () => {
+  for (const role of ['Farmer','Buyer','FPO coordinator','Agronomist','Editor']) assert.ok(profileSource.includes(role));
+  assert.match(profileSource,/does not grant API permissions/);
+  assert.match(app,/My Profile/);
+});
+test('M2 local crop case journal explicitly prohibits AI or upload claims', () => {
+  assert.match(profileSource,/no AI diagnosis/i);
+  assert.match(profileSource,/no upload/i);
+  assert.match(profileSource,/image\/jpeg/);
+  assert.match(app,/Plant Cases/);
+});

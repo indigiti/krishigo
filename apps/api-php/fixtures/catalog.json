@@ -1,0 +1,467 @@
+{
+  "listings": [
+    {
+      "id": 1,
+      "name": "Fresh red tomatoes",
+      "kind": "Produce",
+      "location": "Nashik, Maharashtra",
+      "price": "₹1,850",
+      "unit": "/ quintal",
+      "quantity": "4.5 tonnes",
+      "label": "Just harvested",
+      "icon": "🍅",
+      "tone": "peach",
+      "seller": "Green Valley Farms",
+      "verified": true
+    },
+    {
+      "id": 2,
+      "name": "Premium red onions",
+      "kind": "Produce",
+      "location": "Lasalgaon, Maharashtra",
+      "price": "₹2,200",
+      "unit": "/ quintal",
+      "quantity": "8 tonnes",
+      "label": "Bulk supply",
+      "icon": "🧅",
+      "tone": "lavender",
+      "seller": "Satvik Agro",
+      "verified": true
+    },
+    {
+      "id": 3,
+      "name": "Soybean, grade A",
+      "kind": "Produce",
+      "location": "Latur, Maharashtra",
+      "price": "₹4,350",
+      "unit": "/ quintal",
+      "quantity": "12 tonnes",
+      "label": "New listing",
+      "icon": "🌾",
+      "tone": "sage",
+      "seller": "Sahyadri FPO",
+      "verified": true
+    },
+    {
+      "id": 4,
+      "name": "Tractor with rotavator",
+      "kind": "Equipment",
+      "location": "Pune, Maharashtra",
+      "price": "₹900",
+      "unit": "/ hour",
+      "quantity": "Rental",
+      "label": "Available",
+      "icon": "🚜",
+      "tone": "yellow",
+      "seller": "Patil Farm Services",
+      "verified": false
+    },
+    {
+      "id": 5,
+      "name": "Farm produce transport",
+      "kind": "Services",
+      "location": "Ahmednagar, Maharashtra",
+      "price": "On request",
+      "unit": "",
+      "quantity": "2–8 tonne trucks",
+      "label": "Local service",
+      "icon": "🚚",
+      "tone": "blue",
+      "seller": "Krushi Logistics",
+      "verified": true
+    },
+    {
+      "id": 6,
+      "name": "Green chillies",
+      "kind": "Produce",
+      "location": "Kolhapur, Maharashtra",
+      "price": "₹3,100",
+      "unit": "/ quintal",
+      "quantity": "2 tonnes",
+      "label": "Fresh lot",
+      "icon": "🌶️",
+      "tone": "mint",
+      "seller": "Mahadev Farms",
+      "verified": false
+    }
+  ],
+  "posts": [
+    {
+      "id": 101,
+      "author": "Anaya Kulkarni",
+      "role": "Tomato grower",
+      "district": "Pune",
+      "time": "2h ago",
+      "avatar": "AK",
+      "topic": "Crop care",
+      "text": "Some leaves on my tomato plants are developing yellow patches after recent rain. What should I check before taking action?",
+      "likes": 24,
+      "replies": 8
+    },
+    {
+      "id": 102,
+      "author": "Sahyadri Farmers Group",
+      "role": "Verified FPO",
+      "district": "Nashik",
+      "time": "5h ago",
+      "avatar": "SF",
+      "topic": "Market discussion",
+      "text": "We are planning a collective onion harvest this week. Anyone have advice on grading and pre-sale quality checks?",
+      "likes": 42,
+      "replies": 15
+    },
+    {
+      "id": 103,
+      "author": "Rahul Deshmukh",
+      "role": "Farmer",
+      "district": "Latur",
+      "time": "Yesterday",
+      "avatar": "RD",
+      "topic": "Water management",
+      "text": "We saved water this season by dividing the field into smaller irrigation zones. Happy to share what worked for us.",
+      "likes": 31,
+      "replies": 6
+    }
+  ],
+  "requirements": [
+    {
+      "id": 201,
+      "commodity": "Tomato",
+      "quantityTonnes": 6,
+      "district": "Pune",
+      "grade": "A / assorted",
+      "neededBy": "Sample window",
+      "buyer": "Example Fresh Retail",
+      "status": "Sample"
+    },
+    {
+      "id": 202,
+      "commodity": "Onion",
+      "quantityTonnes": 12,
+      "district": "Nashik",
+      "grade": "Export grade",
+      "neededBy": "Sample window",
+      "buyer": "Example FPO Buyers",
+      "status": "Sample"
+    },
+    {
+      "id": 203,
+      "commodity": "Soybean",
+      "quantityTonnes": 18,
+      "district": "Latur",
+      "grade": "FAQ specification",
+      "neededBy": "Sample window",
+      "buyer": "Example Grain Processors",
+      "status": "Sample"
+    },
+    {
+      "id": 204,
+      "commodity": "Chilli",
+      "quantityTonnes": 3,
+      "district": "Kolhapur",
+      "grade": "Fresh",
+      "neededBy": "Sample window",
+      "buyer": "Example Farm Stores",
+      "status": "Sample"
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "category": "Machinery",
+      "name": "Tractor & implement rentals",
+      "district": "Pune",
+      "description": "Compare rental options, duration and operator requirements.",
+      "icon": "🚜"
+    },
+    {
+      "id": 2,
+      "category": "Transport",
+      "name": "Farm produce transport",
+      "district": "Nashik",
+      "description": "Request pickup quotes for harvest batches.",
+      "icon": "🚚"
+    },
+    {
+      "id": 3,
+      "category": "Storage",
+      "name": "Cold storage & warehousing",
+      "district": "Satara",
+      "description": "Explore storage type, temperatures and enquiry requirements.",
+      "icon": "📦"
+    },
+    {
+      "id": 4,
+      "category": "Testing",
+      "name": "Soil testing services",
+      "district": "Pune",
+      "description": "Compare soil sampling and laboratory result workflows.",
+      "icon": "🧪"
+    },
+    {
+      "id": 5,
+      "category": "Inputs",
+      "name": "Seeds & supplies directory",
+      "district": "Solapur",
+      "description": "Find business listings with future licence verification.",
+      "icon": "🌱"
+    },
+    {
+      "id": 6,
+      "category": "Labour",
+      "name": "Seasonal farm support",
+      "district": "Ahmednagar",
+      "description": "Post service requirements and arrange direct enquiries.",
+      "icon": "👷"
+    },
+    {
+      "id": 7,
+      "category": "Business",
+      "name": "FPO aggregation desk",
+      "district": "Nashik",
+      "description": "Group harvest availability and procurement leads.",
+      "icon": "🏢"
+    },
+    {
+      "id": 8,
+      "category": "Export",
+      "name": "Export readiness advice",
+      "district": "Mumbai",
+      "description": "Review illustrative quality and document checklists.",
+      "icon": "🌍"
+    }
+  ],
+  "content": [
+    {
+      "id": 1,
+      "kind": "Guide",
+      "title": "Photographing a crop problem effectively",
+      "summary": "Capture entire plants, leaf undersides, nearby plants and field conditions before asking for help.",
+      "crop": "All crops",
+      "source": "KrishiGo educational draft",
+      "updated": "Draft / undated"
+    },
+    {
+      "id": 2,
+      "kind": "Guide",
+      "title": "Before selling a tomato harvest",
+      "summary": "Record variety, quantity, grade, packing and pickup conditions before contacting buyers.",
+      "crop": "Tomato",
+      "source": "KrishiGo editorial draft",
+      "updated": "Draft / undated"
+    },
+    {
+      "id": 3,
+      "kind": "Learning",
+      "title": "Understanding integrated pest management",
+      "summary": "A draft lesson framework covering observation, prevention, monitoring and expert escalation.",
+      "crop": "All crops",
+      "source": "Editorial outline only",
+      "updated": "Draft / undated"
+    },
+    {
+      "id": 4,
+      "kind": "News",
+      "title": "Agriculture news desk preview",
+      "summary": "Placeholder for sourced, timestamped and editor-verified news; no current news is represented here.",
+      "crop": "General",
+      "source": "No live news source",
+      "updated": "Sample only"
+    },
+    {
+      "id": 5,
+      "kind": "Scheme",
+      "title": "Government scheme explorer",
+      "summary": "Prototype of eligibility checks, official source links and application-document requirements.",
+      "crop": "General",
+      "source": "No verified programme imported",
+      "updated": "Sample only"
+    },
+    {
+      "id": 6,
+      "kind": "Learning",
+      "title": "Commodity grading checklist",
+      "summary": "Draft inspection categories for quality, moisture, transport readiness and declared grade.",
+      "crop": "All crops",
+      "source": "KrishiGo editorial draft",
+      "updated": "Draft / undated"
+    }
+  ],
+  "modules": [
+    {
+      "id": 1,
+      "name": "Mandi Prices",
+      "category": "Insights",
+      "phase": 1,
+      "summary": "APMC quotations, data freshness and regional comparisons"
+    },
+    {
+      "id": 2,
+      "name": "Buy & Sell Marketplace",
+      "category": "Market",
+      "phase": 1,
+      "summary": "Farmer listings, quantities, images and enquiries"
+    },
+    {
+      "id": 3,
+      "name": "Buyer Requirements",
+      "category": "Market",
+      "phase": 1,
+      "summary": "Procurement requests, filters and matching"
+    },
+    {
+      "id": 4,
+      "name": "Farmer Community",
+      "category": "Circle",
+      "phase": 1,
+      "summary": "Crop groups, posts and moderated replies"
+    },
+    {
+      "id": 5,
+      "name": "Agriculture News",
+      "category": "Learn",
+      "phase": 1,
+      "summary": "Verified, sourced agricultural reporting"
+    },
+    {
+      "id": 6,
+      "name": "Weather & Alerts",
+      "category": "Insights",
+      "phase": 1,
+      "summary": "Location-based forecasts and warnings"
+    },
+    {
+      "id": 7,
+      "name": "Farming Knowledge",
+      "category": "Learn",
+      "phase": 1,
+      "summary": "Cultivation guides and safe field practices"
+    },
+    {
+      "id": 8,
+      "name": "Government Schemes",
+      "category": "Learn",
+      "phase": 1,
+      "summary": "Eligibility, documentation and official links"
+    },
+    {
+      "id": 9,
+      "name": "Machinery Marketplace",
+      "category": "Services",
+      "phase": 2,
+      "summary": "New and used implements and equipment"
+    },
+    {
+      "id": 10,
+      "name": "Equipment Rentals",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Tractors, harvesters and tools to hire"
+    },
+    {
+      "id": 11,
+      "name": "Agricultural Inputs",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Business directory for seeds and farm supplies"
+    },
+    {
+      "id": 12,
+      "name": "Transport & Logistics",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Transport quotes and pickup coordination"
+    },
+    {
+      "id": 13,
+      "name": "Agriculture Services",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Labour, soil testing, repairs and spraying"
+    },
+    {
+      "id": 14,
+      "name": "FPO & Cooperative Hub",
+      "category": "Business",
+      "phase": 2,
+      "summary": "Bulk aggregation and procurement management"
+    },
+    {
+      "id": 15,
+      "name": "Local Business Directory",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Farm-related dealers and providers"
+    },
+    {
+      "id": 16,
+      "name": "Video & Learning",
+      "category": "Learn",
+      "phase": 2,
+      "summary": "Guides, webinars and agriculture training"
+    },
+    {
+      "id": 17,
+      "name": "Storage & Warehousing",
+      "category": "Services",
+      "phase": 2,
+      "summary": "Cold-storage and warehouse enquiries"
+    },
+    {
+      "id": 18,
+      "name": "AI Farming Assistant",
+      "category": "Plant Care",
+      "phase": 2,
+      "summary": "Crop-related multilingual assistance with safeguards"
+    },
+    {
+      "id": 19,
+      "name": "Livestock Marketplace",
+      "category": "Market",
+      "phase": 3,
+      "summary": "Permitted livestock categories with verification"
+    },
+    {
+      "id": 20,
+      "name": "Crop Price Intelligence",
+      "category": "Insights",
+      "phase": 3,
+      "summary": "Longitudinal regional price analysis"
+    },
+    {
+      "id": 21,
+      "name": "Soil & Crop Health",
+      "category": "Plant Care",
+      "phase": 3,
+      "summary": "Soil reports and extended crop health"
+    },
+    {
+      "id": 22,
+      "name": "Agriculture Jobs",
+      "category": "Services",
+      "phase": 3,
+      "summary": "Seasonal labour and farm employment"
+    },
+    {
+      "id": 23,
+      "name": "Finance & Insurance",
+      "category": "Business",
+      "phase": 3,
+      "summary": "Educational tools and regulated partner referrals"
+    },
+    {
+      "id": 24,
+      "name": "Export Marketplace",
+      "category": "Market",
+      "phase": 3,
+      "summary": "Export leads and quality requirements"
+    },
+    {
+      "id": 25,
+      "name": "Farmer Recognition",
+      "category": "Circle",
+      "phase": 3,
+      "summary": "Farmer stories, awards and knowledge sharing"
+    }
+  ]
+}
