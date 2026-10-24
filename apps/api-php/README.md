@@ -83,3 +83,10 @@ atomic state replacement, validated last-good recovery, and request-idempotency
 protect staging correctness. If primary and backup fail validation, the affected
 domain fails closed with HTTP 503 rather than resetting. The session-level write
 cap is 60 changes per 15 minutes and is **not** production abuse protection.
+
+## M14 — Protected JSON runtime review artifact
+The dedicated **`krishigo-protected-php-pilot-review`** GitHub Actions artifact packages
+a guarded public entrypoint and the required private PHP code, separately from
+the static `digiops-release`. The API returns 503 until explicitly configured.
+It does not include the dormant production/MySQL implementation.
+See `docs/M14_PROTECTED_JSON_RUNTIME.md` before any manual host activation.

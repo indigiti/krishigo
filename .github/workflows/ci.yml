@@ -49,6 +49,7 @@ jobs:
         working-directory: .
         run: |
           python3 tools/test_package_php_pilot.py -v
+          python3 tools/test_php_pilot_http.py -v
           python3 tools/package_php_pilot.py --output protected-pilot-review
       - uses: actions/upload-artifact@v4
         with:
