@@ -58,3 +58,14 @@ Live mandi data with official sources and freshness, weather, news editorial ver
 - See [M3 production persistence plan](M3_PRODUCTION_PERSISTENCE.md) for the data model and implementation gates.
 
 **M3 is staging development, not a live business API or Cloudways deployment.**
+
+
+## Milestone M4 — staging reliability and browser acceptance
+
+- Accessible responsive mobile marketplace search (previously hidden on small screens).
+- Global demo-data warning on every screen, staging `noindex` and `robots.txt` packaging.
+- Restrict Plant Doctor local preview file types to JPEG, PNG and WebP; no remote uploads or inference.
+- Playwright smoke tests for 1440px desktop, 390px mobile, all 15 navigation destinations, theme switching, mobile search, overflow, console errors and no demo POST calls.
+- GitHub CI runs web build, PHP tests, artifact validation, and browser tests before considering merge.
+- Safe static ZIP packaging for protected Cloudways staging; **no live deployment, database or real services**.
+- Detailed deployment, rollback and remaining gaps documented in `CLOUDWAYS_STAGING.md`.

@@ -51,6 +51,21 @@ See `docs/production-api.md`. The data adapter anticipates `/marketplace/listing
 
 All three preserve the same information architecture and component sizing, making selection easy without rebuilding the app.
 
+## M4 staging build and browser acceptance
+
+CI builds in `VITE_DATA_MODE=mock`, runs TypeScript / Vite, PHP contracts, packaging checks and Playwright Chromium tests at 1440px and 390px. The static ZIP intentionally excludes the PHP service, database, passwords and credentials. It is intended only for an access-protected Cloudways staging hostname. See `../../docs/CLOUDWAYS_STAGING.md`.
+
+Local build after npm install:
+
+```bash
+VITE_DATA_MODE=mock npm run build
+python3 ../../tools/package_staging.py --output ../../krishigo-staging-static.zip
+npx playwright install chromium
+npm run test:e2e
+```
+
+This does not deploy anything. Confirm Cloudways HTTPS, access protection and NGINX/Apache behavior before transferring the approved ZIP.
+
 ## Staging smoke checks
 
 1. Switch themes and open all five modules.
