@@ -86,3 +86,14 @@ Live mandi data with official sources and freshness, weather, news editorial ver
 - Separate React Connected Operations workspace only enabled for `VITE_DATA_MODE=api` (not in DigiOps mock release).
 - Isolated MySQL-backed integration suite in CI; production rollout requires additional browser, privacy, abuse/identity, Cloudways TLS, and rollback reviews.
 - **Not** real AI diagnosis or public production release. See [M8 API plan](M8_PRODUCTION_API.md).
+
+## M10 — Shared JSON staging controls (optional; no database)
+
+- The normal `digiops-release` remains a static, browser-local demo. The new shared control console is **opt-in** with `VITE_MODULE_CONTROL_MODE=api`.
+- In that mode, the Admin module controls use the staging PHP API **on the same origin**; no cross-origin credential transport or browser-stored password.
+- Administrator staging sessions, CSRF, required roles and the private JSON storage path are enforced by PHP.
+- All 25 module toggles are revisioned. Each write includes the expected revision; stale simultaneous updates return HTTP 409 and the UI reloads the latest state.
+- One-step rollback reverses the previous registry configuration. It does not replay trade or audit events.
+- Corrupt registry recovery restores a validated last-known-good snapshot; double corruption fails closed with HTTP 503.
+- This is not a multi-user production login system. No emails, accounts, notifications, payments, real inference or business transactions are enabled.
+- The PHP service is **not** included in the static DigiOps release. Deploy it separately behind protected HTTPS and same-origin routing only after API/browser acceptance; default `VITE_MODULE_CONTROL_MODE` is local.
