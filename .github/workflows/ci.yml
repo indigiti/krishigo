@@ -78,7 +78,7 @@ jobs:
       - name: Build opt-in shared JSON mode and verify module activation in Chromium
         run: |
           VITE_MODULE_CONTROL_MODE=api VITE_MODULE_API_BASE_URL=/api/v1 npm run build
-          npx playwright test e2e/shared.spec.ts
+          KG_TEST_SHARED=1 npx playwright test e2e/shared.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:

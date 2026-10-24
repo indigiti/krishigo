@@ -2,6 +2,8 @@ import {expect,test} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const descriptor=JSON.parse(readFileSync(new URL('../src/config/module-registry.json',import.meta.url),'utf8')) as {modules:Array<{id:number;key:string;name:string;category:string;summary:string;dependencies:number[];enabled:boolean}>};
 
+test.skip(process.env.KG_TEST_SHARED!=='1','Shared-control browser suite requires opt-in build');
+
 test('shared module configuration controls dashboard and public navigation',async({page},info)=>{
  let authorized=false;
  let rev='a'.repeat(64);
