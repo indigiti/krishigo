@@ -91,7 +91,7 @@ test('module draft is created only locally and can be removed', async ({ page })
   await form.locator('input[name="field-1"]').fill('Pune');
   await form.locator('input[name="field-2"]').fill('3 days');
   await form.getByRole('button', { name: 'Save local draft' }).click();
-  await expect(page.getByText('Saved to this screen only.')).toBeVisible();
+  await expect(page.getByText('Draft saved in this browser tab only.')).toBeVisible();
   await expect(page.getByText('Harvest assistant')).toBeVisible();
   await page.getByRole('button', { name: 'Remove draft Harvest assistant' }).click();
   await expect(page.getByText('No drafts yet.')).toBeVisible();
