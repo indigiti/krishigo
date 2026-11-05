@@ -56,7 +56,7 @@ test('P1–P4 input pilot exposes authenticated drafts, review and sourced looku
  await page.getByRole('button',{name:'Save protected draft'}).click();
  await expect(page.getByText(/Private|Protected demo draft/).first()).toBeVisible();
  await page.getByLabel('Records').selectOption('review');
- await page.getByText('Review reason').fill('Demo evidence only, no external validation.');
+ await page.locator('.agri-review-reason textarea').fill('Demo evidence only, no external validation.');
  await page.getByRole('button',{name:'Review as demo'}).click();
  await expect(page.getByText(/not legal certification/)).toBeVisible();
  await page.getByLabel('Search staged sources').fill('micronutrient');
