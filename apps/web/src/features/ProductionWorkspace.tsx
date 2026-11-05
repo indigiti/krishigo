@@ -82,7 +82,7 @@ export default function ProductionWorkspace({initialArea='marketplace/listings',
         {queue.map(row=><div className="production-record" key={`${row.type}-${row.id}`}><strong>{row.type} #{row.id}</strong><p>{row.status}</p><div className="m3-actions"><button type="button" className="btn btn-soft" onClick={()=>review(row.type as 'listing'|'requirement'|'post',row.id,'approve')}>Approve</button><button type="button" className="btn btn-soft" onClick={()=>review(row.type as 'listing'|'requirement'|'post',row.id,'reject')}>Reject</button></div></div>)}
       </section>}
       <Suspense fallback={<section className="surface-card production-panel" role="status">Loading source, trade and field operations…</section>}>
-        <PlatformOperations user={user} initialTab={pageLabel==='Insights'||pageLabel==='Discover'||pageLabel==='Admin'?'readiness':pageLabel==='Agri Inputs'?'knowledge':pageLabel==='Overview'||pageLabel==='My Profile'||pageLabel==='Crop Journal'||pageLabel==='Plant Doctor'||pageLabel==='Plant Cases'?'farm':'trade'}/>
+        <PlatformOperations user={user} initialTab={pageLabel==='Insights'||pageLabel==='Discover'||pageLabel==='Admin'?'readiness':pageLabel==='Agri Inputs'?'knowledge':pageLabel==='Overview'||pageLabel==='My Profile'||pageLabel==='Crop Journal'||pageLabel==='Plant Doctor'||pageLabel==='Plant Cases'?'farm':pageLabel==='Marketplace'||pageLabel==='Buyers'||pageLabel==='Trade Desk'?'trade':'knowledge'}/>
         {pageLabel==='Admin'&&(user.role==='admin'?<ProductionModuleControls/>:<p className="page-disclaimer">Administrator permissions are required to manage production modules.</p>)}
       </Suspense>
     </>}
