@@ -16,7 +16,7 @@ final class EngagementApi {
     public static function dispatch(string $method,string $path,Repository $repo,?array $identity):never {
         $c=PlatformCommon::class;
         if($path==='/api/v1/platform/capabilities'&&$method==='GET'){
-            \kg_json(200,['schema_revision'=>2,'platform_candidate'=>true,
+            \kg_json(200,['schema_revision'=>3,'platform_candidate'=>true,
                 'verified_identity'=>false,'live_mandi_feed'=>false,'live_weather_feed'=>false,
                 'live_scheme_feed'=>false,'registered_pesticide_catalogue'=>false,
                 'real_ocr'=>false,'generative_ai'=>false,'expert_treatment_advice'=>false,
