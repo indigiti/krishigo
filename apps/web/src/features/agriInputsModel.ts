@@ -19,8 +19,17 @@ export const inputReferences:readonly InputReference[]=[
  {id:'soil-amendment',title:'Soil amendment — example category',category:'Soil amendment',composition:'Analysis not supplied',cropScope:'Requires soil-test context',evidence:'Unverified example',description:'Amendments depend on lab analysis and qualified local guidance.'}
 ];
 export const inputCategories=['All',...Array.from(new Set(inputReferences.map(x=>x.category)))];
+/** Curated search aliases only, not machine-translated agricultural advice. */
+export const inputSearchAliases:Readonly<Record<string,string>>={
+ 'कीटकनाशक':'insecticide','कीटनाशक':'insecticide','बुरशीनाशक':'fungicide','कवकनाशी':'fungicide',
+ 'तणनाशक':'herbicide','खरपतवारनाशी':'herbicide','सूक्ष्म अन्नद्रव्य':'micronutrient',
+ 'सूक्ष्म पोषक तत्व':'micronutrient','खत':'fertilizer','उर्वरक':'fertilizer',
+ 'जस्त':'zinc','जिंक':'zinc','लोह':'iron','लोहा':'iron','कॅल्शियम':'calcium',
+ 'नत्र':'nitrogen','नायट्रोजन':'nitrogen','पोटॅश':'potash','पोटाश':'potash'
+};
 export function filterInputReferences(term:string,category:string):InputReference[]{
- const q=term.trim().toLocaleLowerCase('en-IN');
+ const raw=term.trim().toLocaleLowerCase('en-IN');
+ const q=inputSearchAliases[raw]||raw;
  return inputReferences.filter(x=>(category==='All'||x.category===category)&&(!q||[x.title,x.category,x.composition,x.description].join(' ').toLocaleLowerCase('en-IN').includes(q)));
 }
 export function safeNutrientEquivalent(targetKg:number,percent:number):number|null{
