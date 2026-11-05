@@ -98,7 +98,27 @@ const DemoPill = () => <span className="demo-pill"><span/> DEMO DATA</span>;
 function App() {
   const moduleFlags=useModuleFlags();
   const pageModule:Partial<Record<Page,number>>={'Plant Doctor':18,'Marketplace':2,'Community':4,'Insights':1,'Buyers':3,'Services':13,'Agri Inputs':11,'Crop Journal':21,'Plant Cases':21,'Trade Desk':2};
-  const allowed=(target:Page)=>!pageModule[target]||isEnabled(moduleFlags,pageModule[target]!);
+  const [productionPolicy,setProductionPolicy]=useState<Record<number,boolean>|null>(null);
+  // Server policy is authoritative in connected mode; browser localStorage is demo only.
+  useEffect(()=>{
+    if(isDemo)return;
+    let active=true;
+    const reload=()=>{void import('./infrastructure/productionApiClient')
+      .then(({productionClient})=>productionClient.productionModules())
+      .then(result=>{if(active)setProductionPolicy(
+       Object.fromEntries(result.items.map(m=>[m.module_id,m.enabled])))})
+      .catch(()=>{if(active)setProductionPolicy({});});};
+    reload();
+    window.addEventListener('focus',reload);
+    window.addEventListener('krishigo-production-policy-changed',reload);
+    return()=>{active=false;window.removeEventListener('focus',reload);
+      window.removeEventListener('krishigo-production-policy-changed',reload);};
+  },[]);
+  const allowed=(target:Page)=>{
+    const id=!isDemo&&target==='Plant Doctor'?21:pageModule[target];
+    if(!id)return true;
+    return isDemo?isEnabled(moduleFlags,id):Boolean(productionPolicy?.[id]);
+  };
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');
   const [mobileNav, setMobileNav] = useState(false);
@@ -166,7 +186,7 @@ function App() {
           <div className="theme-switch" aria-label="Choose design theme">{([['forest','Forest'],['sand','Sand'],['night','Night']] as const).map(t => <button title={`${t[1]} design`} aria-label={`${t[1]} theme`} aria-pressed={theme===t[0]} className={theme===t[0]?'current':''} key={t[0]} onClick={() => setTheme(t[0])}><span className={'theme-dot '+t[0]}/><span className="theme-word">{t[1]}</span></button>)}</div>
           <div className="notification-wrap"><button className="icon-button" aria-label="Notifications" aria-expanded={notificationOpen} onClick={() => setNotificationOpen(v => !v)}><Bell size={19}/><span className="notification-dot"/></button>{notificationOpen && <div className="notification-panel"><strong>You're all caught up</strong><p>{isDemo?'New crop care tips and buyer enquiries will appear here when connected.':'In-app events appear after authentication. External delivery is disabled.'}</p>{isDemo&&<DemoPill />}</div>}</div><div className="header-avatar">KG</div></div>
       </header>
-      <div className="staging-banner" role="status">{!isDemo ? <span>Connected PHP workspace — database-backed records only where implemented; external services require launch approval.</span> : <><DemoPill/><span>Preview only — fictional mandi prices, listings and weather. No account, diagnosis or trade is real.</span></>}</div>
+      <div className="staging-banner" role="status">{!isDemo ? <span>{productionPolicy===null?'Loading production module policy…':Object.keys(productionPolicy).length===0?'Production module policy unavailable — module navigation is disabled.':'Connected PHP workspace — only server-enabled functions are shown. External providers require launch approval.'}</span> : <><DemoPill/><span>Preview only — fictional mandi prices, listings and weather. No account, diagnosis or trade is real.</span></>}</div>
       {isDemo&&mobileSearchOpen && <form className="mobile-search-panel" role="search" onSubmit={e => {e.preventDefault(); setMobileSearchOpen(false); setPage('Marketplace');}}><label htmlFor="mobile-market-search">Search crop and market listings</label><div><Search size={18}/><input ref={mobileSearchRef} id="mobile-market-search" value={q} placeholder="Crops, sellers or district" onChange={e => {setQ(e.target.value); setPage('Marketplace');}}/><button type="button" aria-label="Close search" onClick={() => setMobileSearchOpen(false)}><X size={19}/></button></div></form>}
       <main className="page-content">
       {!allowed(page)?<section className="surface-card workspace-recovery"><h2>Module disabled</h2><button className="btn btn-primary" onClick={()=>nav('Admin')}>Open module controls</button></section>:<WorkspaceBoundary area={page}>
