@@ -9,8 +9,8 @@ const tabs:readonly {key:Tab;name:string}[]=[
 ];
 const errorMessage=(e:unknown)=>e instanceof Error?e.message:'Operation failed';
 const form=(e:FormEvent<HTMLFormElement>)=>Object.fromEntries(new FormData(e.currentTarget));
-export default function PlatformOperations({user}:{user:Identity}){
- const [tab,setTab]=useState<Tab>('knowledge'),[busy,setBusy]=useState(false);
+export default function PlatformOperations({user,initialTab='knowledge'}:{user:Identity;initialTab?:Tab}){
+ const [tab,setTab]=useState<Tab>(initialTab),[busy,setBusy]=useState(false);
  const [error,setError]=useState(''),[notice,setNotice]=useState(''),[reason,setReason]=useState('');
  const [sources,setSources]=useState<SourceRecord[]>([]),[pendingSources,setPendingSources]=useState<SourceRecord[]>([]);
  const [articles,setArticles]=useState<KnowledgeArticle[]>([]),[pendingArticles,setPendingArticles]=useState<KnowledgeArticle[]>([]);
