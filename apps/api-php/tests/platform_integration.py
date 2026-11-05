@@ -107,6 +107,9 @@ class PlatformFlow(unittest.TestCase):
         self.assertGreaterEqual(len(ai['matches']),1)
         self.assertEqual(ai['matches'][0]['source_url'],source['source_url'])
         st,_=public.call('POST','/api/v1/editor/knowledge/sources',source,csrf=False)
+        self.assertEqual(st,401) # Anonymous authorization rejected before CSRF validation.
+        st,_=self.editor.call('POST','/api/v1/editor/knowledge/sources',source,
+                              csrf=False,extra={'X-CSRF-Token':'wrong'})
         self.assertEqual(st,419)
         st,_=self.editor.call('POST','/api/v1/editor/knowledge/sources',{**source,'source_url':'http://example.com'})
         self.assertEqual(st,422)
