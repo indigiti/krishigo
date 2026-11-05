@@ -33,6 +33,15 @@ jobs:
         run: |
           python3 tools/test_web_budget.py
           python3 tools/check_web_budget.py
+      - name: Verify M25 launch gates remain fail-closed
+        working-directory: .
+        run: python3 tools/check_platform_readiness.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: krishigo-m25-readiness
+          path: reports/m25-platform-readiness.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Verify and package static staging artifact
         working-directory: .
         run: |
@@ -99,6 +108,10 @@ jobs:
         run: |
           VITE_JSON_WORKFLOWS_MODE=api VITE_JSON_API_BASE_URL=/api/v1 npm run build
           KG_TEST_JSON=1 npx playwright test e2e/json.spec.ts e2e/connected.spec.ts e2e/module-contracts.spec.ts e2e/connected-inputs.spec.ts
+      - name: Build production-candidate UI and exercise isolated platform screens
+        run: |
+          VITE_DATA_MODE=api VITE_API_BASE_URL=/api/v1 npm run build
+          KG_TEST_PLATFORM=1 npx playwright test e2e/platform-operations.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
