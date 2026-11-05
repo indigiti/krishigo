@@ -8,7 +8,7 @@ const safe = (area: WorkspaceArea) => area;
 export type SourceRecord={id:string;title:string;publisher:string;source_url:string;jurisdiction:string;status?:string;published_on?:string;created_at?:string};
 export type KnowledgeArticle={id:string;title:string;crop:string;topic:string;language:string;summary:string;revision:number;source_title?:string;source_url?:string;publisher?:string};
 export type PlatformQuote={id:string;enquiry_id:number;listing_id:number;quantity_kg:string;total_inr:string;terms:string;status:string;expires_at:string;buyer_id:number;seller_id:number};
-export type PlatformOrder={id:string;quote_id:string;status:string;quantity_kg:string;total_inr:string;terms:string};
+export type PlatformOrder={id:string;quote_id:string;status:string;seller_id:number;buyer_id:number;quantity_kg:string;total_inr:string;terms:string};
 export type PlatformNotice={id:string;topic:string;title:string;description:string;status:string;created_at:string};
 export type PlatformCapabilities={schema_revision:number;platform_candidate:boolean;source_review:boolean;real_ocr:boolean;generative_ai:boolean;whatsapp_delivery:boolean;payments:boolean;[key:string]:boolean|number};
 
