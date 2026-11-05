@@ -197,6 +197,21 @@ final class Store {
         });
     }
 
+    /** Delete a caller-owned private staging record (e.g., revoke batch-watch consent). */
+    public function deleteOwned(string $domain, int $id, string $owner): bool {
+        return $this->synchronized($domain, function(array $state) use ($domain,$id,$owner) {
+            $doc=$state['doc'];
+            foreach($doc['records'] as $index=>$record) {
+                if($record['id']!==$id)continue;
+                if(!hash_equals($record['owner'],$owner))throw new RuntimeException('RECORD_NOT_FOUND');
+                array_splice($doc['records'],$index,1);
+                $this->persist($domain,$doc);
+                return true;
+            }
+            throw new RuntimeException('RECORD_NOT_FOUND');
+        });
+    }
+
     public function health(): array {
         $result = [];
         foreach (self::DOMAINS as $domain) {
