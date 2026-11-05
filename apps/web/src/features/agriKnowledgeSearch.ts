@@ -40,6 +40,10 @@ export function filterPestDiseaseGuides(crop:string,search='',kind='All'){
 }
 export function filterNutrientGuides(search='',group='All'){
  const query=normalizedKnowledgeQuery(search);
- return knowledgeNutrients.filter(x=>(group==='All'||x.group===group)&&
+ const found=knowledgeNutrients.filter(x=>(group==='All'||x.group===group)&&
    includes([x.name,x.symbol,x.group,x.role,x.possibleSigns,x.firstSeen,x.lookAlikes].join(' '),query));
+ if(!query)return found;
+ const score=(name:string,symbol:string)=>name.toLocaleLowerCase('en-IN')===query||symbol.toLocaleLowerCase('en-IN')===query?0:
+     name.toLocaleLowerCase('en-IN').startsWith(query)?1:2;
+ return found.sort((a,b)=>score(a.name,a.symbol)-score(b.name,b.symbol));
 }
