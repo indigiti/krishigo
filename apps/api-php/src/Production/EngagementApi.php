@@ -16,14 +16,14 @@ final class EngagementApi {
     public static function dispatch(string $method,string $path,Repository $repo,?array $identity):never {
         $c=PlatformCommon::class;
         if($path==='/api/v1/platform/capabilities'&&$method==='GET'){
-            \kg_json(200,['schema_revision'=>3,'platform_candidate'=>true,
+            \kg_json(200,['schema_revision'=>4,'platform_candidate'=>true,
                 'verified_identity'=>false,'live_mandi_feed'=>false,'live_weather_feed'=>false,
                 'live_scheme_feed'=>false,'registered_pesticide_catalogue'=>false,
                 'real_ocr'=>false,'generative_ai'=>false,'expert_treatment_advice'=>false,
                 'whatsapp_delivery'=>false,'email_delivery'=>false,'payments'=>false,
                 'booking_or_dispatch'=>false,'source_review'=>true,
                 'manually_reviewed_snapshots'=>true,'provisional_trade_records'=>true,
-                'in_app_consent_events'=>true,'database_required'=>true]);
+                'in_app_consent_events'=>true,'database_required'=>true,'production_module_policy'=>true,'owner_scoped_farm_fields'=>true]);
         }
         if($method==='GET'&&$path==='/api/v1/assistant/search'){
             $q=$_GET['q']??'';
