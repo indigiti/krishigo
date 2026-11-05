@@ -98,7 +98,7 @@ export default function AgriInputs({onBack}:{onBack?:()=>void}){
   {notice&&<div className="workspace-notice" role="status"><CheckCircle2 size={18}/>{notice}</div>}
   {active==='crop'&&<Panel title="Crop-wise input discovery" eyebrow="SEARCH · REFERENCE CATEGORIES">
     <p>Explore educational product categories. Choosing a crop does not imply that any displayed product is approved or suitable for that crop.</p>
-    <div className="agri-fields"><label>Crop<select value={crop} onChange={e=>setCrop(e.target.value)}>{cropOptions.map(x=><option key={x}>{x}</option>)}</select></label>
+    <div className="agri-fields"><label>Crop<select aria-label="Crop for input discovery" value={crop} onChange={e=>setCrop(e.target.value)}>{cropOptions.map(x=><option key={x}>{x}</option>)}</select></label>
      <label>Category<select value={category} onChange={e=>setCategory(e.target.value)}>{inputCategories.map(x=><option key={x}>{x}</option>)}</select></label>
      <label>Search<input aria-label="Search agricultural input references" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Ingredient, nutrient or category"/></label></div>
     <Note>{crop} crop-use approvals: no verified records loaded. An official label review is required before agricultural use.</Note>
