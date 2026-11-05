@@ -49,7 +49,7 @@ test('P1–P4 input pilot exposes authenticated drafts, review and sourced looku
  await page.getByLabel('Product name').fill('Demo micronutrient');
  await page.getByLabel('Input category').selectOption('micronutrient');
  await page.getByLabel('Composition').fill('Illustrative grade');
- await page.getByLabel('Crop',{exact:true}).fill('Onion');
+ await page.locator('.agri-connected-form').getByLabel('Crop',{exact:true}).fill('Onion');
  await page.getByLabel('Registration reference').fill('UNKNOWN');
  await page.getByLabel('Source URL').fill('https://example.org/label');
  await page.getByLabel('Source checked on').fill('2026-11-01');
