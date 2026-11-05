@@ -6,7 +6,7 @@
  */
 export type NumberField = {
  key: string; label: string; unit: string; min: number; max: number;
- initial: number; help?: string;
+ initial: number; whole?: boolean; help?: string;
 };
 export type CalculatorTool = {
  kind: 'calculator'; title: string; description: string; fields: readonly NumberField[];
@@ -19,6 +19,7 @@ export type ChecklistTool = {
 };
 export type FieldTool = CalculatorTool | ChecklistTool;
 const num=(key:string,label:string,unit:string,initial:number,min=0.001,max=100_000_000):NumberField=>({key,label,unit,initial,min,max});
+const whole=(key:string,label:string,unit:string,initial:number,min=1,max=100_000_000):NumberField=>({...num(key,label,unit,initial,min,max),whole:true});
 const calc=(title:string,description:string,fields:NumberField[],resultLabel:string,resultUnit:string,notice:string,precision=2):CalculatorTool=>({kind:'calculator',title,description,fields,resultLabel,resultUnit,notice,precision});
 const plan=(title:string,description:string,steps:[string,string][],notice:string):ChecklistTool=>({
  kind:'action-plan',title,description,steps:steps.map(([label,note])=>({label,note})),notice
@@ -62,7 +63,7 @@ export const moduleFieldTools:Readonly<Record<number,FieldTool>>={
    ['Note department contact and application reference','An official receipt is required to confirm submission.']],
   'Eligibility is not assessed and no application is submitted.'),
  9:calc('Machinery annualized cost comparison','Spread a hypothetical purchase cost over years and add annual upkeep.',
-  [num('purchase','Illustrative purchase cost','₹',450000),num('years','Estimated use period','years',5),num('upkeep','Annual upkeep/insurance','₹ per year',28000,0)],'Simplified annual cost','₹/year','Not a financing, resale-value or machinery-worth assessment.'),
+  [num('purchase','Illustrative purchase cost','₹',450000),whole('years','Estimated use period','years',5),num('upkeep','Annual upkeep/insurance','₹ per year',28000,0)],'Simplified annual cost','₹/year','Not a financing, resale-value or machinery-worth assessment.'),
  10:calc('Equipment hire budget','Estimate equipment hire plus operator/travel charges for a proposed booking.',
   [num('hours','Requested hours','hours',8),num('rate','Proposed hourly rental rate','₹/hour',1300),num('other','Other quoted charges','₹',1600,0)],'Illustrative hire budget','₹','No supplier availability or booking is confirmed.'),
  12:calc('Transport cost per quintal','Allocate an entered total freight/handling cost across cargo quantity.',
@@ -74,7 +75,7 @@ export const moduleFieldTools:Readonly<Record<number,FieldTool>>={
    ['Plan completion evidence','Record work performed and any agreed follow-up.']],
   'No service provider has been contacted or booked.'),
  14:calc('FPO collective lot estimate','Estimate aggregate saleable quantity from participating members.',
-  [num('members','Participating members','farmers',25),num('perMember','Estimated quantity per farmer','quintals',11),num('lossPct','Expected handling loss','%',3,0,100)],'Illustrative saleable quantity','quintals','Real member consent, ownership, grade and stock reconciliation are pending.'),
+  [whole('members','Participating members','farmers',25),num('perMember','Estimated quantity per farmer','quintals',11),num('lossPct','Expected handling loss','%',3,0,100)],'Illustrative saleable quantity','quintals','Real member consent, ownership, grade and stock reconciliation are pending.'),
  15:plan('Local business verification intake','Prepare a prospective supplier or service directory record.',
   [['Check legal name and operating address','Do not infer that a listing is a verified business.'],
    ['Record permitted contact details','Collect permission before publishing phone or email.'],
@@ -88,7 +89,7 @@ export const moduleFieldTools:Readonly<Record<number,FieldTool>>={
    ['Create knowledge check and revision date','Retire outdated chemical or policy references.']],
   'This is authoring preparation; no video is hosted or streamed.'),
  17:calc('Warehouse storage budget','Estimate storage charges from an entered capacity-duration-rate quote.',
-  [num('qty','Cargo quantity','tonnes',2),num('days','Storage period','days',14),num('rate','Quoted storage rate','₹/tonne/day',110)],'Illustrative storage budget','₹','Does not confirm a cold-chain facility, safe temperature or booking.'),
+  [num('qty','Cargo quantity','tonnes',2),whole('days','Storage period','days',14),num('rate','Quoted storage rate','₹/tonne/day',110)],'Illustrative storage budget','₹','Does not confirm a cold-chain facility, safe temperature or booking.'),
  18:plan('Farm assistant question triage','Collect missing context before expert or validated AI review.',
   [['Identify crop and growth stage','Growth stage influences symptom interpretation.'],
    ['Document signs and extent','Record what is visible and whether it is spreading.'],
@@ -111,11 +112,11 @@ export const moduleFieldTools:Readonly<Record<number,FieldTool>>={
    ['Refer to a qualified agronomist','Symptoms alone cannot confirm a deficiency.']],
   'No nutrient deficiency, application or amendment recommendation is calculated.'),
  22:calc('Agricultural job wage budget','Estimate a clearly stated wage commitment for a proposed farm job.',
-  [num('workers','Number of workers','people',6),num('days','Work duration','days',5),num('wage','Daily wage per worker','₹/person/day',550)],'Illustrative gross wage budget','₹','Check applicable minimum wages, working conditions and statutory obligations.'),
+  [whole('workers','Number of workers','people',6),whole('days','Work duration','days',5),num('wage','Daily wage per worker','₹/person/day',550)],'Illustrative gross wage budget','₹','Check applicable minimum wages, working conditions and statutory obligations.'),
  23:calc('Simple interest illustration','Illustrate non-compounding interest on a hypothetical loan.',
-  [num('principal','Illustrative principal','₹',100000),num('apr','Nominal annual interest','% per year',12,0,100),num('months','Term','months',12)],'Illustrative simple interest','₹','Not an EMI/APR quote, financial advice, lender eligibility or insurance offer.'),
+  [num('principal','Illustrative principal','₹',100000),num('apr','Nominal annual interest','% per year',12,0,100),whole('months','Term','months',12)],'Illustrative simple interest','₹','Not an EMI/APR quote, financial advice, lender eligibility or insurance offer.'),
  24:calc('Export shipment weight','Estimate net cargo weight from cartons and weight per carton.',
-  [num('cartons','Number of cartons','cartons',1200),num('kg','Net kilograms per carton','kg/carton',5)],'Net shipment mass','kg','Not a customs declaration, trade permit or verified export requirement.'),
+  [whole('cartons','Number of cartons','cartons',1200),num('kg','Net kilograms per carton','kg/carton',5)],'Net shipment mass','kg','Not a customs declaration, trade permit or verified export requirement.'),
  25:plan('Farmer recognition editorial nomination','Prepare a consent-based community story.',
   [['Obtain documented subject consent','Consent can be withdrawn according to published policy.'],
    ['Verify achievement and supporting evidence','Do not inflate yields, savings or award status.'],
@@ -130,7 +131,7 @@ export function evaluateModuleCalculator(moduleId:number,inputs:Readonly<Record<
  if(!tool||tool.kind!=='calculator')return {valid:false,value:null,label:'Unavailable',unit:'',notice:'',reason:'No calculator exists for this module.'};
  for(const f of tool.fields){
   const n=inputs[f.key];
-  if(typeof n!=='number'||!Number.isFinite(n)||n<f.min||n>f.max)
+  if(typeof n!=='number'||!Number.isFinite(n)||n<f.min||n>f.max||(f.whole===true&&!Number.isInteger(n)))
    return {valid:false,value:null,label:tool.resultLabel,unit:tool.resultUnit,notice:tool.notice,reason:'Enter valid numbers in the stated units and ranges.'};
  }
  const n=(k:string)=>inputs[k];
