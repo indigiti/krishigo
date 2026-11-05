@@ -35,3 +35,18 @@ CREATE TABLE IF NOT EXISTS farm_fields (
  CONSTRAINT chk_farm_field_area CHECK (area_hectares>0 AND area_hectares<=100000),
  CONSTRAINT chk_farm_field_status CHECK (status IN ('active','archived'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Independent link table avoids rewriting existing agronomy intake records.
+-- Every link must be created inside the same transaction as its private intake.
+CREATE TABLE IF NOT EXISTS farm_field_case_links (
+ id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
+ field_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ intake_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ owner_id BIGINT UNSIGNED NOT NULL,
+ created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+ UNIQUE KEY unique_case_link (intake_id),
+ FOREIGN KEY (field_id) REFERENCES farm_fields(id),
+ FOREIGN KEY (intake_id) REFERENCES agronomy_intakes(id),
+ FOREIGN KEY (owner_id) REFERENCES users(id),
+ INDEX idx_field_case_links (owner_id,field_id,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
