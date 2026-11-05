@@ -19,7 +19,7 @@ export default function PlatformOperations({user,initialTab='knowledge'}:{user:I
  const [fields,setFields]=useState<FarmField[]>([]);
  const [supplier,setSupplier]=useState<{id:string;business_name:string;district:string;status:string}|null>(null);
  const [supplierQueue,setSupplierQueue]=useState<Array<{id:string;business_name:string;district:string}>>([]);
- const [cases,setCases]=useState<Array<{id:string;crop:string;kind:string;observation:string;status:string}>>([]);
+ const [cases,setCases]=useState<Array<{id:string;crop:string;kind:string;observation:string;status:string;field_id:string|null}>>([]);
  const [quotes,setQuotes]=useState<PlatformQuote[]>([]),[orders,setOrders]=useState<PlatformOrder[]>([]);
  const [events,setEvents]=useState<PlatformNotice[]>([]);
  const [opted,setOpted]=useState<Record<string,boolean>>({});
@@ -198,12 +198,16 @@ export default function PlatformOperations({user,initialTab='knowledge'}:{user:I
     <form className="platform-form" onSubmit={e=>send(e,d=>productionClient.createAgronomy(d),'Private case created for expert review (no real dispatch).')}>
      <label>Type<select name="kind"><option value="plant_observation">Crop observation</option><option value="label_transcription">Manual label transcription</option></select></label>
      <label>Crop<input name="crop" maxLength={100} minLength={2} required/></label>
+     {fields.length>0&&<label>Related field (optional)<select name="field_id">
+      <option value="">Unassigned observation</option>
+      {fields.filter(f=>f.status==='active').map(f=><option key={f.id} value={f.id}>{f.field_name} · {f.crop}</option>)}
+     </select></label>}
      <label>Observation<textarea name="observation" rows={3} minLength={12} maxLength={1200} required/></label>
      <label>Context note<textarea name="context_note" rows={2} minLength={8} maxLength={600} required/></label>
      <label>Optional HTTPS evidence reference<input type="url" name="evidence_url"/></label>
      <button className="btn btn-primary" disabled={busy}>Save for review</button>
     </form>
-    {cases.map(c=><article className="platform-record" key={c.id}><strong>{c.crop} · {c.kind}</strong><small>{c.status}</small><p>{c.observation}</p></article>)}
+    {cases.map(c=><article className="platform-record" key={c.id}><strong>{c.crop} · {c.kind}</strong><small>{c.status}{c.field_id?' · Linked to private field':''}</small><p>{c.observation}</p></article>)}
    </section>
   </div>}
 
