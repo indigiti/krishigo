@@ -33,7 +33,7 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
   if(p==='/admin/suppliers')return reply({items:[]});
   if(p==='/me/notification-events'||p==='/me/notification-preferences')return reply({items:[]});
   if(p==='/assistant/search')return reply({matches:[],answer:'No approved source supports a recommendation.',generative_ai:false});
-  if(p==='/platform/capabilities')return reply({schema_revision:3,platform_candidate:true,source_review:true,real_ocr:false,generative_ai:false,whatsapp_delivery:false,payments:false});
+  if(p==='/platform/capabilities')return reply({schema_revision:4,platform_candidate:true,source_review:true,real_ocr:false,generative_ai:false,whatsapp_delivery:false,payments:false});
   if(p==='/data/snapshots')return reply({items:[],connector_live:false});
   return reply({error:'not_found'},404);
  });
