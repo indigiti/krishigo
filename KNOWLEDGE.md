@@ -1,6 +1,6 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-05 (M26 farmer-to-buyer development).
+> **Single source of truth for development status.** Updated: 2026-11-06 (M28 production core implementation).
 > Repository: indigiti/krishigo
 > Branch lineage: main (M1–M25 consolidated via PRs #16, #17 and #18) → feature/m26-farmer-buyer-lifecycle (current development branch).
 >
@@ -185,13 +185,34 @@ All calculations validate numeric boundaries, do not call network services, and 
 | Browser coverage | apps/web/e2e/platform-operations.spec.ts | Production-mode mocked endpoints |
 | Reference | docs/M26_FARMER_BUYER_JOURNEY.md | Operational flow and blocked live-service gates |
 
+## M28 — Production module authorization, private fields and real-mode UI (DRAFT BRANCH)
+
+See docs/M28_PRODUCTION_CORE_GUARDRAILS.md for API contracts, constraints and rollout requirements.
+
+- [x] Add 004_core_guardrails.sql with production module policy, UUIDv7 private fields, and field-to-agronomy case links.
+- [x] Enforce mapped module permissions server-side in the real PHP router, independent of mock browser flags.
+- [x] Add admin-only, CSRF-protected, optimistic-revision policy updates with dependent-module cascade and audit records.
+- [x] Fail closed if production module policy rows are absent or incomplete.
+- [x] Route production-mode primary UI away from fictional data to authenticated PHP workspaces or explicit unavailable states.
+- [x] Restrict production navigation to server-enabled modules; provide real admin controls.
+- [x] Create/edit/archive owner-scoped farm fields with revision protection and private audit.
+- [x] Connect manual crop/label observations to an active field owned by that account in one SQL transaction.
+- [x] Add HTTP/SQL tests for role authorization, CSRF, module cascade, field ownership and case links.
+- [x] Add connected-mode desktop/mobile tests to reject fictional Marketplace content and exercise field creation.
+- [ ] Complete M28 code CI and independent review (record exact successful run).
+- [ ] Merge M26 PR #19 first; M28 branch is based on that unmerged implementation.
+- [ ] Hosted Cloudways verification, audited migration, live release and provider integrations are NOT completed.
+
+**Still P0/P1:** Verified email/phone possession, account recovery and MFA; organization/FPO tenancy; certified pesticide registrations and agronomist review; live APMC/IMD/scheme sources; actual OCR/AI; payment/dispatch/WhatsApp; complete 25-module business lifecycles. These remain blocked or unimplemented, not assumed done.
+
 ## GitHub evidence and promotion chain
 
 - M1–M15 merged earlier (base 8868e7f24b9f).
 - PR #16 (M18) merged at 0a097322bf94b0f92e7b32fdea402c5bd06724e2.
 - PR #17 (M19) merged at ee520b22a7f6e9b8383bc514184c4cb0f31d1b9d.
 - PR #18 (M20–M25) merged at 2c2204582da55a87683f76c4bf0fd48fe72e50f9.
-- M20–M25 last feature CI #42083434491 passed before consolidation. Main-branch web CI exposed floating Playwright dependency after merge and is being corrected in M26.
-- M26 draft PR #19 targets main. Code and CI milestone verified by run 42087215095; hosted and external integrations not accepted.
+- M20–M25 last feature CI #42083434491 passed before consolidation. Main-branch web CI dependency issue was corrected by merged PR #20; M26 retains a compatible pinned version.
+- M26 draft PR #19 targets main. Code and CI milestone verified by run 42087702914; hosted and external integrations not accepted.
+- M28 depends on draft M26 and is developed on feature/m28-production-core-guardrails; separate approval required.
 - No authorized Cloudways production-mode activation, real commerce settlement, or live provider verification.
 - No verified live Cloudways deployment of M26 or the M20–M25 candidate. Internal CI results are not deployment acceptance.
