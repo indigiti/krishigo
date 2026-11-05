@@ -84,6 +84,7 @@ export class ProductionApiClient {
   async updateProductionModule(id:number,enabled:boolean,expected_revision:number){
     return this.call<{changed:number[];production_policy:true}>('PUT',`admin/platform/modules/${id}`,{enabled,expected_revision});
   }
+  async productionModuleEvents(){return this.call<{items:Array<{id:string;module_id:number;cause_module_id:number;actor:string;old_enabled:number;new_enabled:number;created_at:string}>;append_only:true}>('GET','admin/platform/modules/events');}
   async farmFields(){return this.call<{items:FarmField[];private:true}>('GET','me/fields');}
   async createFarmField(fields:{field_name:string;district:string;village:string;crop:string;area_hectares:number}){
     return this.call<{id:string;status:string;revision:number}>('POST','me/fields',fields);
