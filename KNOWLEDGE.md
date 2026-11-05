@@ -194,3 +194,4 @@ All calculations validate numeric boundaries, do not call network services, and 
 - M20–M25 last feature CI #42083434491 passed before consolidation. Main-branch web CI exposed floating Playwright dependency after merge and is being corrected in M26.
 - M26 PR and final GitHub CI run: pending.
 - No authorized Cloudways production-mode activation, real commerce settlement, or live provider verification.
+- No verified live Cloudways deployment of M26 or the M20–M25 candidate. Internal CI results are not deployment acceptance.
