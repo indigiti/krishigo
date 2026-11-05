@@ -18,12 +18,13 @@ export default function AgriKnowledgeLibrary({section,crop,onCropChange}:{
 }){
  const [search,setSearch]=useState('');
  const [filter,setFilter]=useState('All');
+ const [allPests,setAllPests]=useState(false);
  const cropGuide=cropByName(crop);
  const topics=useMemo(()=>filterCropInputTopics(crop,search),[crop,search]);
- const issues=useMemo(()=>filterPestDiseaseGuides(crop,search,filter),[crop,search,filter]);
+ const issues=useMemo(()=>filterPestDiseaseGuides(allPests?'All crops':crop,search,filter),[crop,search,filter,allPests]);
  const nutrients=useMemo(()=>filterNutrientGuides(search,filter),[search,filter]);
  const count=section==='crop'?topics.length:section==='pests'?issues.length:nutrients.length;
- return <div className="agri-library" aria-label={section==='crop'?'Crop-wise knowledge library':section==='pests'?'Pest and disease knowledge library':'Nutrient knowledge library'}>
+ return <div className="agri-library" role="region" aria-label={section==='crop'?'Crop-wise knowledge library':section==='pests'?'Pest and disease knowledge library':'Nutrient knowledge library'}>
   <div className="agri-library-head"><div><span className="section-eyebrow">KRISHIGO · STARTER KNOWLEDGE LIBRARY</span>
    <h3>{section==='crop'?'Crop and input fundamentals':section==='pests'?'Field identification reference':'Nutrient symptom reference'}</h3>
    <p>{section==='crop'?'Learn what each agricultural input category is and what evidence to check.':
@@ -31,7 +32,7 @@ export default function AgriKnowledgeLibrary({section,crop,onCropChange}:{
     'Understand nutrient roles, possible symptoms, lookalikes and tests before taking action.'}</p>
    </div><div className="agri-library-count"><BookOpenText size={18}/><strong>{count}</strong><span>guides</span></div></div>
   <div className="agri-library-controls">
-   {section==='pests'&&<label>Crop<select aria-label="Crop for pest library" value={crop} onChange={e=>{onCropChange(e.target.value);setSearch('');}}>
+   {section==='pests'&&<label>Crop<select aria-label="Crop for pest library" value={allPests?'All crops':crop} onChange={e=>{if(e.target.value==='All crops')setAllPests(true);else{setAllPests(false);onCropChange(e.target.value);}setSearch('');}}>
     {cropNames.map(x=><option key={x} value={x}>{x}</option>)}
     <option value="All crops">All crops</option>
    </select></label>}
