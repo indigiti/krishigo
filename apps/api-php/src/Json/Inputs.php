@@ -100,7 +100,7 @@ final class Inputs {
             if($method==='GET'&&$path===$root.'/regulatory-updates'){
                 $since=$_GET['since']??'';
                 if(!is_string($since)||($since!==''&&
-                   (!preg_match('/^\d{4}-\d{2}-\d{2}$/D',$since)||$since>gmdate('Y-m-d'))))
+                   (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/D',$since,$date)||!checkdate((int)($date[2]??0),(int)($date[3]??0),(int)($date[1]??0))||$since>gmdate('Y-m-d'))))
                    \kg_json(422,['error'=>'invalid_since']);
                 $updates=[];
                 foreach($store->records('input-regulatory')['items'] as $row){
