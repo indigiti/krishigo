@@ -299,3 +299,42 @@
 @media(max-width:850px){.field-tool-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.field-tool{padding:19px!important}.field-tool-fields,.field-tool-steps{grid-template-columns:1fr}.field-tool-top{flex-direction:column}.field-tool-outcome{align-items:flex-start;flex-direction:column}.field-tool-outcome button{align-self:end}}
 @media(prefers-reduced-motion:reduce){.field-tool-track>span{transition:none}}
+
+
+/* M20–M25 connected candidate: same design tokens, without implying real provider activation. */
+.platform-workspace{display:flex;flex-direction:column;gap:17px;min-width:0;margin-top:20px}
+.platform-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border:1px solid var(--line);background:var(--panel);border-radius:19px;padding:25px}
+.platform-head h2{font-size:clamp(24px,2.8vw,32px);margin:7px 0;letter-spacing:-.035em}
+.platform-head p{color:var(--muted);font-size:12px;line-height:1.7;max-width:770px}
+.platform-head>svg{color:var(--accent);flex-shrink:0}
+.platform-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:7px;overflow-x:auto}
+.platform-tabs button{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:11px;padding:11px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.platform-tabs button[aria-selected="true"]{background:var(--soft-green);color:var(--accent);border-color:var(--accent)}
+.platform-tools{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.platform-tools span{color:var(--muted);font-size:11px}
+.platform-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.platform-panel{display:flex;flex-direction:column;gap:15px;min-width:0;padding:23px!important}
+.platform-panel h3{font-size:19px;display:flex;align-items:center;gap:10px}
+.platform-panel h3 svg{color:var(--accent);flex-shrink:0}
+.platform-panel h4{font-size:14px;margin-top:4px}
+.platform-panel>p,.platform-panel>label{color:var(--muted);font-size:12px;line-height:1.7}
+.platform-form{display:flex;flex-direction:column;gap:12px}
+.platform-form label,.platform-review-reason{display:flex;flex-direction:column;gap:7px;color:var(--text);font-size:12px;font-weight:700}
+.platform-form input,.platform-form select,.platform-form textarea,.platform-review-reason textarea,.platform-panel>label select{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;padding:11px;background:var(--panel-soft);color:var(--text);font-size:12px}
+.platform-form textarea,.platform-review-reason textarea{resize:vertical}
+.platform-form button{align-self:start;min-height:42px}
+.platform-record{padding:15px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;border:1px solid var(--line);background:var(--panel-soft);border-radius:13px;min-width:0}
+.platform-record strong{font-size:12px;color:var(--text);line-height:1.5;overflow-wrap:anywhere}
+.platform-record small{font-size:11px;color:var(--muted);line-height:1.6}
+.platform-record p{font-size:12px;color:var(--muted);line-height:1.7;overflow-wrap:anywhere}
+.platform-record a{font-size:11px;color:var(--accent);text-decoration:underline;overflow-wrap:anywhere}
+.platform-record button{font-size:11px;min-height:34px}
+.platform-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.platform-review-reason{padding:18px;border-radius:14px;background:var(--panel-soft);border:1px solid var(--line);grid-column:1/-1}
+.platform-toggle{display:flex;align-items:center;gap:10px;background:var(--panel-soft);padding:13px;border-radius:10px;border:1px solid var(--line);color:var(--text);font-size:12px;font-weight:650}
+.platform-toggle input{width:17px;height:17px;accent-color:var(--accent)}
+.platform-cap{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px}
+.platform-cap span{color:var(--muted)}
+.platform-cap strong{color:var(--text);font-size:11px;text-align:right}
+@media(max-width:1000px){.platform-panels{grid-template-columns:1fr}}
+@media(max-width:650px){.platform-head{padding:19px}.platform-head>svg{display:none}.platform-panel{padding:17px!important}.platform-tabs{flex-wrap:nowrap}.platform-tabs button{white-space:nowrap}.platform-tools{align-items:flex-start;flex-direction:column}.platform-record{padding:12px}}

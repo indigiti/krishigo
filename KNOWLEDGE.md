@@ -1,8 +1,8 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-05 (M19).
+> **Single source of truth for development status.** Updated: 2026-11-05 (M20–M25 foundation implementation).
 > Repository: indigiti/krishigo
-> Branch lineage: main (M1–M15) → feature/agri-inputs-intelligence (M16–M18, PR #16, not merged) → feature/m19-module-completion-tracker (current engineering batch).
+> Branch lineage: main (M1–M15) → feature/agri-inputs-intelligence (M16–M18, PR #16, not merged) → feature/m19-module-completion-tracker (PR #17) → feature/m20-m25-platform-foundations (current branch).
 >
 > This is a **code and product delivery tracker**, not an attestation of real data, regulatory compliance, live Cloudways deployment, vendor integrations, or final acceptance. The user has requested implementation of remaining modules ahead of hosted verification. Automated code/security tests still apply. **Do not** mark production-ready until evidence exists.
 
@@ -84,39 +84,65 @@ All calculations validate numeric boundaries, do not call network services, and 
 - [x] Author unit tests for 24 tools with invalid/overflow input; desktop/mobile browser smoke tests for selected modules.
 - [x] Label simulation and disable external action, verified rates, booking, diagnosis, notifications and delivery.
 - [x] Open dependency-aware draft PR #17 from M19 into the M18 feature branch.
-- [ ] Record successful final CI and update test evidence before marking M19 engineering accepted.
+- [x] M19 CI #42077996405 passed all PHP, web and browser jobs; no hosted deployment.
 - [ ] Hosted deployment and real provider verification deliberately deferred.
 
-### M20 — Source-backed content and service models
-- [ ] Versioned editor-reviewable catalogue for crops, calendars, schemes, mandi metadata and input references.
-- [ ] Publisher/source URL, publication date, last review, jurisdiction, supersession and freshness metadata.
-- [ ] Safe staging import and provenance diagnostics, plus multilingual editorial workflow.
+### M20 — Source-backed content and service models (CODE FOUNDATION BUILT)
+- [x] MySQL UUIDv7 source register with publisher, original HTTPS link, jurisdiction, publication date and independent editor approval.
+- [x] Human-reviewable article records with crop/topic/language, source references, revision/supersession and audit.
+- [x] Approved-only, bounded public read APIs; editorial queue and connected UI.
+- [ ] Real agricultural content verification, agronomist sign-off and full human Marathi/Hindi translations.
+- [ ] Rights clearance, source discovery and bulk editorial ingestion.
 
-### M21 — Secure persistent multi-user flows
-- [ ] Authorized DB strategy, migration, backups and rollback.
-- [ ] Account ownership verification, recovery, MFA, roles and record ownership tests.
-- [ ] Media scanning, consent, retention/deletion and audit logs.
-- [ ] Durable idempotent event processing and observability.
+### M21 — Secure persistent multi-user flows (PARTIAL CANDIDATE)
+- [x] Reuse M8 PHP sessions, CSRF, roles, staff verified_at and prepared MySQL queries.
+- [x] Add user-owned farm profile, district/language/crop settings and reviewed supplier registration candidate.
+- [x] Optional migration 002 with UUIDv7 IDs, foreign keys, audit trails, opt-in events and trade schema; isolated _test database only in CI.
+- [ ] Real account ownership proofs, recovery/MFA, identity documents, privacy deletion, tenant isolation acceptance.
+- [ ] Authorized real DB migration, backups/restore, data retention and production monitoring.
 
-### M22 — Verified agricultural provider integrations
-- [ ] Current mandi and IMD/weather data with dates, units and error handling.
-- [ ] Official scheme and pesticide/fertilizer registration evidence.
-- [ ] Authorization/data licences and source staleness logic.
+### M22 — Verified agricultural provider integrations (MANUAL SOURCE PATH ONLY)
+- [x] Source-linked, independently reviewed mandi/weather/scheme/input/logistics snapshots and expiry/freshness gates.
+- [x] Read-only public API filters out missing and expired data; no fabricated values or official-feed claims.
+- [ ] Authorized live IMD/APMC and government provider APIs, data licences, ingestion jobs and monitoring.
+- [ ] Current legally verified pesticide/fertilizer labels and professional product review.
 
-### M23 — Real commerce and services
-- [ ] Onboarding, actual marketplace enquiries and quotation/order lifecycle.
-- [ ] FPO aggregation, equipment and storage bookings, logistics.
-- [ ] Trade legal checks, payments, reconciliation and disputes.
+### M23 — Real commerce and services (PROVISIONAL INTERNAL TRADE)
+- [x] Seller quotation tied to owned published listing and buyer enquiry, quantity and expiry validation.
+- [x] Buyer accept/reject, stock reservation guarded by listing row lock, internal order record and seller confirmation.
+- [x] Duplicate quote prevention, status transitions, cross-role checks, in-app consented trade notices.
+- [ ] Real provider verification, payments, tax/legal requirements, invoicing, fulfilment, dispute/refund controls.
+- [ ] FPO collective member accounting and actual services/equipment/warehouse bookings.
 
-### M24 — OCR, AI and messaging
-- [ ] Secure OCR with audited label matching and human verification.
-- [ ] Source-grounded multilingual assistant with confidence and agronomist escalation.
-- [ ] Opt-in WhatsApp/email notifications, unsubscribe, receipts and limits.
+### M24 — OCR, AI and messaging (SAFE FOUNDATION ONLY)
+- [x] Private manual crop-health and product-label transcription intake for expert review; no file upload.
+- [x] Deterministic source-only search with independent article citations and no generated pesticide advice.
+- [x] In-app notification opt-in/out by topic, owner-scoped event inbox; no external send.
+- [ ] Secure OCR worker and upload scanning, accuracy evaluation, real AI/RAG, clinician/agronomist dispatch.
+- [ ] Official WhatsApp/email/push delivery, delivery receipts, template approval and unsubscribe processing.
 
-### M25 — Production hardening and launch
-- [ ] Production DB acceptance, integration tests, independent security testing and rollback.
-- [ ] Cloudways acceptance, real device performance, accessibility, SEO and localization.
-- [ ] Controlled pilot activation and farmer feedback.
+### M25 — Production hardening and launch (CODE-ONLY PREFLIGHT)
+- [x] Add isolated MySQL 8 CI service for cross-role production candidate regression, separate from static staging (run 42082870201 successful).
+- [x] Add explicit production-only connected React workspace and mock desktop/mobile browser checks (run 42082870201 successful).
+- [x] Add offline fail-closed readiness report with production_launch_authorized=false and remaining external gates.
+- [ ] Independent security assessment, Cloudways deployment and browser acceptance, backup/rollback drill.
+- [ ] Live observability, GDPR/Indian privacy compliance, local-language usability, SEO, performance and launch approvals.
+
+## M20–M25 implementation ledger
+
+| Component | Code location | Evidence / scope |
+|---|---|---|
+| Migration v2 | apps/api-php/database/migrations/002_platform_foundations.sql | Reviewed metadata, profiles, quotes, orders, cases, in-app preferences and audit |
+| M20 knowledge | apps/api-php/src/Production/KnowledgeApi.php | Versioned source/editorial workflows and provenance |
+| M21/M23 trade | apps/api-php/src/Production/CommerceApi.php | Authenticated farm owner records, seller review, provisional quote/order |
+| M24/M25 intelligence | apps/api-php/src/Production/EngagementApi.php | Source-only results, manual observation/OCR intake, opt-in events, capability flags |
+| Safeguards | apps/api-php/src/Production/PlatformCommon.php | UUIDv7, HTTPS provenance, roles, CSRF, audited decisions |
+| Connected UI | apps/web/src/features/PlatformOperations.tsx | Available only under explicit production-candidate API mode |
+| Production integration | apps/api-php/tests/platform_integration.py | Isolated MySQL HTTP tests; CI result to be recorded once final commit is green |
+| Launch gate | tools/check_platform_readiness.py | Offline readiness JSON; explicitly not approval for deployment |
+| Reference | docs/M20_M25_PLATFORM_FOUNDATIONS.md | API, migration and remaining external/legal dependencies |
+
+**Milestone classification:** M20–M25 foundations are implemented as source code and testable internal workflows. They are **not** production-completed because external provider integrations, real identities, OCR/AI engines, regulated commerce and hosted acceptance are outstanding. Every module remains X where its real external service is absent.
 
 ## Engineering rules and definition of done
 1. Each milestone logs branch, PR, commit, test/run, module IDs and status. Do not state “deployed” from CI.
@@ -132,7 +158,10 @@ All calculations validate numeric boundaries, do not call network services, and 
 - Bring README status up to date and reference this file.
 - M18 PR #16 must be integrated before merging M19 against main.
 
-## Evidence before M19
+## GitHub evidence and promotion chain
 - M1–M15 merged on main at 8868e7f24b9f.
 - PR #16, M18 head 5373a2cdfa8968bf72dbfa3143db650ba6389e3d, open/draft. GitHub CI 42067293001 passed.
 - No verified live Cloudways deployment for M18/M19.
+
+- M19 PR #17 targets M18 PR #16. M20–M25 engineering branch builds on M19. All dependent branches remain unmerged into main.
+- M20–M25 full code CI at commit b2ac75d8eee9f9b9f77019cce5ef46399b59366e: GitHub Actions run 42082870201 passed PHP, React/web packaging, isolated MySQL and desktop/mobile Chromium tests. This is NOT a live Cloudways deployment or a substitute for authorized source verification.

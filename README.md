@@ -8,7 +8,8 @@ KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers,
 
 - **M1–M15:** merged into main; 25 demo module workspaces with module-specific protected JSON draft contracts and six deeper workflow pilots.
 - **M16–M18:** crop protection and plant nutrition workflows, 42 educational starter guides, moderation and in-app demonstration notices. On [draft PR #16](https://github.com/indigiti/krishigo/pull/16), not merged into main.
-- **M19:** domain-specific interactive cost/quantity tools and operational plans for the 24 standard module workspaces. Module 11 retains the dedicated 12-tool Agricultural Inputs experience. In development on feature/m19-module-completion-tracker, based on M18.
+- **M19:** 24 operational field tools in draft PR #17; all PHP/web/browser CI checks passed on M19.
+- **M20–M25 candidate:** source-reviewed knowledge articles, owner-scoped MySQL farm data, manually reviewed source snapshots, provisional quote/order records, safe source-only search, manual label intake, in-app consent, M25 offline readiness report and isolated MySQL testing. In draft PR #18, based on M19; not merged or deployed.
 - The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
 ## Run the web UI
@@ -32,6 +33,7 @@ See:
 - [25 module form contracts](docs/M15_MODULE_CONTRACTS.md)
 - [Agricultural input workflow scope](docs/M17_AGRI_INPUTS_P1_P4.md)
 - [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
+- [M20–M25 platform candidate and launch gates](docs/M20_M25_PLATFORM_FOUNDATIONS.md)
 
 ## Engineering policy
 

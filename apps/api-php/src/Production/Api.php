@@ -99,6 +99,10 @@ final class Api
         if ($method === 'POST' && preg_match('~^/api/v1/admin/users/([1-9][0-9]{0,17})/verify$~D', $path,$m)) {
             $this->verifyUser($this->authorizedId($m[1]),$this->mutation());
         }
+        // M20–M25 advanced candidate services. Never routed by static/mock staging.
+        if (KnowledgeApi::handles($path)) KnowledgeApi::dispatch($method,$path,$this->repo,$this->current());
+        if (CommerceApi::handles($path)) CommerceApi::dispatch($method,$path,$this->repo,$this->current());
+        if (EngagementApi::handles($path)) EngagementApi::dispatch($method,$path,$this->repo,$this->current());
         $this->response(404, ['error'=>'not_found']);
     }
     private function register(array $input): never
