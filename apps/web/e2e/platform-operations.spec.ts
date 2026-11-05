@@ -65,7 +65,7 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await journey.getByRole('button',{name:'Submit buyer enquiry'}).click();
  await expect(journey.getByText(/Enquiry recorded for the seller/)).toBeVisible();
  await page.getByRole('tab',{name:'Farm records'}).click();
- await page.locator('.platform-workspace').getByLabel('District').fill('Pune');
+ await page.locator('.platform-panel').filter({has:page.getByRole('heading',{name:'My farm profile'})}).getByLabel('District').fill('Pune');
  await page.locator('.platform-workspace').getByLabel('Crop focus').fill('Tomato');
  await page.locator('.platform-workspace').getByRole('button',{name:'Save my preferences'}).click();
  await expect(page.getByText('Private farm profile saved.')).toBeVisible();
