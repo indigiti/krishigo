@@ -12,6 +12,8 @@ WEB=ROOT/"apps/web/src"
 
 ARTIFACTS={
  "schema_002":BASE/"database/migrations/002_platform_foundations.sql",
+ "schema_003":BASE/"database/migrations/003_trade_lifecycle.sql",
+ "m26_trade_journey":BASE/"src/Production/TradeJourney.php",
  "knowledge_api":BASE/"src/Production/KnowledgeApi.php",
  "commerce_api":BASE/"src/Production/CommerceApi.php",
  "engagement_api":BASE/"src/Production/EngagementApi.php",
