@@ -216,3 +216,46 @@
 .agri-connected .agri-search-form>input{width:min(100%,460px);background:var(--panel-soft);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px}
 .agri-connected textarea{background:var(--panel-soft);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px;width:min(100%,520px)}
 @media(max-width:640px){.agri-connected .agri-fields{grid-template-columns:1fr}.agri-connected-form{padding:14px}.agri-connected .agri-record{overflow-wrap:anywhere}}
+
+
+/* Sourced agricultural learning cards, deliberately distinct from verified product offers. */
+.agri-library{display:flex;flex-direction:column;gap:15px;min-width:0;margin:4px 0 10px}
+.agri-library-head{display:flex;justify-content:space-between;gap:18px;align-items:start}
+.agri-library-head h3{font-size:clamp(19px,2vw,23px);margin:5px 0 7px}
+.agri-library-head p{font-size:12px;color:var(--muted);max-width:660px;line-height:1.7}
+.agri-library-count{border:1px solid var(--line);background:var(--panel-soft);border-radius:12px;min-width:76px;display:flex;align-items:center;justify-content:center;gap:4px;padding:12px 8px;flex-wrap:wrap;color:var(--accent)}
+.agri-library-count strong{font-size:20px;font-variant-numeric:tabular-nums}
+.agri-library-count span{font-size:10px;color:var(--muted)}
+.agri-library-controls{display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+.agri-library-controls>label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:650;color:var(--text);min-width:145px}
+.agri-library-controls select,.agri-library-controls input{width:100%;min-height:42px;background:var(--panel-soft);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px}
+.agri-library-controls .agri-library-search{position:relative;flex:1 1 230px;min-width:175px}
+.agri-library-search svg{position:absolute;left:13px;bottom:13px;color:var(--muted)}
+.agri-library-search input{padding-left:37px!important}
+.agri-crop-profile{background:var(--panel-soft);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.agri-crop-heading{display:flex;align-items:center;gap:12px}
+.agri-crop-mark{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;color:var(--accent);background:var(--soft-green)}
+.agri-crop-heading h3{font-size:22px;margin-top:3px}
+.agri-crop-heading h3 small{font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:0;font-weight:500;color:var(--muted)}
+.agri-crop-profile>p,.agri-crop-profile li{font-size:12px;color:var(--muted);line-height:1.7}
+.agri-crop-profile ul{padding-left:22px;margin:0;display:grid;gap:5px}
+.agri-subheading{font-size:12px;color:var(--text)}
+.agri-knowledge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.agri-knowledge-card{min-width:0;border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--panel);display:flex;flex-direction:column;align-items:flex-start;gap:11px}
+.agri-knowledge-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%}
+.agri-knowledge-icon,.agri-element-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;color:var(--accent);background:var(--soft-green);font-weight:800}
+.agri-knowledge-kind{font-size:10px;color:var(--muted);line-height:1.5;text-align:right}
+.agri-knowledge-card h4{font-family:'Plus Jakarta Sans','DM Sans',sans-serif;font-weight:750;font-size:16px;letter-spacing:-.025em;margin:0;color:var(--text)}
+.agri-knowledge-card>p,.agri-knowledge-detail p{font-size:12px;color:var(--muted);line-height:1.7}
+.agri-knowledge-detail{display:flex;flex-direction:column;gap:4px}
+.agri-knowledge-detail strong{font-size:11px;color:var(--text)}
+.agri-scientific{font-size:11px;font-style:italic;color:var(--muted);margin-top:-7px}
+.agri-library-source{display:inline-flex;align-items:center;gap:7px;font-size:11px;line-height:1.5;color:var(--accent);margin-top:auto;overflow-wrap:anywhere;text-decoration:none}
+.agri-library-source:hover{text-decoration:underline}
+.agri-library-source span{min-width:0}
+.agri-library-warning{display:flex;align-items:start;gap:10px;background:var(--panel-soft);border-radius:12px;padding:14px;color:var(--muted);font-size:11px;line-height:1.7}
+.agri-library-warning svg{flex-shrink:0;color:var(--accent);margin-top:2px}
+.agri-library-empty{display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:12px}
+.agri-sample-heading{font-size:16px;margin-top:10px}
+@media(max-width:730px){.agri-knowledge-grid{grid-template-columns:1fr}.agri-library-controls>label{flex:1 1 150px}}
+@media(max-width:480px){.agri-knowledge-card,.agri-crop-profile{padding:15px}.agri-crop-heading h3{font-size:19px}.agri-crop-heading h3 small{display:block;margin-top:4px}.agri-library-count{min-width:65px}.agri-library-head{gap:10px}}
