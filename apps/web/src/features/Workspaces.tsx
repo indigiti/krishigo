@@ -7,6 +7,7 @@ import {useModuleFlags} from '../infrastructure/modulePreferences';
 import {isEnabled} from '../domain/moduleRegistry';
 import ModuleControlPanel from './ModuleControlPanel';
 import { ModuleStudio } from './ModuleStudio';
+import AgriInputs from './AgriInputs';
 
 type Workspace = 'Buyers' | 'Services' | 'Discover' | 'Crop Journal' | 'Admin' | 'My Profile' | 'Plant Cases';
 type JournalEntry = { id: number; crop: string; observation: string; date: string };
@@ -57,7 +58,7 @@ function DiscoverBoard(){
   const [selected,setSelected]=useState<number|null>(null); const [moduleId,setModuleId]=useState<number|null>(null); const chosen=content.find(c=>c.id===selected);
   const groups=['All','Market','Plant Care','Circle','Insights','Learn','Services','Business'];
   const visible=modules.filter(m=>isEnabled(moduleFlags,m.id)&&(filter==='All'||m.category===filter)&&(!phase||m.phase===phase));
-  if(moduleId!==null) return isEnabled(moduleFlags,moduleId)?<ModuleStudio key={moduleId} moduleId={moduleId} onBack={()=>setModuleId(null)}/>:<section className="surface-card workspace-recovery"><h2>Module disabled</h2><button className="btn btn-primary" onClick={()=>setModuleId(null)}>All modules</button></section>;
+  if(moduleId!==null) return isEnabled(moduleFlags,moduleId)?(moduleId===11?<AgriInputs onBack={()=>setModuleId(null)}/>:<ModuleStudio key={moduleId} moduleId={moduleId} onBack={()=>setModuleId(null)}/>):<section className="surface-card workspace-recovery"><h2>Module disabled</h2><button className="btn btn-primary" onClick={()=>setModuleId(null)}>All modules</button></section>;
   return <><SectionTitle eyebrow="KRISHIGO ECOSYSTEM" title="Everything agriculture. One place." copy="Explore all 25 planned modules, crop knowledge and the future services roadmap."/>
     <div className="surface-card content-library"><div className="section-head"><div><div className="section-eyebrow">EDITORIAL LIBRARY · DRAFTS</div><h3>Knowledge, news and schemes</h3></div><BookOpen size={20}/></div><div className="workspace-card-grid compact">{content.map(c=><button className="content-teaser" key={c.id} onClick={()=>setSelected(c.id)}><span>{c.kind}</span><strong>{c.title}</strong><small>{c.source}</small><ArrowRight size={15}/></button>)}</div>{chosen&&<div className="content-detail" role="region" aria-label="Sample content detail"><button className="text-arrow" onClick={()=>setSelected(null)}>Close ×</button><strong>{chosen.title}</strong><p>{chosen.summary}</p><small>{chosen.source} · {chosen.updated}</small></div>}</div>
     <div className="workspace-toolbar"><div className="category-pills workspace-pills">{groups.map(g=><button key={g} className={filter===g?'active':''} onClick={()=>setFilter(g)}>{g}</button>)}</div><label className="workspace-phase"><Filter size={16}/><select value={phase} onChange={e=>setPhase(Number(e.target.value))} aria-label="Filter development phase"><option value={0}>All phases</option><option value={1}>Phase 1</option><option value={2}>Phase 2</option><option value={3}>Phase 3</option></select></label></div>
