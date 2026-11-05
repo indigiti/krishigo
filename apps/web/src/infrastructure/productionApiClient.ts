@@ -44,7 +44,12 @@ export class ProductionApiClient {
     if (!res.ok) throw new Error(typeof json.error === 'string' ? json.error.replaceAll('_', ' ') : `Request failed (${res.status})`);
     return json as T;
   }
-  async initialize() { const result = await this.call<{csrf_token:string}>('GET', 'auth/csrf'); this.csrf = result.csrf_token; }
+  async initialize() {
+    const status=await this.call<{mode?:string;fixture_data?:boolean}>('GET','status');
+    if(status.mode!=='production'||status.fixture_data!==false)throw new Error('production_php_api_required');
+    const result=await this.call<{csrf_token:string}>('GET','auth/csrf');
+    this.csrf=result.csrf_token;
+  }
   async identity() { return this.call<{identity:Identity|null}>('GET','auth/me'); }
   async register(details: Record<string,unknown>) { return this.call<{id:number;verified:boolean}>('POST','auth/register',details); }
   async login(email: string,password:string) {
