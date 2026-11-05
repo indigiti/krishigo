@@ -199,8 +199,8 @@ class PlatformFlow(unittest.TestCase):
         farmer=Client(self.base);farmer.prepare()
         buyer1=Client(self.base);buyer1.prepare()
         buyer2=Client(self.base);buyer2.prepare()
-        stranger=Client(self.base);stranger.prepare()
-        users=[(farmer,'farmer'),(buyer1,'buyer'),(buyer2,'buyer'),(stranger,'buyer')]
+        stranger=self.admin # Already authenticated and staff-reviewed, but NOT a participant.
+        users=[(farmer,'farmer'),(buyer1,'buyer'),(buyer2,'buyer')]
         for index,(client,role) in enumerate(users):
             email=f'm26-{seed}-{index}@krishigo.test'
             code,_=client.register(email,role);self.assertEqual(code,201)
@@ -270,7 +270,7 @@ class PlatformFlow(unittest.TestCase):
         self.assertEqual(code,404)
         code,_=stranger.call('POST',f'/api/v1/trade/orders/{first_order}/cancel',
             {'reason':'I should not be allowed to cancel this order'})
-        self.assertEqual(code,403) # unverified stranger rejected before participant lookup
+        self.assertEqual(code,404) # verified admin has no participant override
         code,_=buyer1.call('POST',f'/api/v1/trade/orders/{first_order}/cancel',
             {'reason':'Expected cancellation blocked by missing CSRF'},
             csrf=False,extra={'X-CSRF-Token':'wrong'})
