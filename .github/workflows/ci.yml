@@ -112,7 +112,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Lint PHP test API
-        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Doctor.php && php -l apps/api-php/src/Json/Contracts.php && php -l apps/api-php/src/Json/Api.php && php -l apps/api-php/src/Json/InputContracts.php && php -l apps/api-php/src/Json/Inputs.php
+        run: php -l apps/api-php/src/Core.php && php -l apps/api-php/public/index.php && php -l apps/api-php/src/Modules/Registry.php && php -l apps/api-php/src/Json/Store.php && php -l apps/api-php/src/Json/Services.php && php -l apps/api-php/src/Json/Doctor.php && php -l apps/api-php/src/Json/Contracts.php && php -l apps/api-php/src/Json/Api.php && php -l apps/api-php/src/Json/InputContracts.php && php -l apps/api-php/src/Json/Inputs.php && php -l apps/api-php/src/Production/PlatformCommon.php && php -l apps/api-php/src/Production/KnowledgeApi.php && php -l apps/api-php/src/Production/CommerceApi.php && php -l apps/api-php/src/Production/EngagementApi.php
       - name: Exercise PHP HTTP contracts
         run: python3 apps/api-php/tests/integration.py -v && python3 apps/api-php/tests/test_mode_boundary.py -v && python3 apps/api-php/tests/json_modules_integration.py -v && python3 apps/api-php/tests/json_workflows_integration.py -v && python3 apps/api-php/tests/json_store_concurrency.py -v && python3 apps/api-php/tests/inputs_integration.py -v
       - name: Synthetic local PHP latency baseline (not Cloudways RUM)
@@ -124,3 +124,39 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+
+
+  production-mysql:
+    name: Isolated production-candidate MySQL regression
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-only
+          MYSQL_DATABASE: krishigo_test
+          MYSQL_USER: kgtest
+          MYSQL_PASSWORD: kgtest-ci-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      KRISHIGO_DB_DSN: "mysql:host=127.0.0.1;port=3306;dbname=krishigo_test;charset=utf8mb4"
+      KRISHIGO_DB_USER: kgtest
+      KRISHIGO_DB_PASSWORD: kgtest-ci-only
+      KRISHIGO_RATE_SALT: ci-not-production-64-d9b4aa3a5877a24e17f93528d2189440
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable PHP MySQL PDO extension
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y php-mysql
+          php -m | grep -i pdo_mysql
+      - name: Exercise existing M8 multiuser API on isolated MySQL
+        run: python3 apps/api-php/tests/production_integration.py -v
+      - name: Exercise M20-M25 platform contracts and cross-role isolation
+        run: python3 apps/api-php/tests/platform_integration.py -v
