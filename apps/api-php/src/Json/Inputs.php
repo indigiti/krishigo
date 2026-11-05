@@ -55,11 +55,18 @@ final class Inputs {
             if($method==='GET'&&in_array($path,[$root.'/search',$root.'/assistant'],true)){
                 $term=$_GET['q']??'';
                 if(!is_string($term)||strlen($term)>80)\kg_json(422,['error'=>'invalid_query']);
+                // Curated keyword aliases: no automatic translation of treatment claims.
+                $aliases=['कीटकनाशक'=>'insecticide','कीटनाशक'=>'insecticide',
+                    'बुरशीनाशक'=>'fungicide','कवकनाशी'=>'fungicide',
+                    'तणनाशक'=>'herbicide','खरपतवारनाशी'=>'herbicide',
+                    'सूक्ष्म अन्नद्रव्य'=>'micronutrient','सूक्ष्म पोषक तत्व'=>'micronutrient',
+                    'खत'=>'fertilizer','उर्वरक'=>'fertilizer','जस्त'=>'zinc','जिंक'=>'zinc'];
+                $needle=$aliases[trim($term)]??trim($term);
                 $hits=[];
                 if(strlen(trim($term))>=2)foreach(['products','sources','regulatory'] as $kind){
                     foreach($store->records('input-'.$kind)['items'] as $record){
                         $f=$record['fields'];
-                        if(stripos(implode(' ',array_values($f)),trim($term))===false)continue;
+                        if(stripos(implode(' ',array_values($f)),$needle)===false)continue;
                         $hits[]=['kind'=>$kind,'id'=>$record['id'],
                             'title'=>$f['name']??$f['title']??'Staging reference',
                             'summary'=>$f['composition']??$f['claim']??$f['summary']??'',
