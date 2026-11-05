@@ -19,6 +19,7 @@ BACKEND = (
     'src/Json/Api.php', 'src/Json/Doctor.php',
     'src/Json/Services.php', 'src/Json/Store.php',
     'src/Json/Queue.php', 'src/Json/ModuleDrafts.php',
+    'src/Json/InputContracts.php', 'src/Json/Inputs.php',
     'fixtures/catalog.json', 'fixtures/module-registry.json',
     'fixtures/module-workflow-contracts.json', 'src/Json/Contracts.php',
 )
