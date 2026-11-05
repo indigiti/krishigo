@@ -11,6 +11,7 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
   let body:Record<string,unknown>={};
   try{body=r.postDataJSON() as Record<string,unknown>;}catch{}
   const reply=(data:unknown,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+  if(p==='/status')return reply({ok:true,mode:'production',database:'required',fixture_data:false,plant_diagnosis:false});
   if(p==='/auth/csrf')return reply({csrf_token:'test-csrf'});
   if(p==='/auth/me')return reply({identity:authenticated?{id:101,display_name:'Test Administrator',email:'ci@example.invalid',role:'admin',status:'active',verified_at:'2026-10-01'}:null});
   if(p==='/platform/modules')return reply({items:Array.from({length:25},(_,i)=>({
