@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS knowledge_articles (
  INDEX idx_articles_superseded (supersedes_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS official_data_snapshots (
+CREATE TABLE IF NOT EXISTS source_data_snapshots (
  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
  source_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
  domain VARCHAR(24) NOT NULL,
