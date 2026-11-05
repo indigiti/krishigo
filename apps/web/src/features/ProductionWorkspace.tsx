@@ -7,12 +7,13 @@ const areaNames: Record<Area,string> = { 'marketplace/listings':'Marketplace', '
 const toString = (value: unknown) => typeof value === 'string' || typeof value === 'number' ? String(value) : '';
 
 /** Never rendered in the mock-data build. Uses an authenticated PHP service, not browser privileges. */
-export default function ProductionWorkspace() {
+export default function ProductionWorkspace({initialArea='marketplace/listings',pageLabel='Connected Operations'}:
+  {initialArea?:Area;pageLabel?:string}) {
   const [user,setUser] = useState<Identity|null>(null);
   const [ready,setReady] = useState(false);
   const [error,setError] = useState('');
   const [notice,setNotice] = useState('');
-  const [area,setArea] = useState<Area>('marketplace/listings');
+  const [area,setArea] = useState<Area>(initialArea);
   const [records,setRecords] = useState<LiveRecord[]>([]);
   const [mine,setMine] = useState(false);
   const [queue,setQueue] = useState<Array<{id:number;type:string;status:string}>>([]);
@@ -48,7 +49,7 @@ export default function ProductionWorkspace() {
   const loadQueue=async()=>{try{setQueue((await productionClient.reviewQueue()).items);}catch(e){setError((e as Error).message);}};
   if (!ready)return <section className="surface-card production-panel" role="status">Connecting to the PHP service…</section>;
   return <div className="production-space">
-    <div className="page-heading"><div><div className="eyebrow">PRODUCTION API WORKSPACE</div><h1>KrishiGo connected operations</h1><p>Account-specific records backed by the PHP API. Staging demo mode never enables this view.</p></div></div>
+    <div className="page-heading"><div><div className="eyebrow">PRODUCTION API WORKSPACE</div><h1>{pageLabel==='Connected Operations'?'KrishiGo connected operations':pageLabel+' · connected records'}</h1><p>Account-specific records backed by the PHP API. No fictional listings or provider feeds are shown here.</p></div></div>
     {error&&<div role="alert" className="workspace-notice">{error}</div>}
     {notice&&<div role="status" className="workspace-notice">{notice}</div>}
     {!user ? <section className="surface-card production-panel">
@@ -80,7 +81,7 @@ export default function ProductionWorkspace() {
         {queue.map(row=><div className="production-record" key={`${row.type}-${row.id}`}><strong>{row.type} #{row.id}</strong><p>{row.status}</p><div className="m3-actions"><button type="button" className="btn btn-soft" onClick={()=>review(row.type as 'listing'|'requirement'|'post',row.id,'approve')}>Approve</button><button type="button" className="btn btn-soft" onClick={()=>review(row.type as 'listing'|'requirement'|'post',row.id,'reject')}>Reject</button></div></div>)}
       </section>}
       <Suspense fallback={<section className="surface-card production-panel" role="status">Loading source, trade and field operations…</section>}>
-        <PlatformOperations user={user}/>
+        <PlatformOperations user={user} initialTab={pageLabel==='Insights'||pageLabel==='Discover'||pageLabel==='Admin'?'readiness':pageLabel==='Agri Inputs'?'knowledge':pageLabel==='Overview'||pageLabel==='My Profile'||pageLabel==='Crop Journal'||pageLabel==='Plant Doctor'||pageLabel==='Plant Cases'?'farm':'trade'}/>
       </Suspense>
     </>}
   </div>;
