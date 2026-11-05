@@ -27,7 +27,7 @@ final class EngagementApi {
         }
         if($method==='GET'&&$path==='/api/v1/assistant/search'){
             $q=$_GET['q']??'';
-            if(!is_string($q)||strlen($q)>100||mb_strlen(trim($q),'UTF-8')<2)
+            if(!is_string($q)||strlen($q)>100||strlen(trim($q))<2)
                 \kg_json(422,['error'=>'invalid_search']);
             $term=trim($q);
             $rows=$repo->all("SELECT a.id,a.title,a.crop,a.topic,a.language,a.summary,
