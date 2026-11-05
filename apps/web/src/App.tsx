@@ -4,7 +4,7 @@ import {
   Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CloudSun, Compass,
   Droplets, Filter, Heart, HeartPulse, Home, Info, Leaf, MapPin, Menu, MessageCircle,
   MoreHorizontal, Plus, Search, Send, ShieldCheck, ShoppingBag, SlidersHorizontal,
-  Sparkles, Sprout, Sun, Thermometer, TrendingUp, UploadCloud, Users, Wind, X,
+  Sparkles, Sprout, Sun, Thermometer, TrendingUp, UploadCloud, Users, Wind, X, FlaskConical,
   ChartNoAxesCombined, Bookmark, ScanLine, Zap, RefreshCw, Volume2, BookOpen, BriefcaseBusiness, ClipboardList, LayoutGrid, NotebookPen, UserRound, FileHeart
 } from 'lucide-react';
 import { type Listing, type CommunityPost, mandiMarkets } from './data/demo';
@@ -13,6 +13,7 @@ import {useModuleFlags} from './infrastructure/modulePreferences';
 import {isEnabled} from './domain/moduleRegistry';
 import {WorkspaceBoundary} from './features/WorkspaceBoundary';
 const Workspaces = lazy(() => import('./features/Workspaces'));
+const AgriInputs = lazy(() => import('./features/AgriInputs'));
 const FarmerOnboarding = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.FarmerOnboarding})));
 const TradeDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.TradeDesk})));
 const ReviewDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.ReviewDesk})));
@@ -23,7 +24,7 @@ const ConnectedDomainPanel = lazy(() => import('./features/ConnectedDomainPanel'
 
 const showJsonOperations=import.meta.env.VITE_JSON_WORKFLOWS_MODE==='api';
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations' | 'JSON Workflows';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Agri Inputs' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations' | 'JSON Workflows';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -33,6 +34,7 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Insights', icon: ChartNoAxesCombined, desc: 'Mandi and trends' },
   { label: 'Buyers', icon: ClipboardList, desc: 'Procurement' },
   { label: 'Services', icon: BriefcaseBusiness, desc: 'Farm businesses' },
+  { label: 'Agri Inputs', icon: FlaskConical, desc: 'Crop protection and nutrients' },
   { label: 'Crop Journal', icon: NotebookPen, desc: 'Field notes' },
   { label: 'Discover', icon: LayoutGrid, desc: 'All 25 modules' },
   { label: 'Admin', icon: BookOpen, desc: 'Operations preview' },
@@ -94,7 +96,7 @@ function GrowthChart({ compact = false }: { compact?: boolean }) {
 const DemoPill = () => <span className="demo-pill"><span/> DEMO DATA</span>;
 function App() {
   const moduleFlags=useModuleFlags();
-  const pageModule:Partial<Record<Page,number>>={'Plant Doctor':18,'Marketplace':2,'Community':4,'Insights':1,'Buyers':3,'Services':13,'Crop Journal':21,'Plant Cases':21,'Trade Desk':2};
+  const pageModule:Partial<Record<Page,number>>={'Plant Doctor':18,'Marketplace':2,'Community':4,'Insights':1,'Buyers':3,'Services':13,'Agri Inputs':11,'Crop Journal':21,'Plant Cases':21,'Trade Desk':2};
   const allowed=(target:Page)=>!pageModule[target]||isEnabled(moduleFlags,pageModule[target]!);
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');
@@ -212,6 +214,7 @@ function App() {
         </>}
         <Suspense fallback={<div className="surface-card" role="status">Loading this workspace…</div>}>
         {page === 'Workflow Hub' && <WorkflowHub/>}
+        {page === 'Agri Inputs' && <AgriInputs/>}
         {page === 'Connected Operations' && !isDemo && <ProductionWorkspace/>}
         {page === 'JSON Workflows' && showJsonOperations && <JsonOperations/>}
         {showJsonOperations && page === 'Marketplace' && <ConnectedDomainPanel domain="marketplace"/>}
