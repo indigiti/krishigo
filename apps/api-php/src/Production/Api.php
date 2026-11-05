@@ -72,6 +72,11 @@ final class Api
             \kg_check_csrf(); \kg_begin_session(); $_SESSION = []; session_regenerate_id(true);
             $this->response(200, ['ok'=>true]);
         }
+        // M28: actual production feature authorization is authoritative here,
+        // not the per-browser demo control or the private JSON staging registry.
+        if (ModuleGate::handles($path)) ModuleGate::dispatch($method,$path,$this->repo,$this->current());
+        ModuleGate::enforce($this->repo,$path);
+        if (FarmFields::handles($path)) FarmFields::dispatch($method,$path,$this->repo,$this->current());
         $entities = [
             '/api/v1/marketplace/listings'=>['table'=>'listings','roles'=>['farmer','fpo','admin'],'owner'=>'seller_id'],
             '/api/v1/buyers/requirements'=>['table'=>'buyer_requirements','roles'=>['buyer','fpo','admin'],'owner'=>'buyer_id'],
