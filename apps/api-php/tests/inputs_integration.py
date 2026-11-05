@@ -111,6 +111,10 @@ class InputsTest(unittest.TestCase):
         self.assertEqual(code,200,review)
         self.assertEqual(review['item']['review']['by'],'pilot-admin')
         self.assertFalse(review['regulatory_certification'])
+        code,public_catalogue=self.call('GET',BASE+'/records/products')
+        self.assertEqual(code,200)
+        self.assertNotIn('owner',public_catalogue['items'][0])
+        self.assertNotIn('review',public_catalogue['items'][0])
         code,_=self.call('POST',f'{BASE}/admin/products/{product}/review',
             {'decision':'approve','reason':'Attempt duplicate review.'},csrf)
         self.assertEqual(code,409)
