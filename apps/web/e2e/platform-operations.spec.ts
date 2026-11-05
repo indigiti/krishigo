@@ -20,6 +20,14 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
   if(p==='/me/farm-profile'){if(method==='PUT'){farm=body as typeof farm;return reply({stored:true});}return reply({profile:farm});}
   if(p==='/agronomy/mine')return reply({items:intake?[{id:'018c0f12-3456-7abc-8901-234567890acc',crop:'Tomato',kind:'plant_observation',observation:'Observed curled leaves on new growth',status:'pending_expert_review'}]:[]});
   if(p==='/agronomy/intake'){intake++;return reply({id:'018c0f12-3456-7abc-8901-234567890acc',status:'pending_expert_review',ocr_processed:false},201);}
+  if(p==='/trade/dashboard')return reply({
+    published_listings:[{id:55,crop:'Tomato',district:'Pune',quantity_kg:'500.00',
+      price_per_kg:'23.50',description:'Mocked published lot',created_at:'2026-11-05 00:00:00'}],
+    my_listings:[],enquiries:[],quotes:[],orders:[],
+    verified_for_restricted_actions:true,internal_workflow_only:true,
+    payments_enabled:false,shipping_enabled:false,external_messages_sent:false
+  });
+  if(p==='/enquiries'&&method==='POST')return reply({id:99,status:'submitted'},201);
   if(p==='/trade/quotes/mine'||p==='/trade/orders/mine')return reply({items:[]});
   if(p==='/suppliers/profile')return reply({profile:null});
   if(p==='/admin/suppliers')return reply({items:[]});
@@ -38,6 +46,16 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await page.getByRole('button',{name:'Sign in',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Knowledge, trade & field operations'})).toBeVisible();
  await expect(page.getByText('Onion field guide')).toBeVisible();
+ await page.getByRole('tab',{name:'Farmer–Buyer Trade'}).click();
+ const journey=page.getByRole('region',{name:'M26 farmer to buyer lifecycle'});
+ await expect(journey.getByText('Produce trading workspace')).toBeVisible();
+ await expect(journey.getByText('Tomato · Lot #55')).toHaveCount(0);
+ await journey.getByRole('button',{name:'Enquire'}).click();
+ await expect(journey.getByText('Enquire about Tomato · Lot #55')).toBeVisible();
+ await journey.locator('.journey-detail input[name="quantity_kg"]').fill('75');
+ await journey.locator('.journey-detail textarea[name="message"]').fill('Please quote fresh tomatoes for a local purchase');
+ await journey.getByRole('button',{name:'Submit buyer enquiry'}).click();
+ await expect(journey.getByText(/Enquiry recorded for the seller/)).toBeVisible();
  await page.getByRole('tab',{name:'Farm records'}).click();
  await page.locator('.platform-workspace').getByLabel('District').fill('Pune');
  await page.locator('.platform-workspace').getByLabel('Crop focus').fill('Tomato');
