@@ -24,6 +24,13 @@ export type JourneyDashboard={
 };
 export type JourneyTimelineEvent={id?:string;event_type:string;description:string;created_at:string};
 
+export type FarmField={
+ id:string;field_name:string;district:string;village:string;crop:string;
+ area_hectares:string;status:'active'|'archived';revision:number;
+ created_at:string;updated_at:string
+};
+export type ProductionModuleFlag={module_id:number;enabled:boolean;configured_enabled:boolean;revision:number;depends_on:number[]};
+
 export class ProductionApiClient {
   private csrf = '';
   private async call<T>(method: string, path: string, body?: Record<string, unknown>): Promise<T> {
@@ -68,6 +75,17 @@ export class ProductionApiClient {
   async stagedSnapshots(){return this.call<{items:Array<{id:string;domain:string;label:string;status:string}>}>('GET','editor/data/snapshots');}
   async createSnapshot(fields:Record<string,unknown>){return this.call<{id:string;status:string}>('POST','editor/data/snapshots',fields);}
   async decideSnapshot(id:string,decision:'approve'|'reject',reason:string){return this.call<{id:string;status:string}>('POST','editor/data/snapshots/'+encodeURIComponent(id)+'/review',{decision,reason});}
+  async productionModules(){return this.call<{items:ProductionModuleFlag[];production_policy:true}>('GET','platform/modules');}
+  async updateProductionModule(id:number,enabled:boolean,expected_revision:number){
+    return this.call<{changed:number[];production_policy:true}>('PUT',`admin/platform/modules/${id}`,{enabled,expected_revision});
+  }
+  async farmFields(){return this.call<{items:FarmField[];private:true}>('GET','me/fields');}
+  async createFarmField(fields:{field_name:string;district:string;village:string;crop:string;area_hectares:number}){
+    return this.call<{id:string;status:string;revision:number}>('POST','me/fields',fields);
+  }
+  async editFarmField(id:string,expected_revision:number,changes:Record<string,unknown>){
+    return this.call<{id:string;revision:number}>('PATCH','me/fields/'+encodeURIComponent(id),{expected_revision,...changes});
+  }
   async farmProfile(){return this.call<{profile:{district:string;crop_focus:string;preferred_language:string}|null}>('GET','me/farm-profile');}
   async saveFarmProfile(fields:{district:string;crop_focus:string;preferred_language:string}){return this.call<{stored:boolean}>('PUT','me/farm-profile',fields);}
   async supplierProfile(){return this.call<{profile:{id:string;business_name:string;district:string;status:string}|null}>('GET','suppliers/profile');}
