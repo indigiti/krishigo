@@ -84,7 +84,7 @@ test('M6 module actions remain local with no network mutations or browser persis
   assert.doesNotMatch(studio, /fetch\(|localStorage|sessionStorage|indexedDB|XMLHttpRequest/);
   assert.match(studio, /No database/);
   assert.match(studio, /No verified data/);
-  assert.match(studio, /Number\(price\)-Number\(transport\)\/Number\(quantity\)/);
+  assert.match(studio, /ModuleFieldTool/); // calculations moved to a bounded, unit-tested domain layer
 });
 
 const workflowUI = read('../src/features/WorkflowHub.tsx');

@@ -1,30 +1,42 @@
-# KrishiGo — agricultural platform
+# KrishiGo — Farmer commerce, agricultural knowledge and field operations
 
-**Development milestone M1 (in progress).** React/TypeScript mobile-first staging application + custom PHP API scaffold. No Laravel and **no database used in staging**.
+**Authoritative development status:** [KNOWLEDGE.md](KNOWLEDGE.md)
 
-## Application
+KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers, FPOs, service providers and editors. The initial regional focus is Maharashtra, with India-wide architecture and Marathi/Hindi/English localization goals.
 
-```
-cd apps/web
-npm install
-npm run dev
-npm test
-npm run build
-```
+## Current source status
 
-- Five original premium screens: Overview, Plant Doctor, Marketplace, Community, Insights.
-- New screens: Buyer Requirements, Services, Crop Journal, Discover (all 25 scope modules), Admin staging readiness.
-- Demo listing drafts, mock buyer requirements, guided photo preview, notes and community posts are session-only. They are not real transactions, medical/agronomic diagnoses or persistent posts.
-- Forest, Sand and Night design themes.
+- **M1–M15:** merged into main; 25 demo module workspaces with module-specific protected JSON draft contracts and six deeper workflow pilots.
+- **M16–M18:** crop protection and plant nutrition workflows, 42 educational starter guides, moderation and in-app demonstration notices. On [draft PR #16](https://github.com/indigiti/krishigo/pull/16), not merged into main.
+- **M19:** domain-specific interactive cost/quantity tools and operational plans for the 24 standard module workspaces. Module 11 retains the dedicated 12-tool Agricultural Inputs experience. In development on feature/m19-module-completion-tracker, based on M18.
+- The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
-The API boundary is in `apps/web/src/services/dataSource.ts`. Mock mode is the default. A PHP scaffold lives in `apps/api-php/` and intentionally returns HTTP 501 for business endpoints.
+## Run the web UI
 
-## Repository documentation
+    cd apps/web
+    npm ci
+    npm run dev
+    npm test
+    npm run build
+    npm run test:e2e
 
-- [Full product master plan](docs/KRISHIGO_MASTER_PLAN.md)
-- [Staging vs production](docs/STAGING.md)
-- [Development milestone tracker](docs/DEVELOPMENT.md)
+The front-end is React 19 / TypeScript / Vite with Forest, Sand and Night themes. Module tools perform local calculations or planning; all sample commercial, financial, weather and agricultural values are illustrative.
 
-## Important restrictions
+## PHP architecture
 
-No real produce orders, payments, AI diagnosis, unverified chemical advice or external marketplace contact in this release. M2 will implement secure authentication, persistence, moderation, and contracted PHP APIs; M3 requires verified market data and independent field validation before real crop inference.
+Custom PHP (no Laravel) is under apps/api-php. The default staging API uses fictional fixtures; the separately configured protected JSON pilot supports private role-gated draft workflows with session/CSRF protections. A production-candidate MySQL API is present in isolation but **must not be activated without dedicated approval and launch hardening**.
+
+See:
+- [Architecture and overall plan](docs/KRISHIGO_MASTER_PLAN.md)
+- [Protected PHP runtime](docs/M14_PROTECTED_JSON_RUNTIME.md)
+- [25 module form contracts](docs/M15_MODULE_CONTRACTS.md)
+- [Agricultural input workflow scope](docs/M17_AGRI_INPUTS_P1_P4.md)
+- [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
+
+## Engineering policy
+
+- Keep all 25 modules on one modular architecture; prefer reusable validated workflow tools over duplicate dashboards.
+- Preserve static demo as the default; protected JSON backend must be explicitly enabled on an approved host.
+- Never present unverified crop diagnoses, pesticide dosages, source registrations, mandi rates, weather warnings or government scheme eligibility as factual.
+- Real production workflows require verified data sources, roles/ownership, consent, legal reviews, audits, performance and deployment acceptance.
+- Log module status, tests, blockers and milestone evidence in **KNOWLEDGE.md**. Do not confuse passing CI with real host deployment.

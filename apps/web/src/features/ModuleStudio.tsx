@@ -1,10 +1,11 @@
 import { lazy, Suspense, useMemo, useState, type FormEvent } from 'react';
 const ConnectedModuleDrafts=lazy(()=>import('./ConnectedModuleDrafts'));
-import { ArrowLeft, ArrowRight, Bookmark, CheckCircle2, ClipboardList, Filter, Info, Plus, Search, Trash2, Leaf, ShieldAlert, Calculator, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bookmark, CheckCircle2, ClipboardList, Filter, Info, Plus, Search, Trash2, Leaf, ShieldAlert, RotateCcw } from 'lucide-react';
 import { scopeModules } from '../data/expanded';
 import {useModuleFlags} from '../infrastructure/modulePreferences';
 import {isEnabled} from '../domain/moduleRegistry';
 import { WorkflowValidationError } from '../domain/workflow.ts';
+import {ModuleFieldTool} from './ModuleFieldTool';
 import { demoWorkflowRepository, useDemoWorkflows } from '../infrastructure/memoryWorkflowStore.ts';
 
 type Field = { label: string; placeholder: string; type?: 'number'|'date'|'text'; required?: boolean };
@@ -50,9 +51,6 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
  const globalDrafts=useDemoWorkflows();
  const drafts=globalDrafts.moduleDrafts.filter(item=>item.moduleId===moduleId);
  const [notice,setNotice]=useState('');
- const [price,setPrice]=useState('2000');
- const [quantity,setQuantity]=useState('10');
- const [transport,setTransport]=useState('500');
  const [checks,setChecks]=useState<number[]>([]);
  const selected=useMemo(()=>spec?.examples.map((item,index)=>({item,index})).filter(({item})=>item.join(' ').toLowerCase().includes(filter.toLowerCase()))??[],[spec,filter]);
  if(!isEnabled(flags,moduleId))return <section className="surface-card"><h2>Module disabled</h2><button onClick={onBack}>All modules</button></section>;
@@ -69,7 +67,6 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
      event.currentTarget.reset();setNotice('Draft saved in this browser tab only. No server requests or real-world actions occurred.');setMode('drafts');
    } catch(error){setNotice(error instanceof WorkflowValidationError?error.message:'Unable to save this demo draft.');}
  };
- const result=(Number(price)-Number(transport)/Number(quantity));
  return <div className="studio-shell">
     <button type="button" className="studio-back" onClick={onBack}><ArrowLeft size={18}/> All modules</button>
     <section className="studio-hero"><div><span className="section-eyebrow">MODULE {String(moduleId).padStart(2,'0')} · {spec.eyebrow} · STAGING</span><h1>{module.name}</h1><p>{spec.intro}</p><div className="studio-pills"><span>{module.category}</span><span>Phase {module.phase}</span><span>No database</span></div></div><div className="studio-hero-mark"><Leaf size={52}/></div></section>
@@ -81,7 +78,7 @@ export function ModuleStudio({moduleId,onBack}:{moduleId:number;onBack:()=>void}
       <div className="studio-tools"><label className="workspace-search"><Search size={17}/><input aria-label="Search module examples" placeholder="Search sample activities" value={filter} onChange={e=>setFilter(e.target.value)}/></label><span><Filter size={16}/> {selected.length} sample activities</span></div>
       <div className="studio-grid">{selected.map(({item,index})=><article className="surface-card studio-tile" key={index}><div className="studio-index">EXAMPLE {String(index+1).padStart(2,'0')}</div><h3>{item[0]}</h3><p>{item[1]}</p><small>{item[2]}</small><button type="button" onClick={()=>setSaved(v=>v.includes(index)?v.filter(id=>id!==index):[...v,index])} aria-label={`${saved.includes(index)?'Unsave':'Save'} ${item[0]}`} className="studio-save"><Bookmark size={16} fill={saved.includes(index)?'currentColor':'none'}/>{saved.includes(index)?'Saved for review':'Save idea'}</button></article>)}</div>
       {selected.length===0&&<p className="studio-empty">No sample activities match your search.</p>}
-      {(moduleId===1||moduleId===20)&&<section className="surface-card studio-calculator"><div><div className="section-eyebrow">YOUR OWN NUMBERS · CALCULATION ONLY</div><h3>Net realization estimator</h3><p>Enter a hypothetical rate, quantity and total transport cost to estimate revenue per quintal after transport. This does not predict prices.</p></div><div className="studio-calc-inputs"><label>Rate ₹/quintal<input type="number" min="0" max="100000000" value={price} onChange={e=>setPrice(e.target.value)}/></label><label>Quantity quintals<input type="number" min="0.01" max="100000000" value={quantity} onChange={e=>setQuantity(e.target.value)}/></label><label>Total transport ₹<input type="number" min="0" max="100000000" value={transport} onChange={e=>setTransport(e.target.value)}/></label></div><div className="studio-result"><Calculator size={20}/>{Number.isFinite(result)&&Number(quantity)>0&&Number(price)>=0&&Number(transport)>=0 ? `₹${result.toLocaleString('en-IN',{maximumFractionDigits:2})} per quintal (before other charges)`:'Enter valid positive quantity and non-negative costs'}</div></section>}
+      <ModuleFieldTool key={moduleId} moduleId={moduleId}/>
       <button type="button" className="btn btn-primary studio-cta" onClick={()=>setMode('drafts')}>Open {spec.action.toLowerCase()} <ArrowRight size={17}/></button>
     </>}
     {mode==='drafts'&&(import.meta.env.VITE_JSON_WORKFLOWS_MODE==='api' ? <Suspense fallback={<div role="status" className="surface-card">Loading private module contract…</div>}><ConnectedModuleDrafts moduleId={moduleId}/></Suspense> : <div className="studio-columns"><form className="surface-card studio-form" onSubmit={submit}><div className="section-eyebrow">PRIVATE PREVIEW · NEVER SENT</div><h3>{spec.action}</h3>{spec.fields.map((field,i)=><label key={`${moduleId}-${i}`}>{field.label}<input name={`field-${i}`} type={field.type||'text'} maxLength={field.type==='text'?140:undefined} min={field.type==='number'?'0.01':undefined} step={field.type==='number'?'any':undefined} placeholder={field.placeholder} required={field.required}/></label>)}<label>Location (optional)<input name="location" maxLength={80} placeholder="e.g. Pune"/></label><label>Notes (optional)<textarea name="note" rows={3} maxLength={600} placeholder="Helpful context for this demo draft"/></label><button type="submit" className="btn btn-primary"><Plus size={17}/> Save local draft</button>{spec.caution&&<p className="studio-caution"><Info size={16}/>{spec.caution}</p>}</form>
