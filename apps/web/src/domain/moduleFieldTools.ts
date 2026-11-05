@@ -112,7 +112,7 @@ export const moduleFieldTools:Readonly<Record<number,FieldTool>>={
    ['Refer to a qualified agronomist','Symptoms alone cannot confirm a deficiency.']],
   'No nutrient deficiency, application or amendment recommendation is calculated.'),
  22:calc('Agricultural job wage budget','Estimate a clearly stated wage commitment for a proposed farm job.',
-  [whole('workers','Number of workers','people',6),whole('days','Work duration','days',5),num('wage','Daily wage per worker','₹/person/day',550)],'Illustrative gross wage budget','₹','Check applicable minimum wages, working conditions and statutory obligations.'),
+  [whole('workers','Number of workers','people',6),whole('days','Work duration','days',5),num('wage','Daily wage per worker','₹/person/day',550)],'Illustrative gross wage budget','₹','Not an employment contract or hiring action. Check applicable minimum wages, working conditions and statutory obligations.'),
  23:calc('Simple interest illustration','Illustrate non-compounding interest on a hypothetical loan.',
   [num('principal','Illustrative principal','₹',100000),num('apr','Nominal annual interest','% per year',12,0,100),whole('months','Term','months',12)],'Illustrative simple interest','₹','Not an EMI/APR quote, financial advice, lender eligibility or insurance offer.'),
  24:calc('Export shipment weight','Estimate net cargo weight from cartons and weight per carton.',
