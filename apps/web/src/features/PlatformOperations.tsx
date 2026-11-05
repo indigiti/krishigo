@@ -1,7 +1,7 @@
 import {lazy,Suspense,useEffect,useState,type FormEvent} from 'react';
 const TradeJourneyWorkspace=lazy(()=>import('./TradeJourneyWorkspace'));
 import {BookOpen,ShieldCheck,Truck,Stethoscope,Bell,Search,RefreshCw,Database,FileText} from 'lucide-react';
-import {productionClient,type Identity,type SourceRecord,type KnowledgeArticle,type PlatformQuote,type PlatformOrder,type PlatformNotice,type PlatformCapabilities} from '../infrastructure/productionApiClient';
+import {productionClient,type Identity,type SourceRecord,type KnowledgeArticle,type PlatformQuote,type PlatformOrder,type PlatformNotice,type PlatformCapabilities,type FarmField} from '../infrastructure/productionApiClient';
 type Tab='knowledge'|'farm'|'trade'|'intelligence'|'readiness';
 const tabs:readonly {key:Tab;name:string}[]=[
  {key:'knowledge',name:'Knowledge desk'},{key:'farm',name:'Farm records'},
@@ -16,6 +16,7 @@ export default function PlatformOperations({user,initialTab='knowledge'}:{user:I
  const [articles,setArticles]=useState<KnowledgeArticle[]>([]),[pendingArticles,setPendingArticles]=useState<KnowledgeArticle[]>([]);
  const [pendingSnapshots,setPendingSnapshots]=useState<Array<{id:string;domain:string;label:string}>>([]);
  const [profile,setProfile]=useState<{district:string;crop_focus:string;preferred_language:string}|null>(null);
+ const [fields,setFields]=useState<FarmField[]>([]);
  const [supplier,setSupplier]=useState<{id:string;business_name:string;district:string;status:string}|null>(null);
  const [supplierQueue,setSupplierQueue]=useState<Array<{id:string;business_name:string;district:string}>>([]);
  const [cases,setCases]=useState<Array<{id:string;crop:string;kind:string;observation:string;status:string}>>([]);
@@ -34,7 +35,11 @@ export default function PlatformOperations({user,initialTab='knowledge'}:{user:I
    if(editor){const [s,d,h]=await Promise.all([productionClient.stagedSources(),productionClient.stagedArticles(),productionClient.stagedSnapshots()]);
     setPendingSources(s.items);setPendingArticles(d.items);setPendingSnapshots(h.items);}
   }
-  if(current==='farm'){const [p,c]=await Promise.all([productionClient.farmProfile(),productionClient.agronomyCases()]);setProfile(p.profile);setCases(c.items);}
+  if(current==='farm'){
+   const [p,c,f]=await Promise.all([productionClient.farmProfile(),productionClient.agronomyCases(),
+    ['farmer','fpo','admin'].includes(user.role)?productionClient.farmFields():Promise.resolve({items:[]})]);
+   setProfile(p.profile);setCases(c.items);setFields(f.items);
+  }
   if(current==='trade'){const [q,o,s]=await Promise.all([productionClient.quotes(),productionClient.orders(),productionClient.supplierProfile()]);
    setQuotes(q.items);setOrders(o.items);setSupplier(s.profile);if(admin)setSupplierQueue((await productionClient.suppliersPending()).items);}
   if(current==='intelligence'){
@@ -155,6 +160,39 @@ export default function PlatformOperations({user,initialTab='knowledge'}:{user:I
      <button className="btn btn-primary" disabled={busy}>Save my preferences</button>
     </form>
    </section>
+   {['farmer','fpo','admin'].includes(user.role)&&<section className="surface-card platform-panel" aria-label="Private farm fields">
+    <h3>My fields and crop plots</h3>
+    <p>Private owner-scoped field records. No GPS coordinates, land-title certification or shared FPO tenancy is enabled.</p>
+    <form className="platform-form" onSubmit={e=>send(e,d=>productionClient.createFarmField({
+     field_name:String(d.field_name),district:String(d.district),village:String(d.village||''),
+     crop:String(d.crop),area_hectares:Number(d.area_hectares)
+    }),'Private field record created.')}>
+     <label>Field name<input name="field_name" minLength={2} maxLength={100} required/></label>
+     <label>District<input name="district" minLength={2} maxLength={100} required/></label>
+     <label>Village (optional)<input name="village" maxLength={100}/></label>
+     <label>Current crop<input name="crop" minLength={2} maxLength={100} required/></label>
+     <label>Area in hectares<input name="area_hectares" type="number" min="0.01" max="100000" step="0.01" required/></label>
+     <button className="btn btn-primary" disabled={busy||!user.verified_at}>Add private field</button>
+    </form>
+    <h4>My plots · {fields.length}</h4>
+    {fields.length===0&&<p>No saved field records yet.</p>}
+    {fields.map(f=><article className="platform-record" key={f.id}>
+      <strong>{f.field_name} · {f.status}</strong><small>{f.district} · {f.village||'Village not specified'} · {f.area_hectares} ha</small>
+      {f.status==='active'&&<form className="platform-form" key={f.id+'-'+f.revision} onSubmit={e=>send(e,d=>
+       productionClient.editFarmField(f.id,Number(f.revision),{
+         field_name:String(d.field_name),crop:String(d.crop),area_hectares:Number(d.area_hectares)
+       }), 'Private field record updated.')}>
+       <label>Field name<input name="field_name" defaultValue={f.field_name} required maxLength={100}/></label>
+       <label>Crop<input name="crop" defaultValue={f.crop} required maxLength={100}/></label>
+       <label>Area (ha)<input name="area_hectares" type="number" defaultValue={f.area_hectares} min="0.01" max="100000" step="0.01" required/></label>
+       <button type="submit" className="btn btn-soft" disabled={busy||!user.verified_at}>Save field changes</button>
+       <button type="button" className="btn btn-soft" disabled={busy||!user.verified_at}
+        onClick={()=>{if(window.confirm('Archive this private field? It will no longer be editable.'))
+         void action(()=>productionClient.editFarmField(f.id,Number(f.revision),{status:'archived'}),
+            'Field archived; the historical record remains private.');}}>Archive</button>
+      </form>}
+    </article>)}
+   </section>}
    <section className="surface-card platform-panel"><h3><Stethoscope size={19}/> Crop and label observation intake</h3>
     <p>Manual text only; no photo upload, actual OCR, automatic diagnoses or delivered expert consultation.</p>
     <form className="platform-form" onSubmit={e=>send(e,d=>productionClient.createAgronomy(d),'Private case created for expert review (no real dispatch).')}>
