@@ -58,17 +58,34 @@ A module can simultaneously be D+S+C+X. **Never convert “implemented UI” or 
 | 24 | Export Marketplace | D+S export notes | X verified buyers, regulations and fulfilment | P3 |
 | 25 | Farmer Recognition | D+S nomination drafts | X consent, editorial publication | P3 |
 
-**M19 objective:** add useful, deterministic module-specific field tools (C) to the Module Studio modules, without new databases, unsafe live claims, or duplicating the advanced Module 11. Record unit/browser acceptance for all tool types. Each tool must do more than “save a note”.
+**M19 source milestone:** 24 standard modules now have one reusable deterministic field workbench each (12 numeric tools and 12 action-planning tools) in the M19 branch; Module 11 uses its advanced 12-tool Inputs Intelligence workspaces from M18. This is a code-complete local utility layer, not production-complete service operations. All modules remain X until real providers are connected.
+
+## M19 field tools shipped in source
+
+| Module IDs | Operational tool | Current state |
+|---|---|---|
+| 1, 2, 3 | Net mandi rate, produce lot value and procurement coverage calculators | C · local-only |
+| 4, 5, 6, 7, 8 | Community, news, weather response, crop knowledge, scheme preparation | C · local action plans |
+| 9, 10 | Annual machinery cost and rental budget | C · local-only |
+| 11 | Separate 12-tool Agricultural Inputs Intelligence | D+S · M18 dependency |
+| 12, 14, 17 | Transport unit cost, FPO pooled supply, storage budget | C · local-only |
+| 13, 15, 16 | Services, business verification, training preparation | C · local action plans |
+| 18, 19, 21, 25 | Farming assistant triage, livestock welfare, soil report, recognition preparation | C · local action plans |
+| 20, 22, 23, 24 | Market comparison, wage budget, simple interest, shipment weight | C · local-only |
+
+All calculations validate numeric boundaries, do not call network services, and operate on explicitly entered values. Checks are personal session progress, not identity, registration, qualification or compliance verification. M19 does **not** create real business workflows or connect external vendors.
 
 ## Development milestones and checklist
 
 ### M19 — Module completion workbench (ACTIVE)
 - [x] Root KNOWLEDGE.md with status vocabulary and 25-module scope.
-- [ ] Add 25 configurable on-device field tools with module-appropriate validated calculations, checklists, estimations, and templates.
-- [ ] Reuse existing Module Studio and the advanced Module 11.
-- [ ] Unit tests for each tool; responsive browser smoke; invalid input tests.
-- [ ] Ensure no module implies external action, approved rates, booking, diagnosis or delivery.
-- [ ] PR, CI run and module inventory updates; **do not** deploy or merge automatically.
+- [x] Add 24 domain-specific on-device field tools (12 calculations + 12 action plans); reuse 12 advanced Module 11 workspaces from M18.
+- [x] Reuse existing Module Studio and advanced Module 11 rather than duplicating dashboards.
+- [x] Author unit tests for 24 tools with invalid/overflow input; desktop/mobile browser smoke tests for selected modules.
+- [x] Label simulation and disable external action, verified rates, booking, diagnosis, notifications and delivery.
+- [x] Open dependency-aware draft PR #17 from M19 into the M18 feature branch.
+- [ ] Record successful final CI and update test evidence before marking M19 engineering accepted.
+- [ ] Hosted deployment and real provider verification deliberately deferred.
 
 ### M20 — Source-backed content and service models
 - [ ] Versioned editor-reviewable catalogue for crops, calendars, schemes, mandi metadata and input references.
