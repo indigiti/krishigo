@@ -174,13 +174,13 @@ final class CommerceApi {
             $c::requireVerified($identity,['farmer','fpo','admin']);
             $id=$c::id($m[1]);$c::mutation(256);
             $repo->transaction(function()use($repo,$uid,$id,$c):void{
-                $row=$repo->one('SELECT status,seller_id,buyer_id FROM trade_orders WHERE id=? FOR UPDATE',[$id]);
+                $row=$repo->one('SELECT status,quote_id,seller_id,buyer_id FROM trade_orders WHERE id=? FOR UPDATE',[$id]);
                 if(!$row)\kg_json(404,['error'=>'not_found']);
                 if((int)$row['seller_id']!==$uid)\kg_json(403,['error'=>'not_order_seller']);
                 if($row['status']!=='awaiting_seller_confirmation')
                     \kg_json(409,['error'=>'order_already_decided']);
                 $repo->exec("UPDATE trade_orders SET status='confirmed_record',confirmed_at=UTC_TIMESTAMP() WHERE id=?",[$id]);
-                TradeJourney::event($repo,(string)$repo->one('SELECT quote_id FROM trade_orders WHERE id=?',[$id])['quote_id'],
+                TradeJourney::event($repo,(string)$row['quote_id'],
                     $id,$uid,'seller_confirmed',
                     'Seller confirmed the internal order record; payment and dispatch are not connected.');
                 $c::audit($repo,$uid,'confirm','trade_order',$id,'Provisional order record confirmed, no dispatch');
