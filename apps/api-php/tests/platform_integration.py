@@ -312,7 +312,7 @@ class PlatformFlow(unittest.TestCase):
         # Separate logical account from existing staff/farmer fixtures. No new IP
         # registrations: production's five/hour registration throttle stays intact.
         grower=Client(self.base);grower.prepare()
-        self.assertEqual(grower.login('grower@platform.test',PASSWORD)[0],200)
+        self.assertEqual(grower.login('grower@platform.test')[0],200)
         st,initial=self.admin.call('GET','/api/v1/platform/modules')
         self.assertEqual(st,200,initial)
         self.assertTrue(initial['controls_server_enforced'])
