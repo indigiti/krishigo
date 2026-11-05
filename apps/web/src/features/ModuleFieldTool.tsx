@@ -27,7 +27,7 @@ function CalculatorPanel({moduleId}:{moduleId:number}){
    <span className="field-tool-demo">Local simulation</span></div>
   <div className="field-tool-fields">
    {tool.fields.map(f=><label key={f.key}>{f.label}<span className="field-tool-unit">{f.unit}</span>
-    <input aria-label={f.label} type="number" min={f.min} max={f.max} step="any" value={entries[f.key]||''}
+    <input aria-label={f.label} type="number" min={f.min} max={f.max} step={f.whole?1:"any"} value={entries[f.key]||''}
      onChange={e=>setEntries(prev=>({...prev,[f.key]:e.target.value}))}/>
    </label>)}
   </div>
