@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import { ArrowLeft, Beaker, BookOpenCheck, CalendarClock, CheckCircle2, ClipboardList, FileImage, FlaskConical, Info, Leaf, MapPin, Microscope, PackageSearch, Scale, Search, ShieldAlert, Sprout, Stethoscope, Trash2, Warehouse, Wheat } from 'lucide-react';
+const ConnectedAgriInputs = lazy(() => import('./ConnectedAgriInputs'));
 import { classifyBatchDate, filterInputReferences, inputCategories, inputFeatures, inputReferences, safeNutrientEquivalent, type InputFeature } from './agriInputsModel';
 
 type JournalRecord={id:number;crop:string;product:string;date:string;notes:string};
@@ -101,6 +102,7 @@ export default function AgriInputs({onBack}:{onBack?:()=>void}){
    <div className="agri-hero-tags"><span>12 guided workspaces</span><span>Staging preview</span><span>English · localization planned</span></div>
   </div><div className="agri-hero-icon" aria-hidden="true"><Leaf size={56}/></div></header>
   <Note>No real registered products, live dealers, pesticide prescriptions, verified crop-use approvals, OCR, AI diagnoses, lab reference ranges or outbound requests are connected. Example records are illustrative only; drafts disappear on reload.</Note>
+  {import.meta.env.VITE_JSON_WORKFLOWS_MODE==='api'&&<Suspense fallback={<p role="status">Loading protected input workflows…</p>}><ConnectedAgriInputs/></Suspense>}
   <div className="agri-tool-grid" role="group" aria-label="Agricultural inputs tools">{inputFeatures.map(feature=>{
    const Icon=featureIcons[feature.id];
    return <button key={feature.id} type="button" className={'agri-tool'+(active===feature.id?' selected':'')} aria-pressed={active===feature.id} onClick={()=>pickFeature(feature.id)}>
