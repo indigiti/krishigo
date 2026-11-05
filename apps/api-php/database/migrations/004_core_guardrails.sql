@@ -50,3 +50,20 @@ CREATE TABLE IF NOT EXISTS farm_field_case_links (
  FOREIGN KEY (owner_id) REFERENCES users(id),
  INDEX idx_field_case_links (owner_id,field_id,created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- Immutable, UUIDv7 policy transitions; the resource is a module ID, not a fake UUID.
+CREATE TABLE IF NOT EXISTS production_module_events (
+ id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
+ module_id TINYINT UNSIGNED NOT NULL,
+ cause_module_id TINYINT UNSIGNED NOT NULL,
+ actor_id BIGINT UNSIGNED NOT NULL,
+ old_enabled TINYINT(1) NOT NULL,
+ new_enabled TINYINT(1) NOT NULL,
+ created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+ FOREIGN KEY (module_id) REFERENCES production_module_flags(module_id),
+ FOREIGN KEY (cause_module_id) REFERENCES production_module_flags(module_id),
+ FOREIGN KEY (actor_id) REFERENCES users(id),
+ INDEX idx_policy_events_latest (created_at,id),
+ INDEX idx_policy_events_module (module_id,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
