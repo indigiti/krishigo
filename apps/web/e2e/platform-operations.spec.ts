@@ -94,3 +94,21 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await expect(page.getByText('Grow it. Find it. Trade it.')).toHaveCount(0);
 
 });
+
+
+test('connected mode rejects a staging/fixture API rather than claiming an authenticated session',async({page})=>{
+ test.skip(process.env.KG_TEST_PLATFORM!=='1','Explicit production-candidate browser mode only');
+ await page.route('**/api/v1/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  const json=path.endsWith('/platform/modules')?{items:Array.from({length:25},(_,i)=>({
+    module_id:i+1,enabled:true,configured_enabled:true,revision:1,depends_on:[]
+  })),production_policy:true}:path.endsWith('/status')?{
+    ok:true,stage:'M2-fixtures',database:'disabled',fixtures:'fictional'
+  }:{error:'staging_only'};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(json)});
+ });
+ await page.goto('/krishigo/');
+ await expect(page.getByRole('heading',{name:'Connected API unavailable'})).toBeVisible();
+ await expect(page.getByText('production_php_api_required')).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Sign in to KrishiGo'})).toHaveCount(0);
+});
