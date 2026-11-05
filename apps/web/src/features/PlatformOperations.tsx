@@ -46,13 +46,14 @@ export default function PlatformOperations({user}:{user:Identity}){
   }
  }
  useEffect(()=>{let active=true;setError('');void load(tab).catch(e=>{if(active)setError(errorMessage(e))});return()=>{active=false};},[tab,user.id,snapshotDomain]);
- async function action(run:()=>Promise<unknown>,message:string){
-  if(busy)return;setBusy(true);setError('');setNotice('');
-  try{await run();await load();setNotice(message);}catch(e){setError(errorMessage(e));}finally{setBusy(false);}
+ async function action(run:()=>Promise<unknown>,message:string):Promise<boolean>{
+  if(busy)return false;setBusy(true);setError('');setNotice('');
+  try{await run();await load();setNotice(message);return true;}
+  catch(e){setError(errorMessage(e));return false;}finally{setBusy(false);}
  }
  function send(e:FormEvent<HTMLFormElement>,run:(data:Record<string,FormDataEntryValue>)=>Promise<unknown>,message:string){
   e.preventDefault();const el=e.currentTarget;const data=form(e);
-  void action(()=>run(data),message).then(()=>{if(!error)el.reset();});
+  void action(()=>run(data),message).then(success=>{if(success)el.reset();});
  }
  function reviewSource(id:string,decision:'approve'|'reject'){
   void action(()=>productionClient.decideSource(id,decision,reason),'Source review recorded. No official data feed is connected.');
@@ -196,7 +197,7 @@ export default function PlatformOperations({user}:{user:Identity}){
    </section>
    <section className="surface-card platform-panel"><h3>Provisional orders · {orders.length}</h3>
     {orders.map(o=><article className="platform-record" key={o.id}><strong>{o.status} · ₹{o.total_inr}</strong><p>{o.quantity_kg} kg · {o.terms}</p>
-     {o.status==='awaiting_seller_confirmation'&&<button className="btn btn-soft" disabled={busy} onClick={()=>void action(()=>productionClient.confirmOrder(o.id),'Internal record confirmed; dispatch/payment disabled.')}>Seller confirmation</button>}
+     {o.status==='awaiting_seller_confirmation'&&Number(o.seller_id)===user.id&&<button className="btn btn-soft" disabled={busy} onClick={()=>void action(()=>productionClient.confirmOrder(o.id),'Internal record confirmed; dispatch/payment disabled.')}>Seller confirmation</button>}
     </article>)}
    </section>
    {admin&&<section className="surface-card platform-panel"><h3>Supplier review queue</h3>
