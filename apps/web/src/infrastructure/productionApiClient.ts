@@ -104,7 +104,7 @@ export class ProductionApiClient {
   async orders(){return this.call<{items:PlatformOrder[]}>('GET','trade/orders/mine');}
   async confirmOrder(id:string){return this.call<{status:string}>('POST','trade/orders/'+id+'/confirm',{});}
   async assistantSearch(q:string){return this.call<{matches:KnowledgeArticle[];answer:string;generative_ai:false}>('GET','assistant/search?q='+encodeURIComponent(q));}
-  async agronomyCases(){return this.call<{items:Array<{id:string;crop:string;kind:string;observation:string;status:string}>}>('GET','agronomy/mine');}
+  async agronomyCases(){return this.call<{items:Array<{id:string;crop:string;kind:string;observation:string;status:string;field_id:string|null}>}>('GET','agronomy/mine');}
   async createAgronomy(fields:Record<string,unknown>){return this.call<{id:string;status:string;ocr_processed:false}>('POST','agronomy/intake',fields);}
   async notificationPreferences(){return this.call<{items:Array<{topic:string;channel:string;opted_in:number}>}>('GET','me/notification-preferences');}
   async changeNotificationPreference(topic:string,opted_in:boolean){return this.call<{topic:string;opted_in:boolean}>('PUT','me/notification-preferences',{topic,channel:'in_app',opted_in});}
