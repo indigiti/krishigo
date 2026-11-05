@@ -11,6 +11,8 @@ use RuntimeException;
  */
 final class Store {
     private const DOMAINS = ['marketplace','buyers','community','plant','services','editorial'];
+    // Isolated module-11 repositories. Existing workflow health and domain routes stay unchanged.
+    private const INPUT_DOMAINS = ['input-products','input-sources','input-soil','input-applications','input-plans','input-suppliers','input-offers','input-enquiries','input-ocr','input-regulatory','input-recalls','input-expert'];
     private string $directory;
 
     public function __construct(string $directory) {
@@ -27,6 +29,7 @@ final class Store {
 
     private function path(string $domain, string $kind): string {
         if (!in_array($domain, self::DOMAINS, true) &&
+            !in_array($domain, self::INPUT_DOMAINS, true) &&
             preg_match('/^module-(?:[1-9]|1[0-9]|2[0-5])$/D', $domain)!==1)
             throw new RuntimeException('UNKNOWN_DOMAIN');
         return $this->directory . '/workflow-' . $domain . '-' . $kind . '.json';
