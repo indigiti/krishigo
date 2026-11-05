@@ -42,7 +42,7 @@ final class Inputs {
             $root='/api/v1/staging/inputs';
             if($method==='GET'&&$path===$root.'/capabilities')
                 \kg_json(200,['staging_only'=>true,'module'=>11,'private_json'=>true,
-                    'real_ocr'=>false,'generative_ai'=>false,'real_notifications'=>false,
+                    'real_ocr'=>false,'generative_ai'=>false,'real_notifications'=>false,'in_app_watch_alerts'=>true,
                     'verified_external_feeds'=>false,'real_sales'=>false,'live_subscriptions'=>false,
                     'collections'=>InputContracts::kinds()]);
             if($method==='GET'&&$path===$root.'/schemas'){
@@ -78,6 +78,44 @@ final class Inputs {
                 }
                 \kg_json(200,['staging_only'=>true,'results'=>$hits,'generative_ai'=>false,
                     'answer'=>count($hits)?'Human-reviewed staging records only. Confirm the cited official label and current regulatory status before use.':'No reviewed staging evidence found; no agricultural recommendation can be made.']);
+            }
+            // In-app-only batch alerts: owner must first opt in to a private watch.
+            if($method==='GET'&&$path===$root.'/watch-alerts'){
+                $watches=$store->records('input-watches',$user['name'])['items'];
+                $recalls=$store->records('input-recalls')['items'];
+                $hits=[];
+                foreach($watches as $watch)foreach($recalls as $recall){
+                    $w=$watch['fields'];$r=$recall['fields'];
+                    if($w['consent']!=='in_app_only')continue;
+                    if(strcasecmp(trim($w['batch']),trim($r['batch']))!==0||
+                       strcasecmp(trim($w['product']),trim($r['product']))!==0)continue;
+                    $hits[]=['watch_id'=>$watch['id'],'recall'=>$r,
+                        'reviewed_demo'=>true];
+                    if(count($hits)>=30)break 2;
+                }
+                \kg_json(200,['staging_only'=>true,'alerts'=>$hits,
+                    'in_app_only'=>true,'email_sent'=>false,'whatsapp_sent'=>false,
+                    'official_feed_connected'=>false]);
+            }
+            if($method==='GET'&&$path===$root.'/regulatory-updates'){
+                $since=$_GET['since']??'';
+                if(!is_string($since)||($since!==''&&
+                   (!preg_match('/^\d{4}-\d{2}-\d{2}$/D',$since)||$since>gmdate('Y-m-d'))))
+                   \kg_json(422,['error'=>'invalid_since']);
+                $updates=[];
+                foreach($store->records('input-regulatory')['items'] as $row){
+                    $sourceDate=$row['fields']['published_on'];
+                    if($since!==''&&$sourceDate<$since)continue;
+                    $updates[]=['id'=>$row['id'],'fields'=>$row['fields'],'status'=>'reviewed-demo'];
+                }
+                \kg_json(200,['staging_only'=>true,'updates'=>$updates,
+                    'live_source_monitoring'=>false,'in_app_only'=>true]);
+            }
+            if(preg_match('~^/api/v1/staging/inputs/records/watches/([1-9][0-9]{0,8})$~D',$path,$revoke)){
+                if($method!=='DELETE')\kg_json(405,['error'=>'method_not_allowed']);
+                \kg_check_csrf();self::throttle();
+                $store->deleteOwned('input-watches',(int)$revoke[1],$user['name']);
+                \kg_json(200,['staging_only'=>true,'deleted'=>true,'notifications_sent'=>false]);
             }
             if($method==='GET'&&$path===$root.'/alerts'){
                 $batch=$_GET['batch']??'';
