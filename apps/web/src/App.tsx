@@ -4,7 +4,7 @@ import {
   Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CloudSun, Compass,
   Droplets, Filter, Heart, HeartPulse, Home, Info, Leaf, MapPin, Menu, MessageCircle,
   MoreHorizontal, Plus, Search, Send, ShieldCheck, ShoppingBag, SlidersHorizontal,
-  Sparkles, Sprout, Sun, Thermometer, TrendingUp, UploadCloud, Users, Wind, X,
+  Sparkles, Sprout, Sun, Thermometer, TrendingUp, UploadCloud, Users, Wind, X, FlaskConical,
   ChartNoAxesCombined, Bookmark, ScanLine, Zap, RefreshCw, Volume2, BookOpen, BriefcaseBusiness, ClipboardList, LayoutGrid, NotebookPen, UserRound, FileHeart
 } from 'lucide-react';
 import { type Listing, type CommunityPost, mandiMarkets } from './data/demo';
@@ -13,6 +13,7 @@ import {useModuleFlags} from './infrastructure/modulePreferences';
 import {isEnabled} from './domain/moduleRegistry';
 import {WorkspaceBoundary} from './features/WorkspaceBoundary';
 const Workspaces = lazy(() => import('./features/Workspaces'));
+const AgriInputs = lazy(() => import('./features/AgriInputs'));
 const FarmerOnboarding = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.FarmerOnboarding})));
 const TradeDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.TradeDesk})));
 const ReviewDesk = lazy(() => import('./features/TradeWorkflows').then(mod => ({default: mod.ReviewDesk})));
@@ -23,7 +24,7 @@ const ConnectedDomainPanel = lazy(() => import('./features/ConnectedDomainPanel'
 
 const showJsonOperations=import.meta.env.VITE_JSON_WORKFLOWS_MODE==='api';
 
-type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations' | 'JSON Workflows';
+type Page = 'Overview' | 'Plant Doctor' | 'Marketplace' | 'Buyers' | 'Community' | 'Insights' | 'Services' | 'Agri Inputs' | 'Crop Journal' | 'Discover' | 'Admin' | 'My Profile' | 'Plant Cases' | 'Onboarding' | 'Trade Desk' | 'Review Desk' | 'Workflow Hub' | 'Connected Operations' | 'JSON Workflows';
 type Theme = 'forest' | 'sand' | 'night';
 const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Overview', icon: Home, desc: 'Farm at a glance' },
@@ -33,6 +34,7 @@ const navigation: { label: Page; icon: typeof Home; desc: string }[] = [
   { label: 'Insights', icon: ChartNoAxesCombined, desc: 'Mandi and trends' },
   { label: 'Buyers', icon: ClipboardList, desc: 'Procurement' },
   { label: 'Services', icon: BriefcaseBusiness, desc: 'Farm businesses' },
+  { label: 'Agri Inputs', icon: FlaskConical, desc: 'Crop protection and nutrients' },
   { label: 'Crop Journal', icon: NotebookPen, desc: 'Field notes' },
   { label: 'Discover', icon: LayoutGrid, desc: 'All 25 modules' },
   { label: 'Admin', icon: BookOpen, desc: 'Operations preview' },
@@ -94,7 +96,7 @@ function GrowthChart({ compact = false }: { compact?: boolean }) {
 const DemoPill = () => <span className="demo-pill"><span/> DEMO DATA</span>;
 function App() {
   const moduleFlags=useModuleFlags();
-  const pageModule:Partial<Record<Page,number>>={'Plant Doctor':18,'Marketplace':2,'Community':4,'Insights':1,'Buyers':3,'Services':13,'Crop Journal':21,'Plant Cases':21,'Trade Desk':2};
+  const pageModule:Partial<Record<Page,number>>={'Plant Doctor':18,'Marketplace':2,'Community':4,'Insights':1,'Buyers':3,'Services':13,'Agri Inputs':11,'Crop Journal':21,'Plant Cases':21,'Trade Desk':2};
   const allowed=(target:Page)=>!pageModule[target]||isEnabled(moduleFlags,pageModule[target]!);
   const [page, setPage] = useState<Page>('Overview');
   const [theme, setTheme] = useState<Theme>('forest');
@@ -175,7 +177,7 @@ function App() {
           <div className="bottom-grid"><section className="surface-card focus-card"><div className="section-head"><div><div className="section-eyebrow">CURATED FOR YOU</div><h3>Today’s focus</h3></div><button className="text-arrow" onClick={() => nav('Plant Doctor')}>Plant care <ArrowRight size={15}/></button></div><div className="task-row"><span className="task-icon yellow"><Droplets size={19}/></span><div><strong>Check irrigation schedule</strong><small>Monitor field moisture before watering</small></div><span className="priority-tag">Suggested</span></div><div className="task-row"><span className="task-icon green"><Leaf size={19}/></span><div><strong>Review your crop symptoms</strong><small>Use Plant Doctor to organize observations</small></div><ChevronRight size={17}/></div><div className="task-row"><span className="task-icon rose"><ShoppingBag size={19}/></span><div><strong>Explore new buyer requirements</strong><small>Discover produce opportunities nearby</small></div><ChevronRight size={17}/></div></section><section className="surface-card mandi-mini"><div className="section-head"><div><div className="section-eyebrow">MARKET INTELLIGENCE</div><h3>Mandi snapshot</h3></div><button className="text-arrow" onClick={() => nav('Insights')}>See all <ArrowRight size={15}/></button></div>{mandiMarkets.slice(0,3).map(m => <div className="mandi-mini-row" key={m.market}><div className="crop-round">{m.crop==='Tomato'?'🍅':m.crop==='Onion'?'🧅':'🌾'}</div><div><strong>{m.crop}</strong><small>{m.market}</small></div><strong className="mandi-val">{m.avg}</strong><span className={m.trend.startsWith('+')?'positive':'negative'}>{m.trend}</span></div>)}<p className="tiny-disclaimer">Sample prices for UI demonstration only.</p></section></div>
         </>}
         {page === 'Plant Doctor' && !showJsonOperations && <>
-          <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> SMART CROP CARE <DemoPill/></div><h1>Meet your Plant Doctor <span className="wave">✳</span></h1><p>Understand plant symptoms and take the next step with confidence.</p></div><button className="btn btn-primary" onClick={() => nav('Plant Cases')}><ClipboardList size={17}/> Open plant case journal</button></div>
+          <div className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot"/> SMART CROP CARE <DemoPill/></div><h1>Meet your Plant Doctor <span className="wave">✳</span></h1><p>Understand plant symptoms and take the next step with confidence.</p></div><button className="btn btn-primary" onClick={() => nav('Plant Cases')}><ClipboardList size={17}/> Open plant case journal</button><button className="btn btn-soft" onClick={() => nav('Agri Inputs')}><FlaskConical size={17}/> Input & nutrient references</button></div>
           <section className="doctor-header"><div><div className="hero-kicker">YOUR CROP CARE ASSISTANT</div><h2>A little attention.<br/><em>A healthier harvest.</em></h2><p>Upload your plant photo, tell us what you've noticed, and explore an example of how guided screening can work.</p></div><div className="doctor-art"><PlantArtwork small/></div></section>
           <div className="doctor-grid"><section className="surface-card scan-form"><div className="section-head"><div><div className="section-eyebrow">STEP 01 · ADD A PHOTO</div><h3>Scan your crop</h3></div><span className="small-status"><span/> Prototype</span></div>
               <input type="file" accept="image/*" capture="environment" ref={fileRef} onChange={(e: ChangeEvent<HTMLInputElement>) => handleFile(e.target.files?.[0])} hidden/>
@@ -212,6 +214,7 @@ function App() {
         </>}
         <Suspense fallback={<div className="surface-card" role="status">Loading this workspace…</div>}>
         {page === 'Workflow Hub' && <WorkflowHub/>}
+        {page === 'Agri Inputs' && <AgriInputs/>}
         {page === 'Connected Operations' && !isDemo && <ProductionWorkspace/>}
         {page === 'JSON Workflows' && showJsonOperations && <JsonOperations/>}
         {showJsonOperations && page === 'Marketplace' && <ConnectedDomainPanel domain="marketplace"/>}
@@ -223,7 +226,7 @@ function App() {
         {page === 'Onboarding' && <FarmerOnboarding/>}
         {page === 'Trade Desk' && <TradeDesk initialListingId={tradeListingId}/> }
         {page === 'Review Desk' && !showJsonOperations && <ReviewDesk/>}
-        {(!showJsonOperations || (page !== 'Buyers' && page !== 'Services')) && (['Buyers','Services','Discover','Crop Journal','Admin','My Profile','Plant Cases'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases') && <Workspaces key={page} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases'}/>}
+        {(!showJsonOperations || (page !== 'Buyers' && page !== 'Services')) && (['Buyers','Services','Discover','Crop Journal','Admin','My Profile','Plant Cases'] as const).includes(page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases') && <Workspaces key={page} onNavigate={nav} page={page as 'Buyers'|'Services'|'Discover'|'Crop Journal'|'Admin'|'My Profile'|'Plant Cases'}/>}
         </Suspense>
       </WorkspaceBoundary>}
         <footer className="footer"><div><Sprout size={16}/> KrishiGo <span>·</span> Designed for the next generation of farming</div><span>{isDemo ? 'Staging prototype · no database · sample information' : 'Connected application'}</span></footer>

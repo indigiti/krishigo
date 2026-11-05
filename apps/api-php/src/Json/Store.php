@@ -11,6 +11,8 @@ use RuntimeException;
  */
 final class Store {
     private const DOMAINS = ['marketplace','buyers','community','plant','services','editorial'];
+    // Isolated module-11 repositories. Existing workflow health and domain routes stay unchanged.
+    private const INPUT_DOMAINS = ['input-products','input-sources','input-soil','input-applications','input-plans','input-suppliers','input-offers','input-enquiries','input-ocr','input-regulatory','input-recalls','input-expert','input-watches'];
     private string $directory;
 
     public function __construct(string $directory) {
@@ -27,6 +29,7 @@ final class Store {
 
     private function path(string $domain, string $kind): string {
         if (!in_array($domain, self::DOMAINS, true) &&
+            !in_array($domain, self::INPUT_DOMAINS, true) &&
             preg_match('/^module-(?:[1-9]|1[0-9]|2[0-5])$/D', $domain)!==1)
             throw new RuntimeException('UNKNOWN_DOMAIN');
         return $this->directory . '/workflow-' . $domain . '-' . $kind . '.json';
@@ -51,6 +54,10 @@ final class Store {
                 !preg_match('/^[a-f0-9]{64}$/D', $record['request_hash'])) return null;
             $seen[$record['id']] = true;
             if (count($record['fields']) > 12) return null;
+            if (isset($record['review']) && (!is_array($record['review']) ||
+                !is_string($record['review']['by']??null) || strlen($record['review']['by'])>100 ||
+                !is_string($record['review']['reason']??null) || strlen($record['review']['reason'])>300 ||
+                !is_string($record['review']['at']??null))) return null;
             foreach ($record['fields'] as $key=>$value) {
                 if (!is_string($key) || strlen($key) > 32 ||
                     (!is_string($value) && !is_int($value)) ||
@@ -170,17 +177,36 @@ final class Store {
         });
     }
 
-    public function review(string $domain, int $id, string $decision): array {
-        return $this->synchronized($domain, function(array $state) use ($domain,$id,$decision) {
+    public function review(string $domain, int $id, string $decision, ?string $reviewer = null, ?string $reason = null): array {
+        return $this->synchronized($domain, function(array $state) use ($domain,$id,$decision,$reviewer,$reason) {
             $doc=$state['doc'];
             foreach ($doc['records'] as &$record) {
                 if ($record['id'] !== $id) continue;
                 if ($record['status'] !== 'pending-demo') throw new RuntimeException('ALREADY_REVIEWED');
                 $record['status'] = $decision === 'approve' ? 'reviewed-demo' : 'rejected-demo';
+                if ($reviewer !== null && $reason !== null) {
+                    if (strlen($reviewer)>100 || strlen($reason)>300) throw new RuntimeException('FIELD_INVALID');
+                    $record['review']=['by'=>$reviewer,'reason'=>$reason,'at'=>gmdate('c')];
+                }
                 $visible = self::visible($record);
                 unset($record);
                 $this->persist($domain,$doc);
                 return $visible;
+            }
+            throw new RuntimeException('RECORD_NOT_FOUND');
+        });
+    }
+
+    /** Delete a caller-owned private staging record (e.g., revoke batch-watch consent). */
+    public function deleteOwned(string $domain, int $id, string $owner): bool {
+        return $this->synchronized($domain, function(array $state) use ($domain,$id,$owner) {
+            $doc=$state['doc'];
+            foreach($doc['records'] as $index=>$record) {
+                if($record['id']!==$id)continue;
+                if(!hash_equals($record['owner'],$owner))throw new RuntimeException('RECORD_NOT_FOUND');
+                array_splice($doc['records'],$index,1);
+                $this->persist($domain,$doc);
+                return true;
             }
             throw new RuntimeException('RECORD_NOT_FOUND');
         });

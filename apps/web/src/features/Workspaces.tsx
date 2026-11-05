@@ -7,6 +7,7 @@ import {useModuleFlags} from '../infrastructure/modulePreferences';
 import {isEnabled} from '../domain/moduleRegistry';
 import ModuleControlPanel from './ModuleControlPanel';
 import { ModuleStudio } from './ModuleStudio';
+import AgriInputs from './AgriInputs';
 
 type Workspace = 'Buyers' | 'Services' | 'Discover' | 'Crop Journal' | 'Admin' | 'My Profile' | 'Plant Cases';
 type JournalEntry = { id: number; crop: string; observation: string; date: string };
@@ -57,7 +58,7 @@ function DiscoverBoard(){
   const [selected,setSelected]=useState<number|null>(null); const [moduleId,setModuleId]=useState<number|null>(null); const chosen=content.find(c=>c.id===selected);
   const groups=['All','Market','Plant Care','Circle','Insights','Learn','Services','Business'];
   const visible=modules.filter(m=>isEnabled(moduleFlags,m.id)&&(filter==='All'||m.category===filter)&&(!phase||m.phase===phase));
-  if(moduleId!==null) return isEnabled(moduleFlags,moduleId)?<ModuleStudio key={moduleId} moduleId={moduleId} onBack={()=>setModuleId(null)}/>:<section className="surface-card workspace-recovery"><h2>Module disabled</h2><button className="btn btn-primary" onClick={()=>setModuleId(null)}>All modules</button></section>;
+  if(moduleId!==null) return isEnabled(moduleFlags,moduleId)?(moduleId===11?<AgriInputs onBack={()=>setModuleId(null)}/>:<ModuleStudio key={moduleId} moduleId={moduleId} onBack={()=>setModuleId(null)}/>):<section className="surface-card workspace-recovery"><h2>Module disabled</h2><button className="btn btn-primary" onClick={()=>setModuleId(null)}>All modules</button></section>;
   return <><SectionTitle eyebrow="KRISHIGO ECOSYSTEM" title="Everything agriculture. One place." copy="Explore all 25 planned modules, crop knowledge and the future services roadmap."/>
     <div className="surface-card content-library"><div className="section-head"><div><div className="section-eyebrow">EDITORIAL LIBRARY · DRAFTS</div><h3>Knowledge, news and schemes</h3></div><BookOpen size={20}/></div><div className="workspace-card-grid compact">{content.map(c=><button className="content-teaser" key={c.id} onClick={()=>setSelected(c.id)}><span>{c.kind}</span><strong>{c.title}</strong><small>{c.source}</small><ArrowRight size={15}/></button>)}</div>{chosen&&<div className="content-detail" role="region" aria-label="Sample content detail"><button className="text-arrow" onClick={()=>setSelected(null)}>Close ×</button><strong>{chosen.title}</strong><p>{chosen.summary}</p><small>{chosen.source} · {chosen.updated}</small></div>}</div>
     <div className="workspace-toolbar"><div className="category-pills workspace-pills">{groups.map(g=><button key={g} className={filter===g?'active':''} onClick={()=>setFilter(g)}>{g}</button>)}</div><label className="workspace-phase"><Filter size={16}/><select value={phase} onChange={e=>setPhase(Number(e.target.value))} aria-label="Filter development phase"><option value={0}>All phases</option><option value={1}>Phase 1</option><option value={2}>Phase 2</option><option value={3}>Phase 3</option></select></label></div>
@@ -65,12 +66,13 @@ function DiscoverBoard(){
     <DemoNote>All 25 cards now open interactive module-specific staging exercises. They are not live integrated agricultural services. News, scheme and learning content remain editorial drafts.</DemoNote>
   </>;
 }
-function CropJournal(){
+function CropJournal({onNavigate}:{onNavigate?:(page:'Agri Inputs')=>void}){
  const [entries,setEntries]=useState<JournalEntry[]>([{id:1,crop:'Tomato',observation:'Example note: inspect leaves after rainfall and take comparison photographs.',date:'Sample entry'}]);const [crop,setCrop]=useState('Tomato');const [note,setNote]=useState('');
  const add=(e:FormEvent)=>{e.preventDefault();if(!note.trim())return;setEntries(s=>[{id:Date.now(),crop,observation:note.trim().slice(0,1000),date:'Session draft'},...s]);setNote('');};
  return <><SectionTitle eyebrow="MY FARM WORKSPACE" title="Know your crops, every season." copy="Record field observations and plan follow-ups. No images or notes leave this device in staging."/>
     <div className="workspace-split"><form className="surface-card workspace-form" onSubmit={add}><div className="section-eyebrow">CROP DIARY</div><h3>New observation</h3><label>Crop<select value={crop} onChange={e=>setCrop(e.target.value)}>{['Tomato','Onion','Soybean','Cotton','Chilli','Sugarcane','Other'].map(c=><option key={c}>{c}</option>)}</select></label><label>Field observation<textarea maxLength={1000} rows={5} placeholder="What did you observe today? Note crop stage, visible symptoms and field conditions." value={note} onChange={e=>setNote(e.target.value)} required/></label><button className="btn btn-primary" type="submit"><Plus size={17}/> Add demo observation</button></form>
     <div className="surface-card journal-list"><div className="section-eyebrow">YOUR TEMPORARY HISTORY</div><h3>{entries.length} field notes</h3>{entries.map(x=><article className="journal-item" key={x.id}><div className="journal-dot"><Leaf size={18}/></div><div><strong>{x.crop}</strong><small>{x.date}</small><p>{x.observation}</p></div></article>)}</div></div>
+    <button className="btn btn-soft" type="button" onClick={()=>onNavigate?.('Agri Inputs')}>Explore soil, fertilizer and crop-protection references <ArrowRight size={16}/></button>
     <DemoNote>Temporary observations disappear when the page reloads. This module does not provide plant identification, diagnosis, prescriptions or persistent case history yet.</DemoNote>
  </>;
 }
@@ -81,4 +83,4 @@ function AdminBoard(){
  <section className="surface-card"><div className="section-head"><div><div className="section-eyebrow">INTEGRATION READINESS</div><h3>System boundaries</h3></div><SlidersHorizontal size={19}/></div><div className="admin-rows">{rows.map(r=><div key={r.label}><div><strong>{r.label}</strong><small>{r.detail}</small></div><span className="scope-tag">{r.state}</span></div>)}</div></section><DemoNote>Admin is a public staging preview, not an authenticated or production management interface. Do not expose real operational controls here.</DemoNote>
  </>;
 }
-export default function Workspaces({page}: {page:Workspace}) { switch(page){case 'Buyers':return <BuyerBoard/>;case 'Services':return <ServicesBoard/>;case 'Discover':return <DiscoverBoard/>;case 'Crop Journal':return <CropJournal/>;case 'Admin':return <ModuleControlPanel/>;case 'My Profile':return <ProfileWorkspace/>;case 'Plant Cases':return <CasesWorkspace/>;} }
+export default function Workspaces({page,onNavigate}: {page:Workspace;onNavigate?:(page:'Agri Inputs')=>void}) { switch(page){case 'Buyers':return <BuyerBoard/>;case 'Services':return <ServicesBoard/>;case 'Discover':return <DiscoverBoard/>;case 'Crop Journal':return <CropJournal onNavigate={onNavigate}/>;case 'Admin':return <ModuleControlPanel/>;case 'My Profile':return <ProfileWorkspace/>;case 'Plant Cases':return <CasesWorkspace/>;} }

@@ -27,6 +27,12 @@ if (kg_env('KRISHIGO_API_MODE') === 'production') {
     \KrishiGo\Production\Api::dispatch($method, $path);
 }
 
+// Private module 11 input intelligence: same-origin, staging-only, fail-closed.
+if (str_starts_with($path, '/api/v1/staging/inputs/')) {
+    require_once dirname(__DIR__).'/src/Modules/Registry.php';
+    foreach (['Store','InputContracts','Inputs'] as $part) require_once dirname(__DIR__).'/src/Json/'.$part.'.php';
+    \KrishiGo\Json\Inputs::dispatch($method,$path);
+}
 // All 25 modules have private staging-draft contracts (not live integration).
 if (str_starts_with($path,'/api/v1/staging/module-drafts/')) {
     require_once dirname(__DIR__).'/src/Modules/Registry.php';
