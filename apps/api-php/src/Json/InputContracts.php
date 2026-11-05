@@ -16,13 +16,15 @@ final class InputContracts {
         'ocr' => 'product:text:120,transcription:text:650,reference:text:120,question:text:250',
         'regulatory' => 'title:text:160,source_url:url,published_on:date,category:text:120,summary:text:350',
         'recalls' => 'product:text:140,batch:text:100,source_url:url,notice_on:date,reason:text:300',
+        'watches' => 'product:text:140,batch:text:100,consent:consent',
         'expert' => 'crop:text:100,symptoms:text:250,stage:text:100,context:text:450'
     ];
     private const OPTIONS = [
       'category'=>['insecticide','fungicide','herbicide','biopesticide','biofertilizer','water_soluble_fertilizer','micronutrient','secondary_nutrient','soil_amendment','other'],
-      'availability'=>['unknown','in_stock','on_request','out_of_stock']
+      'availability'=>['unknown','in_stock','on_request','out_of_stock'],
+      'consent'=>['in_app_only']
     ];
-    private const PRIVATE_KINDS = ['soil','applications','plans','enquiries','ocr','expert'];
+    private const PRIVATE_KINDS = ['soil','applications','plans','enquiries','ocr','expert','watches'];
     public static function kinds():array {return array_keys(self::FIELDS);}
     public static function isPrivate(string $kind):bool {return in_array($kind,self::PRIVATE_KINDS,true);}
     public static function fields(string $kind):array {
