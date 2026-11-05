@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import {ShieldCheck,RefreshCcw,LockKeyhole} from 'lucide-react';
 import {productionClient,type ProductionModuleFlag} from '../infrastructure/productionApiClient';
+import {moduleDescriptors} from '../domain/moduleRegistry';
 
 /** Server-enforced production policy: not localStorage, not JSON staging flags. */
 export default function ProductionModuleControls(){
@@ -22,6 +23,7 @@ export default function ProductionModuleControls(){
   setBusy(true);setError('');setNote('');
   try{const result=await productionClient.updateProductionModule(item.module_id,!item.configured_enabled,item.revision);
    await refresh();
+   window.dispatchEvent(new Event('krishigo-production-policy-changed'));
    setNote(result.changed.length?
     'Production policy updated for modules: '+result.changed.join(', '):
     'No change required.');
@@ -40,7 +42,7 @@ export default function ProductionModuleControls(){
   {rows.length===0&&!error&&<p role="status">Loading server policy…</p>}
   <div className="module-settings">
    {rows.map(item=><div className="module-setting" key={item.module_id}>
-     <div><strong>Module {String(item.module_id).padStart(2,'0')}</strong>
+     <div><strong>Module {String(item.module_id).padStart(2,'0')} · {moduleDescriptors.find(m=>m.id===item.module_id)?.name||'Unknown module'}</strong>
       <small>Revision {item.revision}{item.depends_on.length?' · Requires '+item.depends_on.join(', '):''}</small>
      </div>
      <button type="button" className="btn btn-soft" disabled={busy} aria-label={'Toggle production module '+item.module_id}
