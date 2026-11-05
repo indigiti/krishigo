@@ -12,7 +12,7 @@ use RuntimeException;
 final class Store {
     private const DOMAINS = ['marketplace','buyers','community','plant','services','editorial'];
     // Isolated module-11 repositories. Existing workflow health and domain routes stay unchanged.
-    private const INPUT_DOMAINS = ['input-products','input-sources','input-soil','input-applications','input-plans','input-suppliers','input-offers','input-enquiries','input-ocr','input-regulatory','input-recalls','input-expert'];
+    private const INPUT_DOMAINS = ['input-products','input-sources','input-soil','input-applications','input-plans','input-suppliers','input-offers','input-enquiries','input-ocr','input-regulatory','input-recalls','input-expert','input-watches'];
     private string $directory;
 
     public function __construct(string $directory) {
