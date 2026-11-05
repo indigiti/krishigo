@@ -6,12 +6,16 @@ import {moduleDescriptors} from '../domain/moduleRegistry';
 /** Server-enforced production policy: not localStorage, not JSON staging flags. */
 export default function ProductionModuleControls(){
  const [rows,setRows]=useState<ProductionModuleFlag[]>([]);
+ const [history,setHistory]=useState<Array<{id:string;module_id:number;cause_module_id:number;actor:string;old_enabled:number;new_enabled:number;created_at:string}>>([]);
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[note,setNote]=useState('');
- async function refresh(){const data=await productionClient.productionModules();
+ async function refresh(){
+  const [data,events]=await Promise.all([productionClient.productionModules(),productionClient.productionModuleEvents()]);
   if(data.items.length!==25)throw new Error('Production policy is incomplete: access is blocked.');
-  setRows(data.items);}
- useEffect(()=>{let active=true;void productionClient.productionModules()
-  .then(data=>{if(active){if(data.items.length!==25)throw new Error('Incomplete production policy');setRows(data.items);}})
+  setRows(data.items);setHistory(events.items.slice(0,10));
+ }
+ useEffect(()=>{let active=true;void Promise.all([productionClient.productionModules(),productionClient.productionModuleEvents()])
+  .then(([data,events])=>{if(active){if(data.items.length!==25)throw new Error('Incomplete production policy');
+    setRows(data.items);setHistory(events.items.slice(0,10));}})
   .catch(e=>{if(active)setError(String(e));});
   return()=>{active=false;};
  },[]);
@@ -49,5 +53,11 @@ export default function ProductionModuleControls(){
       onClick={()=>void toggle(item)}>{item.enabled?'Enabled · disable':'Disabled · enable'}</button>
     </div>)}
   </div>
+  <h4>Recent production policy events</h4>
+  {history.length===0?<p>No changes recorded.</p>:history.map(event=>
+    <article className="production-record" key={event.id}>
+      <strong>Module {event.module_id} · {event.new_enabled?'Enabled':'Disabled'}</strong>
+      <small>Triggered by module {event.cause_module_id} · {event.actor} · {event.created_at}</small>
+    </article>)}
  </section>;
 }
