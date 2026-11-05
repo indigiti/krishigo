@@ -198,3 +198,21 @@
 @media(max-width:750px){.agri-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.agri-fields,.agri-fields.two{grid-template-columns:repeat(2,minmax(0,1fr))}.agri-hero{padding:26px}.agri-hero-icon{width:75px;height:75px}.agri-results{grid-template-columns:1fr}}
 @media(max-width:510px){.agri-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.agri-tool{padding:13px;min-height:160px;border-radius:13px}.agri-tool strong{font-size:12px}.agri-tool small{font-size:10px}.agri-hero{padding:22px;border-radius:18px}.agri-hero-icon{display:none}.agri-hero-tags span{font-size:10px}.agri-panel{padding:18px!important}.agri-fields,.agri-fields.two{grid-template-columns:1fr}.agri-form label:has(textarea){grid-column:auto}.agri-current-heading{align-items:flex-start;flex-direction:column}.agri-table th,.agri-table td{min-width:125px}}
 @media(prefers-reduced-motion:reduce){.agri-tool{transition:none}.agri-tool:hover{transform:none}}
+
+
+/* Protected P1–P4 input pilot. */
+.agri-connected{border:1px solid var(--line)!important;box-shadow:var(--card-shadow)}
+.agri-connected h2{font-size:clamp(20px,2.5vw,28px)}
+.agri-connected form{display:flex;flex-direction:column;align-items:stretch;gap:14px}
+.agri-connected .agri-fields{width:100%;display:grid;align-items:end}
+.agri-connected .agri-fields label{align-items:stretch}
+.agri-connected-form{background:var(--panel-soft);border:1px solid var(--line);border-radius:16px;padding:18px}
+.agri-connected-form h3{font-size:17px}
+.agri-connected .agri-record{margin-bottom:9px;max-width:100%}
+.agri-connected .agri-record p{word-break:break-word}
+.agri-connected .agri-record a{font-size:12px;color:var(--accent);text-decoration:underline}
+.agri-connected button{min-height:40px}
+.agri-connected .agri-search-form{border-top:1px solid var(--line);padding-top:17px}
+.agri-connected .agri-search-form>input{width:min(100%,460px);background:var(--panel-soft);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px}
+.agri-connected textarea{background:var(--panel-soft);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px;width:min(100%,520px)}
+@media(max-width:640px){.agri-connected .agri-fields{grid-template-columns:1fr}.agri-connected-form{padding:14px}.agri-connected .agri-record{overflow-wrap:anywhere}}
