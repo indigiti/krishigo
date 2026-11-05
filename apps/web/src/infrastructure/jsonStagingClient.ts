@@ -55,7 +55,15 @@ export class JsonStagingClient {
  async decide(domain:DemoDomain,id:number,decision:'approve'|'reject'){
   return this.call<{item:DemoRecord}>('POST',`/staging/admin/records/${domain}/${id}/review`,{decision});
  }
- async doctor(){return this.call<{schema:number;ok:boolean;status:'healthy'|'attention';checks:Array<{id:string;severity:'ok'|'attention'|'critical';message:string}>;summary:{diagnostic_domains:number;enabled_diagnostic_domains:number;restored_snapshots:number;queue_pending:number;queue_failed:number;queue_dead:number;available_private_storage_mb:number|null};database:'none';generated_at:string}>('GET','/staging/operations/doctor');}
+ async inputCapabilities(){return this.call<{staging_only:true;collections:string[];real_ocr:false;generative_ai:false;verified_external_feeds:false}>('GET','/staging/inputs/capabilities');}
+ async inputSchemas(){return this.call<{staging_only:true;schemas:Record<string,{fields:Array<{key:string;label:string;type:string;max:number;options:string[]|null}>;private:boolean;create_allowed:boolean}>}>('GET','/staging/inputs/schemas');}
+ async inputList(kind:string,mine:boolean){return this.call<{staging_only:true;items:DemoRecord[];private:boolean}>('GET','/staging/inputs/records/'+encodeURIComponent(kind)+(mine?'?mine=1':''));}
+ async inputCreate(kind:string,fields:Record<string,string>){return this.call<{staging_only:true;item:DemoRecord;external_publication:false}>('POST','/staging/inputs/records/'+encodeURIComponent(kind),fields,crypto.randomUUID());}
+ async inputPending(kind:string){return this.call<{staging_only:true;pending:DemoRecord[]}>('GET','/staging/inputs/admin/'+encodeURIComponent(kind));}
+ async inputReview(kind:string,id:number,decision:'approve'|'reject',reason:string){return this.call<{staging_only:true;item:DemoRecord;regulatory_certification:false}>('POST','/staging/inputs/admin/'+encodeURIComponent(kind)+'/'+id+'/review',{decision,reason});}
+ async inputSearch(q:string,assistant=false){return this.call<{staging_only:true;results:Array<{kind:string;id:number;title:string;summary:string;source_url:string;source_date:string;status:string}>;answer:string;generative_ai:false}>('GET','/staging/inputs/'+(assistant?'assistant':'search')+'?q='+encodeURIComponent(q));}
+ async inputAlerts(batch:string){return this.call<{staging_only:true;matches:Array<{status:string;fields:Record<string,string>}>;official_recall_feed_connected:false;notifications_sent:false}>('GET','/staging/inputs/alerts?batch='+encodeURIComponent(batch));}
+  async doctor(){return this.call<{schema:number;ok:boolean;status:'healthy'|'attention';checks:Array<{id:string;severity:'ok'|'attention'|'critical';message:string}>;summary:{diagnostic_domains:number;enabled_diagnostic_domains:number;restored_snapshots:number;queue_pending:number;queue_failed:number;queue_dead:number;available_private_storage_mb:number|null};database:'none';generated_at:string}>('GET','/staging/operations/doctor');}
  async health(){return this.call<{domains:Record<string,{records:number;pending:number;enabled:boolean;recovered:boolean}>;database:string}>('GET','/staging/workflows/health');}
  async queue(){return this.call<{items:QueueJob[];health:QueueHealth}>('GET','/staging/jobs');}
  async enqueue(domain:DemoDomain){return this.call('POST','/staging/jobs',{kind:'domain_snapshot',domain});}
