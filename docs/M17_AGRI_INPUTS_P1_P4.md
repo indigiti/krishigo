@@ -12,7 +12,7 @@ Direct navigation links from Plant Doctor and Crop Journal connect to the input 
 Staging supplier profile, licence-evidence, stock/price-offer and enquiry contracts exist and are role-gated. They do not verify a licence or contact a dealer. Payments, subscriptions, real inventory feeds, notifications and retail transactions remain disabled.
 
 ## P4: Advanced intelligence
-Label image preview remains on-device in demo, with protected OCR/manual transcript-review intake available in opt-in JSON staging. No OCR engine or image upload service exists yet. Source-grounded lexical search is deterministic and citation-linked, not generative AI. Source-reviewed regulatory notice and batch recall drafts can be queried, but no live regulator-feed polling or actual alert delivery is active.
+Label image preview remains on-device in demo, with protected OCR/manual transcript-review intake available in opt-in JSON staging. No OCR engine or image upload service exists yet. Source-grounded lexical search is deterministic and citation-linked, not generative AI. Source-reviewed regulatory notice and batch recall drafts can be queried. Farmers can opt into exact-batch in-app watches and revoke consent; reviewed-demo recall notices appear in a private watch-alert inbox. No live regulator-feed polling, email, WhatsApp or push delivery is active.
 
 ## Protected PHP endpoint summary
 
@@ -22,6 +22,8 @@ Private staging paths (same-origin /api/v1/staging/inputs):
 - GET admin/{kind}, POST admin/{kind}/{id}/review
 - GET search?q=term and assistant?q=term (reviewed-demo source results only)
 - GET alerts?batch=ID (reviewed-demo exact batch notices only)
+- GET watch-alerts (owner-scoped, consented in-app matches) and DELETE records/watches/{id} (consent revocation)
+- GET regulatory-updates?since=YYYY-MM-DD (reviewed staging notices only)
 
 The code enforces staging authentication, CSRF, explicit module-11 activation, role restrictions, bounded private JSON storage, atomic locking and idempotency. The staging account is a single configured identity and cannot provide genuine multi-user or tenant isolation. No live user data should be loaded.
 
