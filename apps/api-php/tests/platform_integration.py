@@ -193,5 +193,119 @@ class PlatformFlow(unittest.TestCase):
         st,other=buyer.call('GET','/api/v1/agronomy/mine')
         self.assertEqual(other['items'],[])
 
+
+    def test_m26_complete_journey_cancellation_and_stock_reservations(self):
+        seed=secrets.token_hex(4)
+        farmer=Client(self.base);farmer.prepare()
+        buyer1=Client(self.base);buyer1.prepare()
+        buyer2=Client(self.base);buyer2.prepare()
+        stranger=Client(self.base);stranger.prepare()
+        users=[(farmer,'farmer'),(buyer1,'buyer'),(buyer2,'buyer'),(stranger,'buyer')]
+        for index,(client,role) in enumerate(users):
+            email=f'm26-{seed}-{index}@krishigo.test'
+            code,_=client.register(email,role);self.assertEqual(code,201)
+            code,_=client.login(email);self.assertEqual(code,200)
+            code,who=client.call('GET','/api/v1/auth/me')
+            self.assertEqual(code,200)
+            if client is not stranger:
+                code,verified=self.admin.call('POST',f"/api/v1/admin/users/{who['identity']['id']}/verify",
+                     {'reason':'Staff-reviewed test identity for the M26 isolated journey'})
+                self.assertEqual(code,200,verified)
+        code,created=farmer.call('POST','/api/v1/marketplace/listings',
+            {'crop':'Onion','district':'Pune','quantity_kg':500,'price_per_kg':25,
+             'description':'Sample harvest lot reserved only within the test system'})
+        self.assertEqual(code,201,created)
+        lid=created['id']
+        code,reviewed=self.admin.call('POST',f'/api/v1/admin/review-cases/listing/{lid}/decision',
+            {'decision':'approve','reason':'Independent test listing approval and crop details'})
+        self.assertEqual(code,200,reviewed)
+        code,dashboard=buyer1.call('GET','/api/v1/trade/dashboard')
+        self.assertEqual(code,200)
+        self.assertTrue(any(x['id']==lid for x in dashboard['published_listings']))
+        self.assertEqual(dashboard['enquiries'],[])
+        self.assertFalse(dashboard['payments_enabled'])
+        code,own=farmer.call('GET','/api/v1/trade/dashboard')
+        self.assertEqual(code,200)
+        self.assertTrue(any(x['id']==lid for x in own['my_listings']))
+        enquiries=[]
+        for buyer,qty in [(buyer1,350),(buyer2,300)]:
+            code,item=buyer.call('POST','/api/v1/enquiries',
+                {'listing_id':lid,'quantity_kg':qty,'message':'Request a clear draft quotation for this lot'})
+            self.assertEqual(code,201,item)
+            enquiries.append(item['id'])
+        code,farmer_view=farmer.call('GET','/api/v1/trade/dashboard')
+        self.assertEqual(code,200)
+        self.assertEqual(len([e for e in farmer_view['enquiries'] if e['listing_id']==lid]),2)
+        code,view=buyer1.call('GET','/api/v1/trade/dashboard')
+        self.assertEqual(code,200)
+        self.assertEqual(len([e for e in view['enquiries'] if e['listing_id']==lid]),1)
+        code,other=stranger.call('GET','/api/v1/trade/dashboard')
+        self.assertEqual(code,200)
+        self.assertEqual(len([e for e in other['enquiries'] if e['listing_id']==lid]),0)
+        expires=(datetime.now(timezone.utc).date()+timedelta(days=7)).isoformat()
+        quotes=[]
+        for eid in enquiries:
+            code,quote=farmer.call('POST','/api/v1/trade/quotes',
+                {'enquiry_id':eid,'total_inr':10000,
+                 'terms':'Provisional local pickup terms; no committed delivery', 'expires_on':expires})
+            self.assertEqual(code,201,quote)
+            quotes.append(quote['id'])
+        code,nonparticipant=stranger.call('POST',f'/api/v1/trade/quotes/{quotes[0]}/decision',{'decision':'accept'})
+        self.assertEqual(code,403)
+        code,a=buyer1.call('POST',f'/api/v1/trade/quotes/{quotes[0]}/decision',{'decision':'accept'})
+        self.assertEqual(code,200,a)
+        first_order=a['order_id'];self.assertFalse(a['payment_enabled'])
+        code,blocked=buyer2.call('POST',f'/api/v1/trade/quotes/{quotes[1]}/decision',{'decision':'accept'})
+        self.assertEqual(code,409,blocked)
+        self.assertEqual(blocked['error'],'lot_quantity_already_reserved')
+        code,timeline=buyer1.call('GET',f'/api/v1/trade/orders/{first_order}/timeline')
+        self.assertEqual(code,200,timeline)
+        kinds=[x['event_type'] for x in timeline['events']]
+        self.assertIn('listing_created',kinds)
+        self.assertIn('enquiry_submitted',kinds)
+        self.assertIn('quote_offered',kinds)
+        self.assertIn('quote_accepted',kinds)
+        self.assertFalse(timeline['external_fulfilment'])
+        code,_=stranger.call('GET',f'/api/v1/trade/orders/{first_order}/timeline')
+        self.assertEqual(code,404)
+        code,_=stranger.call('POST',f'/api/v1/trade/orders/{first_order}/cancel',
+            {'reason':'I should not be allowed to cancel this order'})
+        self.assertEqual(code,403) # unverified stranger rejected before participant lookup
+        code,_=buyer1.call('POST',f'/api/v1/trade/orders/{first_order}/cancel',
+            {'reason':'Expected cancellation blocked by missing CSRF'},
+            csrf=False,extra={'X-CSRF-Token':'wrong'})
+        self.assertEqual(code,419)
+        code,cancelled=buyer1.call('POST',f'/api/v1/trade/orders/{first_order}/cancel',
+            {'reason':'Internal test buyer cancellation, no goods shipped'})
+        self.assertEqual(code,200,cancelled)
+        self.assertTrue(cancelled['reservation_released'])
+        self.assertEqual(cancelled['status'],'cancelled_by_buyer')
+        code,_=buyer1.call('POST',f'/api/v1/trade/orders/{first_order}/cancel',
+            {'reason':'Duplicate buyer cancellation should be rejected'})
+        self.assertEqual(code,409)
+        code,updated=buyer1.call('GET',f'/api/v1/trade/orders/{first_order}/timeline')
+        self.assertEqual(code,200)
+        self.assertIn('order_cancelled',[x['event_type'] for x in updated['events']])
+        code,next_order=buyer2.call('POST',f'/api/v1/trade/quotes/{quotes[1]}/decision',
+            {'decision':'accept'})
+        self.assertEqual(code,200,next_order)
+        second_order=next_order['order_id']
+        code,confirm=farmer.call('POST',f'/api/v1/trade/orders/{second_order}/confirm',{})
+        self.assertEqual(code,200,confirm)
+        self.assertEqual(confirm['status'],'confirmed_record')
+        code,history=farmer.call('GET',f'/api/v1/trade/orders/{second_order}/timeline')
+        self.assertEqual(code,200)
+        self.assertIn('seller_confirmed',[x['event_type'] for x in history['events']])
+        code,cancelled=farmer.call('POST',f'/api/v1/trade/orders/{second_order}/cancel',
+            {'reason':'Test seller cancellation prior to any external fulfilment'})
+        self.assertEqual(code,200,cancelled)
+        self.assertEqual(cancelled['status'],'cancelled_by_seller')
+        self.assertFalse(cancelled['payments_enabled'])
+        code,orders=farmer.call('GET','/api/v1/trade/dashboard')
+        self.assertEqual(code,200)
+        states={x['id']:x['status'] for x in orders['orders']}
+        self.assertEqual(states[first_order],'cancelled_by_buyer')
+        self.assertEqual(states[second_order],'cancelled_by_seller')
+
 if __name__=='__main__':
     unittest.main()
