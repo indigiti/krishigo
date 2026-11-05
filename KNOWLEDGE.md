@@ -171,7 +171,7 @@ All calculations validate numeric boundaries, do not call network services, and 
 - [x] Add schema 003_trade_lifecycle.sql to disposable MySQL test bootstrap only (no live migration).
 - [x] Add cross-buyer conflict, CSRF, ownership, timeline, idempotency and reservation-release HTTP integration scenarios.
 - [x] Pin Playwright to stable 1.64.1 after previously floating npm range produced ETARGET on main.
-- [ ] Latest complete GitHub CI success and responsive browser acceptance for this branch (record exact run when green).
+- [x] Full PHP, web, disposable MySQL and desktop/mobile browser acceptance passed in GitHub Actions run 42087215095 at commit 97680b611c24fb8829979e35f93da2f089308687.
 - [ ] Merge M26 PR after code review and checks; no Cloudways deployment authorized.
 - [ ] Real identity verification, independent supplier licences, live inventory, payments, freight, invoicing, disputes and contract policy are still missing.
 
@@ -192,6 +192,6 @@ All calculations validate numeric boundaries, do not call network services, and 
 - PR #17 (M19) merged at ee520b22a7f6e9b8383bc514184c4cb0f31d1b9d.
 - PR #18 (M20–M25) merged at 2c2204582da55a87683f76c4bf0fd48fe72e50f9.
 - M20–M25 last feature CI #42083434491 passed before consolidation. Main-branch web CI exposed floating Playwright dependency after merge and is being corrected in M26.
-- M26 PR and final GitHub CI run: pending.
+- M26 draft PR #19 targets main. Code and CI milestone verified by run 42087215095; hosted and external integrations not accepted.
 - No authorized Cloudways production-mode activation, real commerce settlement, or live provider verification.
 - No verified live Cloudways deployment of M26 or the M20–M25 candidate. Internal CI results are not deployment acceptance.
