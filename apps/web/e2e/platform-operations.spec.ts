@@ -13,6 +13,9 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
   const reply=(data:unknown,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
   if(p==='/auth/csrf')return reply({csrf_token:'test-csrf'});
   if(p==='/auth/me')return reply({identity:authenticated?{id:101,display_name:'Test Administrator',email:'ci@example.invalid',role:'admin',status:'active',verified_at:'2026-10-01'}:null});
+  if(p==='/platform/modules')return reply({items:Array.from({length:25},(_,i)=>({
+   module_id:i+1,enabled:true,configured_enabled:true,revision:1,depends_on:[]
+  })),production_policy:true,controls_server_enforced:true});
   if(p==='/auth/login'){authenticated=true;return reply({identity:{id:101,display_name:'Test Administrator',email:'ci@example.invalid',role:'admin',status:'active',verified_at:'2026-10-01'},csrf_token:'test-csrf'});}
   if(p==='/marketplace/listings')return reply([]);
   if(p==='/knowledge/sources')return reply({items:[{id:'018c0f12-3456-7abc-8901-234567890abc',title:'Crop observation reference',publisher:'Example extension',source_url:'https://example.org/educational-reference',jurisdiction:'India'}]});
