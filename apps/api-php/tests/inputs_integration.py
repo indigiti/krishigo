@@ -74,7 +74,7 @@ class InputsTest(unittest.TestCase):
         csrf=self.auth()
         code,info=self.call('GET',BASE+'/capabilities')
         self.assertEqual(code,200,info)
-        self.assertEqual(len(info['collections']),12)
+        self.assertEqual(len(info['collections']),13)
         self.assertFalse(info['real_ocr'])
         code,spec=self.call('GET',BASE+'/schemas')
         self.assertEqual(code,200)
@@ -134,6 +134,13 @@ class InputsTest(unittest.TestCase):
         self.assertEqual(len(mine['items']),1)
         code,_=self.call('GET',BASE+'/admin/soil')
         self.assertEqual(code,403)
+        watch=dict(product='Example batch',batch='LOT-TEST-2026',consent='in_app_only')
+        code,rwatch=self.call('POST',BASE+'/records/watches',watch,csrf,'watch-'+secrets.token_hex(12))
+        self.assertEqual(code,201,rwatch)
+        watch_id=rwatch['item']['id']
+        code,no_watch=self.call('GET',BASE+'/watch-alerts')
+        self.assertEqual(code,200)
+        self.assertEqual(no_watch['alerts'],[])
         recall=dict(product='Example batch',batch='LOT-TEST-2026',
             source_url='https://example.org/notice',notice_on=today(),
             reason='Illustrative recall review item; not an official recall.')
@@ -150,6 +157,30 @@ class InputsTest(unittest.TestCase):
         self.assertEqual(code,200)
         self.assertEqual(len(after['matches']),1)
         self.assertFalse(after['notifications_sent'])
+        code,watch_alert=self.call('GET',BASE+'/watch-alerts')
+        self.assertEqual(code,200)
+        self.assertEqual(len(watch_alert['alerts']),1)
+        self.assertFalse(watch_alert['whatsapp_sent'])
+        code,_=self.call('DELETE',f'{BASE}/records/watches/{watch_id}')
+        self.assertEqual(code,419)
+        code,removed=self.call('DELETE',f'{BASE}/records/watches/{watch_id}',csrf=csrf)
+        self.assertEqual(code,200)
+        self.assertTrue(removed['deleted'])
+        code,none=self.call('GET',BASE+'/watch-alerts')
+        self.assertEqual(code,200)
+        self.assertEqual(none['alerts'],[])
+        regulatory=dict(title='Example regulation draft',source_url='https://example.org/regulation',
+            published_on=today(),category='Water-soluble inputs',summary='No active regulation implied')
+        code,r=self.call('POST',BASE+'/records/regulatory',regulatory,csrf,'reg-'+secrets.token_hex(12))
+        self.assertEqual(code,201)
+        code,_=self.call('POST',f"{BASE}/admin/regulatory/{r['item']['id']}/review",
+            {'decision':'approve','reason':'Demonstration notice reviewed for staging only.'},csrf)
+        self.assertEqual(code,200)
+        code,updated=self.call('GET',BASE+'/regulatory-updates?since='+today())
+        self.assertEqual(code,200)
+        self.assertEqual(len(updated['updates']),1)
+        self.assertFalse(updated['live_source_monitoring'])
+
 
 if __name__=='__main__':
     unittest.main()
