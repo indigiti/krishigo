@@ -6,16 +6,15 @@ KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers,
 
 ## Current source status
 
-- **M1–M15:** merged into main; 25 demo module workspaces with module-specific protected JSON draft contracts and six deeper workflow pilots.
-- **M16–M18:** crop protection and plant nutrition workflows, 42 educational starter guides, moderation and in-app demonstration notices. On [draft PR #16](https://github.com/indigiti/krishigo/pull/16), not merged into main.
-- **M19:** 24 operational field tools in draft PR #17; all PHP/web/browser CI checks passed on M19.
-- **M20–M25 candidate:** source-reviewed knowledge articles, owner-scoped MySQL farm data, manually reviewed source snapshots, provisional quote/order records, safe source-only search, manual label intake, in-app consent, M25 offline readiness report and isolated MySQL testing. In draft PR #18, based on M19; not merged or deployed.
+- **M1–M25:** consolidated into main in order through [PR #16](https://github.com/indigiti/krishigo/pull/16), [PR #17](https://github.com/indigiti/krishigo/pull/17) and [PR #18](https://github.com/indigiti/krishigo/pull/18). These are code foundations, not live provider integrations.
+- **M26 (draft [PR #19](https://github.com/indigiti/krishigo/pull/19)):** guided authenticated farmer-to-buyer lot/enquiry/quote/order journey, participant-only order activity history, reasoned cancellation with internal reservation release, optional MySQL migration 003, and isolated regression tests. Not merged or deployed.
+- **CI reliability:** pin the published Playwright stable version to prevent floating prerelease dependency resolution; production acceptance remains separate.
 - The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
 ## Run the web UI
 
     cd apps/web
-    npm ci
+    npm install --no-audit --no-fund
     npm run dev
     npm test
     npm run build
@@ -34,6 +33,7 @@ See:
 - [Agricultural input workflow scope](docs/M17_AGRI_INPUTS_P1_P4.md)
 - [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
 - [M20–M25 platform candidate and launch gates](docs/M20_M25_PLATFORM_FOUNDATIONS.md)
+- [M26 guided farmer-to-buyer lifecycle](docs/M26_FARMER_BUYER_JOURNEY.md)
 
 ## Engineering policy
 
