@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState, type FormEvent } from 'react';
 const PlatformOperations=lazy(()=>import('./PlatformOperations'));
+const ProductionModuleControls=lazy(()=>import('./ProductionModuleControls'));
 import { productionClient, type Identity, type LiveRecord, type WorkspaceArea } from '../infrastructure/productionApiClient';
 
 type Area = 'marketplace/listings' | 'buyers/requirements' | 'community/posts' | 'plant-cases' | 'enquiries';
@@ -82,6 +83,7 @@ export default function ProductionWorkspace({initialArea='marketplace/listings',
       </section>}
       <Suspense fallback={<section className="surface-card production-panel" role="status">Loading source, trade and field operations…</section>}>
         <PlatformOperations user={user} initialTab={pageLabel==='Insights'||pageLabel==='Discover'||pageLabel==='Admin'?'readiness':pageLabel==='Agri Inputs'?'knowledge':pageLabel==='Overview'||pageLabel==='My Profile'||pageLabel==='Crop Journal'||pageLabel==='Plant Doctor'||pageLabel==='Plant Cases'?'farm':'trade'}/>
+        {pageLabel==='Admin'&&(user.role==='admin'?<ProductionModuleControls/>:<p className="page-disclaimer">Administrator permissions are required to manage production modules.</p>)}
       </Suspense>
     </>}
   </div>;
