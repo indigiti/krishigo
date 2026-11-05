@@ -41,7 +41,7 @@ test('crop library follows selected crop and links evidence without treatment ad
  await expect(page.getByRole('region',{name:'Crop-wise knowledge library'})).toBeVisible();
  await expect(page.locator('.agri-crop-profile')).toContainText('Tomato');
  await expect(page.locator('.agri-knowledge-card')).toHaveCount(6);
- await page.getByLabel('Crop',{exact:true}).selectOption('Onion');
+ await page.getByRole('combobox',{name:'Crop for input discovery'}).selectOption('Onion');
  await expect(page.locator('.agri-crop-profile')).toContainText('कांदा');
  await page.getByRole('searchbox',{name:'Search crop knowledge'}).fill('micronutrient');
  await expect(page.locator('.agri-knowledge-card')).toHaveCount(1);
