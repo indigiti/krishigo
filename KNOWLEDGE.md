@@ -122,8 +122,8 @@ All calculations validate numeric boundaries, do not call network services, and 
 - [ ] Official WhatsApp/email/push delivery, delivery receipts, template approval and unsubscribe processing.
 
 ### M25 — Production hardening and launch (CODE-ONLY PREFLIGHT)
-- [x] Add isolated MySQL 8 CI service for cross-role production candidate regression, separate from static staging.
-- [x] Add explicit production-only connected React workspace and mock desktop/mobile browser checks.
+- [x] Add isolated MySQL 8 CI service for cross-role production candidate regression, separate from static staging (run 42082870201 successful).
+- [x] Add explicit production-only connected React workspace and mock desktop/mobile browser checks (run 42082870201 successful).
 - [x] Add offline fail-closed readiness report with production_launch_authorized=false and remaining external gates.
 - [ ] Independent security assessment, Cloudways deployment and browser acceptance, backup/rollback drill.
 - [ ] Live observability, GDPR/Indian privacy compliance, local-language usability, SEO, performance and launch approvals.
@@ -164,4 +164,4 @@ All calculations validate numeric boundaries, do not call network services, and 
 - No verified live Cloudways deployment for M18/M19.
 
 - M19 PR #17 targets M18 PR #16. M20–M25 engineering branch builds on M19. All dependent branches remain unmerged into main.
-- M20–M25 final CI status: pending verification; see GitHub Actions on feature/m20-m25-platform-foundations. No Cloudways deployment attempted.
+- M20–M25 full code CI at commit b2ac75d8eee9f9b9f77019cce5ef46399b59366e: GitHub Actions run 42082870201 passed PHP, React/web packaging, isolated MySQL and desktop/mobile Chromium tests. This is NOT a live Cloudways deployment or a substitute for authorized source verification.
