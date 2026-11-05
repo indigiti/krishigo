@@ -8,6 +8,7 @@ KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers,
 
 - **M1–M25:** consolidated into main in order through [PR #16](https://github.com/indigiti/krishigo/pull/16), [PR #17](https://github.com/indigiti/krishigo/pull/17) and [PR #18](https://github.com/indigiti/krishigo/pull/18). These are code foundations, not live provider integrations.
 - **M26 (draft [PR #19](https://github.com/indigiti/krishigo/pull/19)):** guided authenticated farmer-to-buyer lot/enquiry/quote/order journey, participant-only order activity history, reasoned cancellation with internal reservation release, optional MySQL migration 003, and isolated regression tests. Not merged or deployed.
+- **M28 core candidate:** server-enforced production module policy and dependencies; owner-scoped fields, crop observation linkage and connected-mode isolation from fictional records. Migration 004, dedicated tests, draft branch based on M26. Not merged or deployed.
 - **CI reliability:** pin the published Playwright stable version to prevent floating prerelease dependency resolution; production acceptance remains separate.
 - The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
@@ -34,6 +35,7 @@ See:
 - [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
 - [M20–M25 platform candidate and launch gates](docs/M20_M25_PLATFORM_FOUNDATIONS.md)
 - [M26 guided farmer-to-buyer lifecycle](docs/M26_FARMER_BUYER_JOURNEY.md)
+- [M28 production module controls, private fields and API-mode isolation](docs/M28_PRODUCTION_CORE_GUARDRAILS.md)
 
 ## Engineering policy
 
