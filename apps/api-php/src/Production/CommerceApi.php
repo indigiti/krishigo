@@ -20,6 +20,7 @@ final class CommerceApi {
         $c=PlatformCommon::class;
         $user=$c::requireUser($identity);
         $uid=(int)$user['id'];
+        if(TradeJourney::handles($path)) TradeJourney::dispatch($method,$path,$repo,$identity);
         if($path==='/api/v1/me/farm-profile'&&$method==='GET'){
             $record=$repo->one('SELECT district,preferred_language,crop_focus,updated_at FROM farmer_profiles WHERE user_id=?',[$uid]);
             \kg_json(200,['profile'=>$record,'owner_only'=>true]);
@@ -108,15 +109,19 @@ final class CommerceApi {
             $repo->throttle('quote-user',(string)$uid,35,3600);
             $id=$c::uuid();
             try{
-                $repo->exec("INSERT INTO trade_quotes(id,enquiry_id,listing_id,seller_id,buyer_id,quantity_kg,total_inr,terms,expires_at)
-                       VALUES (?,?,?,?,?,?,?,?,?)",[
-                    $id,$enquiryId,$row['listing_id'],$uid,$row['buyer_id'],$row['quantity_kg'],$amount,$terms,$expires.' 23:59:59']);
+                $repo->transaction(function()use($repo,$id,$enquiryId,$row,$uid,$amount,$terms,$expires,$c):void{
+                    $repo->exec("INSERT INTO trade_quotes(id,enquiry_id,listing_id,seller_id,buyer_id,quantity_kg,total_inr,terms,expires_at)
+                               VALUES (?,?,?,?,?,?,?,?,?)",[
+                        $id,$enquiryId,$row['listing_id'],$uid,$row['buyer_id'],$row['quantity_kg'],$amount,$terms,$expires.' 23:59:59']);
+                    TradeJourney::event($repo,$id,null,$uid,'quote_offered',
+                        'Seller prepared a provisional quotation; no external offer delivered.');
+                    $c::userNotification($repo,(int)$row['buyer_id'],'trade','Provisional quote created',
+                        'A seller has prepared a quotation. Review the terms before accepting.');
+                });
             }catch(PDOException $e){
                 if($e->getCode()==='23000')\kg_json(409,['error'=>'quote_already_exists']);
                 throw $e;
             }
-            $c::userNotification($repo,(int)$row['buyer_id'],'trade','Provisional quote created',
-                 'A seller has prepared a quotation. Review the terms before accepting.');
             \kg_json(201,['id'=>$id,'status'=>'offered','provisional_only'=>true,
                  'payment_requested'=>false,'delivery_sent'=>false]);
         }
@@ -145,9 +150,14 @@ final class CommerceApi {
                     $repo->exec("UPDATE trade_quotes SET status='accepted',accepted_at=UTC_TIMESTAMP() WHERE id=?",[$id]);
                     $repo->exec("INSERT INTO trade_orders(id,quote_id,seller_id,buyer_id) VALUES (?,?,?,?)",[
                         $orderId,$id,$q['seller_id'],$uid]);
+                    TradeJourney::event($repo,$id,$orderId,$uid,'quote_accepted',
+                        'Buyer accepted the provisional quotation; awaiting seller confirmation.');
                     $c::userNotification($repo,(int)$q['seller_id'],'trade','Quote accepted for review',
                        'Buyer accepted a provisional quote. Seller confirmation is still needed.');
-                } else $repo->exec("UPDATE trade_quotes SET status='rejected' WHERE id=?",[$id]);
+                } else {
+                    $repo->exec("UPDATE trade_quotes SET status='rejected' WHERE id=?",[$id]);
+                    TradeJourney::event($repo,$id,null,$uid,'quote_rejected','Buyer rejected the provisional quotation.');
+                }
                 $c::audit($repo,$uid,$decision,'trade_quote',$id,'Buyer decision; no payment or delivery');
             });
             \kg_json(200,['id'=>$id,'status'=>$decision==='accept'?'accepted':'rejected',
@@ -164,12 +174,15 @@ final class CommerceApi {
             $c::requireVerified($identity,['farmer','fpo','admin']);
             $id=$c::id($m[1]);$c::mutation(256);
             $repo->transaction(function()use($repo,$uid,$id,$c):void{
-                $row=$repo->one('SELECT status,seller_id,buyer_id FROM trade_orders WHERE id=? FOR UPDATE',[$id]);
+                $row=$repo->one('SELECT status,quote_id,seller_id,buyer_id FROM trade_orders WHERE id=? FOR UPDATE',[$id]);
                 if(!$row)\kg_json(404,['error'=>'not_found']);
                 if((int)$row['seller_id']!==$uid)\kg_json(403,['error'=>'not_order_seller']);
                 if($row['status']!=='awaiting_seller_confirmation')
                     \kg_json(409,['error'=>'order_already_decided']);
                 $repo->exec("UPDATE trade_orders SET status='confirmed_record',confirmed_at=UTC_TIMESTAMP() WHERE id=?",[$id]);
+                TradeJourney::event($repo,(string)$row['quote_id'],
+                    $id,$uid,'seller_confirmed',
+                    'Seller confirmed the internal order record; payment and dispatch are not connected.');
                 $c::audit($repo,$uid,'confirm','trade_order',$id,'Provisional order record confirmed, no dispatch');
                 $c::userNotification($repo,(int)$row['buyer_id'],'trade','Provisional order confirmed',
                     'Seller confirmed the internal order record; external fulfilment is not connected.');

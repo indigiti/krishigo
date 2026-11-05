@@ -1,8 +1,8 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-05 (M20–M25 foundation implementation).
+> **Single source of truth for development status.** Updated: 2026-11-05 (M26 farmer-to-buyer development).
 > Repository: indigiti/krishigo
-> Branch lineage: main (M1–M15) → feature/agri-inputs-intelligence (M16–M18, PR #16, not merged) → feature/m19-module-completion-tracker (PR #17) → feature/m20-m25-platform-foundations (current branch).
+> Branch lineage: main (M1–M25 consolidated via PRs #16, #17 and #18) → feature/m26-farmer-buyer-lifecycle (current development branch).
 >
 > This is a **code and product delivery tracker**, not an attestation of real data, regulatory compliance, live Cloudways deployment, vendor integrations, or final acceptance. The user has requested implementation of remaining modules ahead of hosted verification. Automated code/security tests still apply. **Do not** mark production-ready until evidence exists.
 
@@ -25,7 +25,7 @@ A module can simultaneously be D+S+C+X. **Never convert “implemented UI” or 
 - Default static DigiOps release: fixture/demo, no server writes, no DB.
 - Opt-in protected PHP staging pilot: private JSON with bounded domains, session/CSRF/roles, reviewer decisions, fail-closed mode. Single staging identity; not genuine tenant ownership.
 - Production candidate MySQL/MariaDB API exists in isolation (M8); not activated. No automatic DB migration or production activation.
-- M18 knowledge library and M17 input operations live in open PR #16; M19 depends on that work.
+- M18 knowledge, M19 workbench and M20–M25 candidate foundations are consolidated in main. Production integrations remain disabled.
 - Gate chemical treatment advice behind current locally registered product labels and agronomist review. Never invent pesticide rates or tank-mix compatibility.
 
 ## All 25 modules — implementation inventory
@@ -156,12 +156,42 @@ All calculations validate numeric boundaries, do not call network services, and 
 ## Documentation debt
 - Root README still describes M1 as in progress; STAGING.md and DEVELOPMENT.md include historical descriptions.
 - Bring README status up to date and reference this file.
-- M18 PR #16 must be integrated before merging M19 against main.
+- PRs #16, #17 and #18 are merged; consolidate the remaining historical milestone references when updating documentation.
+
+## M26 — Farmer-to-buyer operational journey (DEVELOPMENT BRANCH)
+
+**Goal:** Complete a practical, auditable, internally simulated farmer-to-buyer journey using one React/PHP/MySQL architecture, rather than isolated demonstration forms. No real payment, delivery, warehouse booking or customer messaging is implied.
+
+- [x] Add integrated trade dashboard: moderated public lots, seller-owned lots, participant-scoped enquiries, provisional quotes and orders.
+- [x] Replace manual-number quotation entry with guided seller response to an actual owned enquiry.
+- [x] Add buyer lot discovery and enquiry entry in one workspace.
+- [x] Append trade activity history for offers, buyer decisions, seller confirmations and cancellations.
+- [x] Add reversible, reasoned cancellation with listing-row lock to release reserved quantity and prevent double cancellation.
+- [x] Enforce participant-only history and cancellation, owner/role checks, same-origin CSRF and staff-reviewed restricted actions.
+- [x] Add schema 003_trade_lifecycle.sql to disposable MySQL test bootstrap only (no live migration).
+- [x] Add cross-buyer conflict, CSRF, ownership, timeline, idempotency and reservation-release HTTP integration scenarios.
+- [x] Pin Playwright to stable 1.64.1 after previously floating npm range produced ETARGET on main.
+- [x] Full PHP, web, disposable MySQL and desktop/mobile browser acceptance passed in GitHub Actions run 42087215095 at commit 97680b611c24fb8829979e35f93da2f089308687.
+- [ ] Merge M26 PR after code review and checks; no Cloudways deployment authorized.
+- [ ] Real identity verification, independent supplier licences, live inventory, payments, freight, invoicing, disputes and contract policy are still missing.
+
+| M26 asset | Path | Boundary |
+|---|---|---|
+| Internal trade API | apps/api-php/src/Production/TradeJourney.php | Participant-scoped, no external actions |
+| Audit and quotation state changes | apps/api-php/src/Production/CommerceApi.php | Writes transactionally with activity events |
+| Trade history schema | apps/api-php/database/migrations/003_trade_lifecycle.sql | Append-only audit, UUIDv7 |
+| Guided React journey | apps/web/src/features/TradeJourneyWorkspace.tsx | Only explicit PHP production-candidate mode |
+| Integration regression | apps/api-php/tests/platform_integration.py | Disposable _test MySQL |
+| Browser coverage | apps/web/e2e/platform-operations.spec.ts | Production-mode mocked endpoints |
+| Reference | docs/M26_FARMER_BUYER_JOURNEY.md | Operational flow and blocked live-service gates |
 
 ## GitHub evidence and promotion chain
-- M1–M15 merged on main at 8868e7f24b9f.
-- PR #16, M18 head 5373a2cdfa8968bf72dbfa3143db650ba6389e3d, open/draft. GitHub CI 42067293001 passed.
-- No verified live Cloudways deployment for M18/M19.
 
-- M19 PR #17 targets M18 PR #16. M20–M25 engineering branch builds on M19. All dependent branches remain unmerged into main.
-- M20–M25 full code CI at commit b2ac75d8eee9f9b9f77019cce5ef46399b59366e: GitHub Actions run 42082870201 passed PHP, React/web packaging, isolated MySQL and desktop/mobile Chromium tests. This is NOT a live Cloudways deployment or a substitute for authorized source verification.
+- M1–M15 merged earlier (base 8868e7f24b9f).
+- PR #16 (M18) merged at 0a097322bf94b0f92e7b32fdea402c5bd06724e2.
+- PR #17 (M19) merged at ee520b22a7f6e9b8383bc514184c4cb0f31d1b9d.
+- PR #18 (M20–M25) merged at 2c2204582da55a87683f76c4bf0fd48fe72e50f9.
+- M20–M25 last feature CI #42083434491 passed before consolidation. Main-branch web CI exposed floating Playwright dependency after merge and is being corrected in M26.
+- M26 draft PR #19 targets main. Code and CI milestone verified by run 42087215095; hosted and external integrations not accepted.
+- No authorized Cloudways production-mode activation, real commerce settlement, or live provider verification.
+- No verified live Cloudways deployment of M26 or the M20–M25 candidate. Internal CI results are not deployment acceptance.

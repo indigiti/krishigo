@@ -12,6 +12,18 @@ export type PlatformOrder={id:string;quote_id:string;status:string;seller_id:num
 export type PlatformNotice={id:string;topic:string;title:string;description:string;status:string;created_at:string};
 export type PlatformCapabilities={schema_revision:number;platform_candidate:boolean;source_review:boolean;real_ocr:boolean;generative_ai:boolean;whatsapp_delivery:boolean;payments:boolean;[key:string]:boolean|number};
 
+export type JourneyListing={id:number;crop:string;district:string;quantity_kg:string;price_per_kg:string;description?:string;status?:string;created_at:string};
+export type JourneyEnquiry={id:number;listing_id:number;buyer_id:number;seller_id:number;crop:string;district:string;quantity_kg:string;message:string;status:string;created_at:string};
+export type JourneyQuote=PlatformQuote&{crop:string;district:string};
+export type JourneyOrder=PlatformOrder&{crop:string;district:string;listing_id:number;confirmed_at?:string|null;cancelled_at?:string|null};
+export type JourneyDashboard={
+ published_listings:JourneyListing[];my_listings:JourneyListing[];
+ enquiries:JourneyEnquiry[];quotes:JourneyQuote[];orders:JourneyOrder[];
+ verified_for_restricted_actions:boolean;internal_workflow_only:true;
+ payments_enabled:false;shipping_enabled:false;external_messages_sent:false
+};
+export type JourneyTimelineEvent={id?:string;event_type:string;description:string;created_at:string};
+
 export class ProductionApiClient {
   private csrf = '';
   private async call<T>(method: string, path: string, body?: Record<string, unknown>): Promise<T> {
@@ -62,6 +74,12 @@ export class ProductionApiClient {
   async createSupplier(fields:Record<string,unknown>){return this.call<{id:string;status:string}>('POST','suppliers/profile',fields);}
   async suppliersPending(){return this.call<{items:Array<{id:string;business_name:string;district:string;license_reference:string}>}>('GET','admin/suppliers');}
   async decideSupplier(id:string,decision:'approve'|'reject',reason:string){return this.call<{status:string}>('POST','admin/suppliers/'+id+'/review',{decision,reason});}
+  async journeyDashboard(){return this.call<JourneyDashboard>('GET','trade/dashboard');}
+  async orderTimeline(id:string){return this.call<{order_id:string;status:string;events:JourneyTimelineEvent[];provisional_only:true}>('GET','trade/orders/'+encodeURIComponent(id)+'/timeline');}
+  async cancelOrder(id:string,reason:string){return this.call<{status:string;reservation_released:true}>('POST','trade/orders/'+encodeURIComponent(id)+'/cancel',{reason});}
+  async submitEnquiry(listing_id:number,quantity_kg:number,message:string){
+    return this.call<{id:number;status:string}>('POST','enquiries',{listing_id,quantity_kg,message});
+  }
   async quotes(){return this.call<{items:PlatformQuote[]}>('GET','trade/quotes/mine');}
   async createQuote(fields:Record<string,unknown>){return this.call<{id:string;status:string}>('POST','trade/quotes',fields);}
   async decideQuote(id:string,decision:'accept'|'reject'){return this.call<{status:string;order_id:string|null}>('POST','trade/quotes/'+id+'/decision',{decision});}
