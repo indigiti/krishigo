@@ -369,6 +369,18 @@ class PlatformFlow(unittest.TestCase):
         self.assertEqual(st,200)
         self.assertTrue(fields['owner_scoped'])
         self.assertTrue(any(f['id']==fid for f in fields['items']))
+        case_payload={'crop':'Onion','kind':'plant_observation',
+             'observation':'Initial signs of leaf curl in this owned crop plot',
+             'context_note':'Recorded by a farmer before any expert review',
+             'field_id':fid}
+        st,linked=grower.call('POST','/api/v1/agronomy/intake',case_payload)
+        self.assertEqual(st,201,linked)
+        self.assertEqual(linked['field_id'],fid)
+        st,history=grower.call('GET','/api/v1/agronomy/mine')
+        self.assertEqual(st,200)
+        self.assertTrue(any(x['id']==linked['id'] and x['field_id']==fid for x in history['items']))
+        st,_=self.admin.call('POST','/api/v1/agronomy/intake',case_payload)
+        self.assertEqual(st,404) # no field access despite staff role
         st,_=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
             {'expected_revision':1,'crop':'Soybean'},csrf=False,extra={'X-CSRF-Token':'wrong'})
         self.assertEqual(st,419)
@@ -388,6 +400,8 @@ class PlatformFlow(unittest.TestCase):
         st,_=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
             {'expected_revision':3,'crop':'Cotton'})
         self.assertEqual(st,409)
+        st,_=grower.call('POST','/api/v1/agronomy/intake',case_payload)
+        self.assertEqual(st,404) # archived plot cannot receive new cases
         st,public=self.admin.call('GET','/api/v1/me/fields')
         self.assertEqual(st,200)
         self.assertEqual(public['items'],[])
