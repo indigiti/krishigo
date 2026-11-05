@@ -54,6 +54,10 @@ final class Store {
                 !preg_match('/^[a-f0-9]{64}$/D', $record['request_hash'])) return null;
             $seen[$record['id']] = true;
             if (count($record['fields']) > 12) return null;
+            if (isset($record['review']) && (!is_array($record['review']) ||
+                !is_string($record['review']['by']??null) || strlen($record['review']['by'])>100 ||
+                !is_string($record['review']['reason']??null) || strlen($record['review']['reason'])>300 ||
+                !is_string($record['review']['at']??null))) return null;
             foreach ($record['fields'] as $key=>$value) {
                 if (!is_string($key) || strlen($key) > 32 ||
                     (!is_string($value) && !is_int($value)) ||
@@ -173,13 +177,17 @@ final class Store {
         });
     }
 
-    public function review(string $domain, int $id, string $decision): array {
-        return $this->synchronized($domain, function(array $state) use ($domain,$id,$decision) {
+    public function review(string $domain, int $id, string $decision, ?string $reviewer = null, ?string $reason = null): array {
+        return $this->synchronized($domain, function(array $state) use ($domain,$id,$decision,$reviewer,$reason) {
             $doc=$state['doc'];
             foreach ($doc['records'] as &$record) {
                 if ($record['id'] !== $id) continue;
                 if ($record['status'] !== 'pending-demo') throw new RuntimeException('ALREADY_REVIEWED');
                 $record['status'] = $decision === 'approve' ? 'reviewed-demo' : 'rejected-demo';
+                if ($reviewer !== null && $reason !== null) {
+                    if (strlen($reviewer)>100 || strlen($reason)>300) throw new RuntimeException('FIELD_INVALID');
+                    $record['review']=['by'=>$reviewer,'reason'=>$reason,'at'=>gmdate('c')];
+                }
                 $visible = self::visible($record);
                 unset($record);
                 $this->persist($domain,$doc);
