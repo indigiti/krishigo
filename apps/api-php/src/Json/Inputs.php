@@ -134,7 +134,10 @@ final class Inputs {
                     $mine=($_GET['mine']??'')==='1';
                     if(InputContracts::isPrivate($kind)&&!$mine)\kg_json(403,['error'=>'private_only']);
                     $records=$store->records($domain,$mine?$user['name']:null);
-                    \kg_json(200,['staging_only'=>true,'items'=>$records['items'],'private'=>InputContracts::isPrivate($kind)]);
+                    $items=$records['items'];
+                    if(!$mine)foreach($items as &$row)unset($row['owner'],$row['review']);
+                    unset($row);
+                    \kg_json(200,['staging_only'=>true,'items'=>$items,'private'=>InputContracts::isPrivate($kind)]);
                 }
                 if($method==='POST'){
                     if(!self::mayCreate($kind,$user['role']))\kg_json(403,['error'=>'role_forbidden']);
