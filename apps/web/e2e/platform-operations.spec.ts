@@ -47,6 +47,6 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await expect(page.getByText(/external WhatsApp\/email delivery is disabled/i)).toBeVisible();
  await page.getByRole('tab',{name:'Data & readiness'}).click();
  await expect(page.getByText('generative ai')).toBeVisible();
- await expect(page.getByText('payments')).toBeVisible();
+ await expect(page.locator('.platform-cap').getByText('payments',{exact:true})).toBeVisible();
  await expect(page.getByText('No current, reviewed source snapshots.')).toBeVisible();
 });
