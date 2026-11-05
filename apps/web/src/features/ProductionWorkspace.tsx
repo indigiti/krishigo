@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { lazy, Suspense, useEffect, useState, type FormEvent } from 'react';
+const PlatformOperations=lazy(()=>import('./PlatformOperations'));
 import { productionClient, type Identity, type LiveRecord, type WorkspaceArea } from '../infrastructure/productionApiClient';
 
 type Area = 'marketplace/listings' | 'buyers/requirements' | 'community/posts' | 'plant-cases' | 'enquiries';
@@ -78,6 +79,9 @@ export default function ProductionWorkspace() {
       {(user.role==='admin'||user.role==='editor')&&<section className="surface-card production-panel"><div className="section-head"><h3>Moderation review queue</h3><button type="button" className="btn btn-soft" onClick={loadQueue}>Load pending cases</button></div>
         {queue.map(row=><div className="production-record" key={`${row.type}-${row.id}`}><strong>{row.type} #{row.id}</strong><p>{row.status}</p><div className="m3-actions"><button type="button" className="btn btn-soft" onClick={()=>review(row.type as 'listing'|'requirement'|'post',row.id,'approve')}>Approve</button><button type="button" className="btn btn-soft" onClick={()=>review(row.type as 'listing'|'requirement'|'post',row.id,'reject')}>Reject</button></div></div>)}
       </section>}
+      <Suspense fallback={<section className="surface-card production-panel" role="status">Loading source, trade and field operations…</section>}>
+        <PlatformOperations user={user}/>
+      </Suspense>
     </>}
   </div>;
 }
