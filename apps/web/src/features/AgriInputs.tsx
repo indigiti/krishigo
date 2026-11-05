@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import { ArrowLeft, Beaker, BookOpenCheck, CalendarClock, CheckCircle2, ClipboardList, FileImage, FlaskConical, Info, Leaf, MapPin, Microscope, PackageSearch, Scale, Search, ShieldAlert, Sprout, Stethoscope, Trash2, Warehouse, Wheat } from 'lucide-react';
 const ConnectedAgriInputs = lazy(() => import('./ConnectedAgriInputs'));
+const AgriKnowledgeLibrary = lazy(() => import('./AgriKnowledgeLibrary'));
 import { classifyBatchDate, filterInputReferences, inputCategories, inputFeatures, inputReferences, safeNutrientEquivalent, type InputFeature } from './agriInputsModel';
 
 type JournalRecord={id:number;crop:string;product:string;date:string;notes:string};
@@ -11,20 +12,6 @@ const featureIcons:Record<InputFeature['id'],typeof Leaf>={
  planner:Wheat,history:ClipboardList,compatibility:ShieldAlert,prices:Warehouse,batches:CalendarClock,expert:Stethoscope
 };
 const cropOptions=['Tomato','Onion','Sugarcane','Soybean','Grapes','Cotton','Pomegranate','Other'];
-const issueInformation:Record<string,string>={
- 'Leaf spots':'Leaf spots can reflect fungal, bacterial, nutritional or environmental causes. Examine distribution, crop stage, weather and laboratory evidence before selecting an intervention.',
- 'Leaf yellowing':'Yellowing can result from nutrient availability, root damage, irrigation, pests or natural ageing. A photograph alone is not a nutrient diagnosis.',
- 'Feeding damage':'Chewed tissue may indicate insects or other causes. Identify the organism and crop stage before reviewing any registered control options.',
- 'Wilting':'Wilting can reflect water stress, root disease or vascular disorders. Severe or rapidly spreading cases require qualified field assessment.'
-};
-const nutrientInformation:Record<string,string>={
- Zinc:'Potentially associated with abnormal growth or chlorosis, but species and soil conditions matter. Confirm through a lab and local agronomist.',
- Iron:'Interveinal chlorosis may have several causes including root-zone pH. Identify the crop and confirm measurements first.',
- Boron:'Both deficiency and excess can damage crops. Never infer a boron treatment amount from photographs.',
- Manganese:'Symptoms overlap with several nutrient and disease conditions. Tissue and soil evidence are essential.',
- Magnesium:'Symptoms can overlap with nitrogen or potassium issues and environmental stress. Compare crop stage and laboratory analysis.',
- Calcium:'Root health, water movement and crop stage can influence calcium-related symptoms. Do not assume a fertilizer remedy.'
-};
 function Note({children}:{children:ReactNode}){return <p className="agri-note"><Info size={16}/>{children}</p>;}
 function Panel({title,eyebrow,children}:{title:string;eyebrow?:string;children:ReactNode}){
  return <section className="surface-card agri-panel"><div className="section-eyebrow">{eyebrow||'STAGING · GUIDED PREVIEW'}</div><h2>{title}</h2>{children}</section>;
@@ -39,8 +26,6 @@ export default function AgriInputs({onBack}:{onBack?:()=>void}){
  const [search,setSearch]=useState('');
  const [left,setLeft]=useState(inputReferences[0].id);
  const [right,setRight]=useState(inputReferences[1].id);
- const [issue,setIssue]=useState('Leaf spots');
- const [nutrient,setNutrient]=useState('Zinc');
  const [labelUrl,setLabelUrl]=useState<string|null>(null);
  const [labelName,setLabelName]=useState('');
  const [labelRegistration,setLabelRegistration]=useState('');
@@ -99,7 +84,7 @@ export default function AgriInputs({onBack}:{onBack?:()=>void}){
    <div className="section-eyebrow">MODULE 11 · AGRICULTURAL INPUTS INTELLIGENCE</div>
    <h1>Better inputs. Better-informed decisions.</h1>
    <p>Explore crop protection, water-soluble fertilizers, micronutrients and field records with evidence-first safeguards.</p>
-   <div className="agri-hero-tags"><span>12 guided workspaces</span><span>Staging preview</span><span>English · localization planned</span></div>
+   <div className="agri-hero-tags"><span>12 guided workspaces</span><span>Staging preview</span><span>English guides · Marathi/Hindi crop names & search</span></div>
   </div><div className="agri-hero-icon" aria-hidden="true"><Leaf size={56}/></div></header>
   <Note>No real registered products, live dealers, pesticide prescriptions, verified crop-use approvals, OCR, AI diagnoses, lab reference ranges or outbound requests are connected. Example records are illustrative only; drafts disappear on reload.</Note>
   {import.meta.env.VITE_JSON_WORKFLOWS_MODE==='api'&&<Suspense fallback={<p role="status">Loading protected input workflows…</p>}><ConnectedAgriInputs/></Suspense>}
@@ -117,17 +102,15 @@ export default function AgriInputs({onBack}:{onBack?:()=>void}){
      <label>Category<select value={category} onChange={e=>setCategory(e.target.value)}>{inputCategories.map(x=><option key={x}>{x}</option>)}</select></label>
      <label>Search<input aria-label="Search agricultural input references" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Ingredient, nutrient or category"/></label></div>
     <Note>{crop} crop-use approvals: no verified records loaded. An official label review is required before agricultural use.</Note>
+    <Suspense fallback={<p role="status">Loading crop knowledge…</p>}><AgriKnowledgeLibrary section="crop" crop={crop} onCropChange={setCrop}/></Suspense>
+    <h3 className="agri-sample-heading">Illustrative input records · not registered product listings</h3>
     <div className="agri-results">{visible.map(x=><Row key={x.id} title={x.title} description={x.description}><span className="agri-tag">{x.category} · {x.evidence}</span><small>{x.composition}</small></Row>)}{!visible.length&&<p>No matching example records.</p>}</div>
    </Panel>}
-  {active==='pests'&&<Panel title="Pest and disease information"><p>Choose an observation pattern for a non-diagnostic checklist. Identifying a registered treatment requires a qualified diagnosis and an approved label.</p>
-   <label className="agri-single-field">Observation pattern<select value={issue} onChange={e=>setIssue(e.target.value)}>{Object.keys(issueInformation).map(x=><option key={x}>{x}</option>)}</select></label>
-   <Row title={'Observation: '+issue} description={issueInformation[issue]}/>
-   <Note>Capture affected crop, growth stage, onset, weather, irrigation and photographs. This does not identify a disease or recommend a chemical.</Note>
+  {active==='pests'&&<Panel title="Pest and disease information" eyebrow="CROP-SPECIFIC RECOGNITION GUIDES">
+   <Suspense fallback={<p role="status">Loading pest and disease library…</p>}><AgriKnowledgeLibrary section="pests" crop={crop} onCropChange={setCrop}/></Suspense>
   </Panel>}
-  {active==='nutrients'&&<Panel title="Nutrient deficiency reference"><p>Visual cues overlap between deficiencies, pests and environmental stress. This educational library does not diagnose nutrient status.</p>
-   <label className="agri-single-field">Nutrient<select value={nutrient} onChange={e=>setNutrient(e.target.value)}>{Object.keys(nutrientInformation).map(x=><option key={x}>{x}</option>)}</select></label>
-   <Row title={nutrient+' · evidence checklist'} description={nutrientInformation[nutrient]}/>
-   <Note>Review crop type, soil pH, sampling method, test date, laboratory reference ranges and trained specialist advice.</Note>
+  {active==='nutrients'&&<Panel title="Nutrient deficiency reference" eyebrow="PRIMARY · SECONDARY · MICRONUTRIENTS">
+   <Suspense fallback={<p role="status">Loading nutrient library…</p>}><AgriKnowledgeLibrary section="nutrients" crop={crop} onCropChange={setCrop}/></Suspense>
   </Panel>}
   {active==='compare'&&<Panel title="Compare reference records"><div className="agri-fields two"><label>First reference<select value={left} onChange={e=>setLeft(e.target.value)}>{inputReferences.map(x=><option value={x.id} key={x.id}>{x.title}</option>)}</select></label>
    <label>Second reference<select value={right} onChange={e=>setRight(e.target.value)}>{inputReferences.map(x=><option value={x.id} key={x.id}>{x.title}</option>)}</select></label></div>
