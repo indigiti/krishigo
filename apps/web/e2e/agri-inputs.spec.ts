@@ -34,3 +34,41 @@ test('local batch tracking reports expiry without claiming recalls',async({page}
  await expect(page.getByText(/Expired/)).toBeVisible();
  await expect(page.getByText(/No manufacturer recall/)).toBeVisible();
 });
+
+
+test('crop library follows selected crop and links evidence without treatment advice',async({page})=>{
+ await openInputs(page);
+ await expect(page.getByRole('region',{name:'Crop-wise knowledge library'})).toBeVisible();
+ await expect(page.locator('.agri-crop-profile')).toContainText('Tomato');
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(6);
+ await page.getByLabel('Crop',{exact:true}).selectOption('Onion');
+ await expect(page.locator('.agri-crop-profile')).toContainText('कांदा');
+ await page.getByRole('searchbox',{name:'Search crop knowledge'}).fill('micronutrient');
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(1);
+ await expect(page.locator('.agri-knowledge-card a[href^="https://"]')).toHaveCount(1);
+ await expect(page.getByText(/not a diagnosis, registered crop-use claim/i)).toBeVisible();
+});
+
+test('pest library filters crop and disease category using sourced content',async({page})=>{
+ await openInputs(page);
+ await page.locator('.agri-tool').filter({hasText:'Pest & disease library'}).click();
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(2);
+ await page.getByRole('combobox',{name:'Crop for pest library'}).selectOption('Onion');
+ await page.getByRole('combobox',{name:'Pest or disease topic'}).selectOption('Disease');
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(1);
+ await expect(page.locator('.agri-knowledge-card')).toContainText('Purple blotch');
+ await page.getByRole('searchbox',{name:'Search pest and disease guides'}).fill('unknown-keyword');
+ await expect(page.getByText(/No guides match your search/)).toBeVisible();
+});
+
+test('nutrient library searches Hindi/Marathi keywords and groups',async({page})=>{
+ await openInputs(page);
+ await page.locator('.agri-tool').filter({hasText:'Nutrient deficiency library'}).click();
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(11);
+ await page.getByRole('combobox',{name:'Nutrient group'}).selectOption('Micronutrient');
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(5);
+ await page.getByRole('searchbox',{name:'Search nutrient library'}).fill('जस्त');
+ await expect(page.locator('.agri-knowledge-card')).toHaveCount(1);
+ await expect(page.locator('.agri-knowledge-card')).toContainText('Zinc');
+ await expect(page.locator('.agri-knowledge-card a[href^="https://"]')).toHaveCount(1);
+});
