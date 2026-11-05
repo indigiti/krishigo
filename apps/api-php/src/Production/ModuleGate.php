@@ -61,7 +61,7 @@ final class ModuleGate {
         if(!self::effective($id,$rows))\kg_json(404,['error'=>'module_disabled','module_id'=>$id]);
     }
     public static function handles(string $path):bool {
-        return $path==='/api/v1/platform/modules'||
+        return $path==='/api/v1/platform/modules'||$path==='/api/v1/admin/platform/modules/events'||
           (bool)preg_match('~^/api/v1/admin/platform/modules/(?:[1-9]|1[0-9]|2[0-5])$~D',$path);
     }
     public static function dispatch(string $method,string $path,Repository $repo,?array $identity):never {
@@ -75,6 +75,14 @@ final class ModuleGate {
                 'depends_on'=>self::DEPENDENCIES[$i]??[]
             ];
             \kg_json(200,['items'=>$items,'production_policy'=>true,'controls_server_enforced'=>true]);
+        }
+        if($path==='/api/v1/admin/platform/modules/events'&&$method==='GET') {
+            PlatformCommon::requireVerified($identity,['admin']);
+            $history=$repo->all('SELECT e.id,e.module_id,e.cause_module_id,e.old_enabled,
+                e.new_enabled,e.created_at,u.display_name AS actor
+                FROM production_module_events e JOIN users u ON u.id=e.actor_id
+                ORDER BY e.created_at DESC,e.id DESC LIMIT 30');
+            \kg_json(200,['items'=>$history,'append_only'=>true]);
         }
         if($method==='PUT'&&preg_match('~^/api/v1/admin/platform/modules/([1-9]|1[0-9]|2[0-5])$~D',$path,$m)) {
             $actor=PlatformCommon::requireVerified($identity,['admin']);
@@ -115,10 +123,14 @@ final class ModuleGate {
                     if((bool)$states[$module]['enabled']===$next)continue;
                     $repo->exec('UPDATE production_module_flags SET enabled=?,revision=revision+1,updated_by=? WHERE module_id=?',
                         [$next?1:0,(int)$actor['id'],$module]);
+                    $repo->exec('INSERT INTO production_module_events
+                      (id,module_id,cause_module_id,actor_id,old_enabled,new_enabled)
+                      VALUES (?,?,?,?,?,?)',[
+                        PlatformCommon::uuid(),$module,$id,(int)$actor['id'],
+                        (int)$states[$module]['enabled'],$next?1:0]);
                     $changed[]=$module;
                 }
-                if($changed)PlatformCommon::audit($repo,(int)$actor['id'],'module_policy_changed','production_modules',
-                    (string)$id,'Changed production feature policy: '.implode(',',$changed));
+
                 return $changed;
             });
             \kg_json(200,['changed'=>$changed,'module_id'=>$id,
