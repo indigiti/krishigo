@@ -12,6 +12,7 @@ export default function ProductionWorkspace({initialArea='marketplace/listings',
   {initialArea?:Area;pageLabel?:string}) {
   const [user,setUser] = useState<Identity|null>(null);
   const [ready,setReady] = useState(false);
+  const [bootstrapError,setBootstrapError]=useState('');
   const [error,setError] = useState('');
   const [notice,setNotice] = useState('');
   const [area,setArea] = useState<Area>(initialArea);
@@ -22,7 +23,7 @@ export default function ProductionWorkspace({initialArea='marketplace/listings',
   const [registerMode,setRegisterMode] = useState(false);
   const [formKey,setFormKey] = useState(0);
 
-  useEffect(() => {let active=true; (async()=>{try{await productionClient.initialize();const data=await productionClient.identity();if(active)setUser(data.identity);}catch(e){if(active)setError(String(e));}finally{if(active)setReady(true);}})();return()=>{active=false;};},[]);
+  useEffect(() => {let active=true; (async()=>{try{await productionClient.initialize();const data=await productionClient.identity();if(active)setUser(data.identity);}catch(e){if(active)setBootstrapError(String(e));}finally{if(active)setReady(true);}})();return()=>{active=false;};},[]);
   useEffect(()=>{if(!ready)return; let active=true;setLoading(true);setRecords([]);productionClient.list(area,mine).then(data=>{if(active)setRecords(data);}).catch(e=>{if(active)setError((e as Error).message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[ready,area,mine,user?.id]);
   const refresh = async () => { try {setLoading(true);setRecords(await productionClient.list(area,mine));}catch(e){setError((e as Error).message);}finally{setLoading(false);} };
   const signIn=async (event:FormEvent<HTMLFormElement>)=>{
@@ -49,6 +50,7 @@ export default function ProductionWorkspace({initialArea='marketplace/listings',
   };
   const loadQueue=async()=>{try{setQueue((await productionClient.reviewQueue()).items);}catch(e){setError((e as Error).message);}};
   if (!ready)return <section className="surface-card production-panel" role="status">Connecting to the PHP service…</section>;
+  if(bootstrapError)return <section className="surface-card production-panel" role="alert"><h2>Connected API unavailable</h2><p>This application requires the authenticated production PHP API. Demo responses will not be treated as real records.</p><code>{bootstrapError}</code></section>;
   return <div className="production-space">
     <div className="page-heading"><div><div className="eyebrow">PRODUCTION API WORKSPACE</div><h1>{pageLabel==='Connected Operations'?'KrishiGo connected operations':pageLabel+' · connected records'}</h1><p>Account-specific records backed by the PHP API. No fictional listings or provider feeds are shown here.</p></div></div>
     {error&&<div role="alert" className="workspace-notice">{error}</div>}
