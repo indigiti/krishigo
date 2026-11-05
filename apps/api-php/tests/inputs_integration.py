@@ -10,6 +10,7 @@ import time
 import unittest
 import urllib.error
 import urllib.request
+import urllib.parse
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -118,6 +119,10 @@ class InputsTest(unittest.TestCase):
         self.assertFalse(search['generative_ai'])
         self.assertEqual(len(search['results']),1)
         self.assertEqual(search['results'][0]['source_url'],p['source_url'])
+        localized=urllib.parse.quote('सूक्ष्म पोषक तत्व')
+        code,localized_results=self.call('GET',BASE+'/search?q='+localized)
+        self.assertEqual(code,200)
+        self.assertEqual(len(localized_results['results']),1)
         soil=dict(crop='Tomato',lab='Sample lab',sample_date=today(),
             measurement='soil pH',value='7.3',unit='pH',note='Field test report to be reviewed')
         code,res=self.call('POST',BASE+'/records/soil',soil,csrf,'soil-'+secrets.token_hex(12))
