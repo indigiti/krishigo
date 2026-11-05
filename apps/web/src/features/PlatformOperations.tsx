@@ -1,10 +1,11 @@
-import {useEffect,useState,type FormEvent} from 'react';
+import {lazy,Suspense,useEffect,useState,type FormEvent} from 'react';
+const TradeJourneyWorkspace=lazy(()=>import('./TradeJourneyWorkspace'));
 import {BookOpen,ShieldCheck,Truck,Stethoscope,Bell,Search,RefreshCw,Database,FileText} from 'lucide-react';
 import {productionClient,type Identity,type SourceRecord,type KnowledgeArticle,type PlatformQuote,type PlatformOrder,type PlatformNotice,type PlatformCapabilities} from '../infrastructure/productionApiClient';
 type Tab='knowledge'|'farm'|'trade'|'intelligence'|'readiness';
 const tabs:readonly {key:Tab;name:string}[]=[
  {key:'knowledge',name:'Knowledge desk'},{key:'farm',name:'Farm records'},
- {key:'trade',name:'Quotations'},{key:'intelligence',name:'Intelligence & alerts'},{key:'readiness',name:'Data & readiness'}
+ {key:'trade',name:'Farmer–Buyer Trade'},{key:'intelligence',name:'Intelligence & alerts'},{key:'readiness',name:'Data & readiness'}
 ];
 const errorMessage=(e:unknown)=>e instanceof Error?e.message:'Operation failed';
 const form=(e:FormEvent<HTMLFormElement>)=>Object.fromEntries(new FormData(e.currentTarget));
@@ -169,6 +170,7 @@ export default function PlatformOperations({user}:{user:Identity}){
   </div>}
 
   {tab==='trade'&&<div className="platform-panels">
+   <div className="journey-slot"><Suspense fallback={<p role="status">Loading farmer-to-buyer workspace…</p>}><TradeJourneyWorkspace user={user}/></Suspense></div>
    <section className="surface-card platform-panel"><h3><Truck size={19}/> Supplier onboarding</h3><p>Internal review is not a licence certificate.</p>
     {supplier?<p>{supplier.business_name} · {supplier.district} · {supplier.status}</p>:
      <form className="platform-form" onSubmit={e=>send(e,d=>productionClient.createSupplier(d),'Supplier profile submitted for internal review.')}>
@@ -177,28 +179,6 @@ export default function PlatformOperations({user}:{user:Identity}){
       <label>Licence reference (optional)<input name="license_reference" maxLength={140}/></label>
       <button className="btn btn-primary" disabled={busy||!user.verified_at}>Create supplier profile</button>
      </form>}
-   </section>
-   <section className="surface-card platform-panel"><h3>Quotation preparation</h3><p>Seller must own a published listing and answer an existing enquiry; no payment or shipment occurs.</p>
-    <form className="platform-form" onSubmit={e=>send(e,d=>productionClient.createQuote({...d,enquiry_id:Number(d.enquiry_id)}),'Provisional quote saved; no external message sent.')}>
-     <label>Enquiry ID<input type="number" name="enquiry_id" min={1} step={1} required/></label>
-     <label>Total quotation ₹<input type="number" name="total_inr" min="0.01" step="0.01" required/></label>
-     <label>Terms<textarea name="terms" minLength={12} maxLength={600} required/></label>
-     <label>Valid until<input type="date" name="expires_on" required/></label>
-     <button className="btn btn-primary" disabled={busy||!user.verified_at}>Create provisional quote</button>
-    </form>
-    <h4>My quotations · {quotes.length}</h4>{quotes.map(q=><article className="platform-record" key={q.id}>
-      <strong>{q.status} · ₹{q.total_inr}</strong><small>Enquiry #{q.enquiry_id} · {q.quantity_kg} kg · expires {q.expires_at}</small>
-      <p>{q.terms}</p>
-      {q.status==='offered'&&Number(q.buyer_id)===user.id&&<div className="platform-actions">
-       <button className="btn btn-soft" disabled={busy} onClick={()=>void action(()=>productionClient.decideQuote(q.id,'accept'),'Provisional order record opened.')}>Accept quote</button>
-       <button className="btn btn-soft" disabled={busy} onClick={()=>void action(()=>productionClient.decideQuote(q.id,'reject'),'Quotation rejected.')}>Reject</button>
-      </div>}
-    </article>)}
-   </section>
-   <section className="surface-card platform-panel"><h3>Provisional orders · {orders.length}</h3>
-    {orders.map(o=><article className="platform-record" key={o.id}><strong>{o.status} · ₹{o.total_inr}</strong><p>{o.quantity_kg} kg · {o.terms}</p>
-     {o.status==='awaiting_seller_confirmation'&&Number(o.seller_id)===user.id&&<button className="btn btn-soft" disabled={busy} onClick={()=>void action(()=>productionClient.confirmOrder(o.id),'Internal record confirmed; dispatch/payment disabled.')}>Seller confirmation</button>}
-    </article>)}
    </section>
    {admin&&<section className="surface-card platform-panel"><h3>Supplier review queue</h3>
     {supplierQueue.map(s=><article className="platform-record" key={s.id}><strong>{s.business_name}</strong><small>{s.district}</small>
