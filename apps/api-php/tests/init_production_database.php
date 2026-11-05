@@ -9,8 +9,9 @@ $pdo=\KrishiGo\Production\Connection::open();
 foreach (['001_core.sql','002_platform_foundations.sql'] as $migration) {
     $script=file_get_contents(dirname(__DIR__).'/database/migrations/'.$migration);
     if (!is_string($script)) throw new RuntimeException('Migration unavailable: '.$migration);
-    foreach (explode(';',$script) as $stmt) {
-        $stmt=trim(preg_replace('/^\s*--.*$/m','',$stmt));
+    $clean=preg_replace('/^\s*--.*$/m','',$script);
+    foreach (explode(';',(string)$clean) as $stmt) {
+        $stmt=trim($stmt);
         if ($stmt!=='') $pdo->exec($stmt);
     }
 }
