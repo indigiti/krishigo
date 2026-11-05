@@ -45,8 +45,10 @@ final class EngagementApi {
         }
         $user=$c::requireUser($identity);$uid=(int)$user['id'];
         if($path==='/api/v1/agronomy/mine'&&$method==='GET'){
-            $rows=$repo->all('SELECT id,crop,observation,context_note,kind,evidence_url,status,created_at
-                         FROM agronomy_intakes WHERE user_id=? ORDER BY created_at DESC LIMIT 40',[$uid]);
+            $rows=$repo->all('SELECT a.id,a.crop,a.observation,a.context_note,a.kind,
+                 a.evidence_url,a.status,a.created_at,fc.field_id
+                 FROM agronomy_intakes a LEFT JOIN farm_field_case_links fc ON fc.intake_id=a.id AND fc.owner_id=a.user_id
+                 WHERE a.user_id=? ORDER BY a.created_at DESC LIMIT 40',[$uid]);
             \kg_json(200,['items'=>$rows,'private'=>true]);
         }
         if($path==='/api/v1/agronomy/intake'&&$method==='POST'){
@@ -57,11 +59,22 @@ final class EngagementApi {
             $context=Validation::text($b,'context_note',600,8);
             $url=isset($b['evidence_url'])&&$b['evidence_url']!==''?
                 $c::sourceUrl($b,'evidence_url'):null;
+            $fieldId=null;
+            if(isset($b['field_id'])&&$b['field_id']!=='')
+                $fieldId=$c::id(Validation::text($b,'field_id',36,36));
             $repo->throttle('agronomy-intake',(string)$uid,20,3600);
             $id=$c::uuid();
-            $repo->exec('INSERT INTO agronomy_intakes(id,user_id,crop,observation,context_note,kind,evidence_url) VALUES (?,?,?,?,?,?,?)',[
-                $id,$uid,$crop,$observation,$context,$kind,$url]);
-            \kg_json(201,['id'=>$id,'status'=>'pending_expert_review',
+            $repo->transaction(function()use($repo,$id,$uid,$crop,$observation,$context,$kind,$url,$fieldId,$c):void {
+                if($fieldId!==null){
+                    $field=$repo->one('SELECT status FROM farm_fields WHERE id=? AND owner_id=? FOR UPDATE',[$fieldId,$uid]);
+                    if(!$field||$field['status']!=='active')\kg_json(404,['error'=>'field_not_found']);
+                }
+                $repo->exec('INSERT INTO agronomy_intakes(id,user_id,crop,observation,context_note,kind,evidence_url) VALUES (?,?,?,?,?,?,?)',[
+                    $id,$uid,$crop,$observation,$context,$kind,$url]);
+                if($fieldId!==null)$repo->exec('INSERT INTO farm_field_case_links(id,field_id,intake_id,owner_id) VALUES (?,?,?,?)',[
+                    $c::uuid(),$fieldId,$id,$uid]);
+            });
+            \kg_json(201,['id'=>$id,'status'=>'pending_expert_review','field_id'=>$fieldId,
                 'file_uploaded'=>false,'ocr_processed'=>false,'ai_diagnosis'=>false,
                 'expert_contacted'=>false]);
         }
