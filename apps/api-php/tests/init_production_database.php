@@ -16,7 +16,7 @@ foreach (['001_core.sql','002_platform_foundations.sql','003_trade_lifecycle.sql
     }
 }
 $pdo->exec('UPDATE production_module_flags SET enabled=1,revision=1,updated_by=NULL');
-foreach (['farm_fields','trade_activity','operations_audit','notification_events','notification_preferences','agronomy_intakes',
+foreach (['farm_field_case_links','farm_fields','trade_activity','operations_audit','notification_events','notification_preferences','agronomy_intakes',
 'trade_orders','trade_quotes','supplier_profiles','farmer_profiles','source_data_snapshots',
 'knowledge_articles','knowledge_sources','audit_events','enquiries','plant_cases',
 'community_posts','buyer_requirements','listings','auth_rate_limits','users'] as $table)
