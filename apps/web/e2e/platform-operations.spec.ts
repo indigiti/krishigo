@@ -4,19 +4,31 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  test.skip(process.env.KG_TEST_PLATFORM!=='1','Build-specific production-candidate mock browser test');
  let authenticated=false;
  let farm:{district:string;crop_focus:string;preferred_language:string}|null=null;
+ let plots:Array<{id:string;field_name:string;district:string;village:string;crop:string;area_hectares:string;status:string;revision:number}>=[];
  let intake=0;
  await page.route('**/api/v1/**',async route=>{
   const r=route.request(),url=new URL(r.url()),p=url.pathname.split('/api/v1')[1],method=r.method();
   let body:Record<string,unknown>={};
   try{body=r.postDataJSON() as Record<string,unknown>;}catch{}
   const reply=(data:unknown,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+  if(p==='/status')return reply({ok:true,mode:'production',database:'required',fixture_data:false,plant_diagnosis:false});
   if(p==='/auth/csrf')return reply({csrf_token:'test-csrf'});
   if(p==='/auth/me')return reply({identity:authenticated?{id:101,display_name:'Test Administrator',email:'ci@example.invalid',role:'admin',status:'active',verified_at:'2026-10-01'}:null});
+  if(p==='/platform/modules')return reply({items:Array.from({length:25},(_,i)=>({
+   module_id:i+1,enabled:true,configured_enabled:true,revision:1,depends_on:[]
+  })),production_policy:true,controls_server_enforced:true});
   if(p==='/auth/login'){authenticated=true;return reply({identity:{id:101,display_name:'Test Administrator',email:'ci@example.invalid',role:'admin',status:'active',verified_at:'2026-10-01'},csrf_token:'test-csrf'});}
   if(p==='/marketplace/listings')return reply([]);
   if(p==='/knowledge/sources')return reply({items:[{id:'018c0f12-3456-7abc-8901-234567890abc',title:'Crop observation reference',publisher:'Example extension',source_url:'https://example.org/educational-reference',jurisdiction:'India'}]});
   if(p==='/knowledge/articles')return reply({items:[{id:'018c0f12-3456-7def-8901-234567890abc',title:'Onion field guide',crop:'Onion',topic:'crop_guide',language:'en',summary:'A source-linked educational observation, not a registered product label.',revision:1,source_url:'https://example.org/educational-reference'}]});
   if(p==='/editor/knowledge/sources'||p==='/editor/knowledge/articles'||p==='/editor/data/snapshots')return reply({items:[]});
+  if(p==='/me/fields'&&method==='GET')return reply({items:plots,private:true,owner_scoped:true});
+  if(p==='/me/fields'&&method==='POST'){
+   const plot={id:'018c0f12-3456-7def-8901-234567890aaa',field_name:String(body.field_name),
+    district:String(body.district),village:String(body.village),crop:String(body.crop),
+    area_hectares:String(body.area_hectares),status:'active',revision:1};
+   plots=[plot];return reply({id:plot.id,status:'active',revision:1,stored:true},201);
+  }
   if(p==='/me/farm-profile'){if(method==='PUT'){farm=body as typeof farm;return reply({stored:true});}return reply({profile:farm});}
   if(p==='/agronomy/mine')return reply({items:intake?[{id:'018c0f12-3456-7abc-8901-234567890acc',crop:'Tomato',kind:'plant_observation',observation:'Observed curled leaves on new growth',status:'pending_expert_review'}]:[]});
   if(p==='/agronomy/intake'){intake++;return reply({id:'018c0f12-3456-7abc-8901-234567890acc',status:'pending_expert_review',ocr_processed:false},201);}
@@ -33,7 +45,7 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
   if(p==='/admin/suppliers')return reply({items:[]});
   if(p==='/me/notification-events'||p==='/me/notification-preferences')return reply({items:[]});
   if(p==='/assistant/search')return reply({matches:[],answer:'No approved source supports a recommendation.',generative_ai:false});
-  if(p==='/platform/capabilities')return reply({schema_revision:3,platform_candidate:true,source_review:true,real_ocr:false,generative_ai:false,whatsapp_delivery:false,payments:false});
+  if(p==='/platform/capabilities')return reply({schema_revision:4,platform_candidate:true,source_review:true,real_ocr:false,generative_ai:false,whatsapp_delivery:false,payments:false});
   if(p==='/data/snapshots')return reply({items:[],connector_live:false});
   return reply({error:'not_found'},404);
  });
@@ -57,14 +69,47 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await journey.getByRole('button',{name:'Submit buyer enquiry'}).click();
  await expect(journey.getByText(/Enquiry recorded for the seller/)).toBeVisible();
  await page.getByRole('tab',{name:'Farm records'}).click();
- await page.locator('.platform-workspace').getByLabel('District').fill('Pune');
+ await page.locator('.platform-panel').filter({has:page.getByRole('heading',{name:'My farm profile'})}).getByLabel('District').fill('Pune');
  await page.locator('.platform-workspace').getByLabel('Crop focus').fill('Tomato');
  await page.locator('.platform-workspace').getByRole('button',{name:'Save my preferences'}).click();
  await expect(page.getByText('Private farm profile saved.')).toBeVisible();
+ await page.locator('.platform-workspace').getByLabel('Field name').fill('North onion field');
+ await page.getByRole('region',{name:'Private farm fields'}).getByLabel('District').fill('Pune');
+ await page.locator('.platform-workspace').getByLabel('Current crop').fill('Onion');
+ await page.locator('.platform-workspace').getByLabel('Village (optional)').fill('Sample village');
+ await page.locator('.platform-workspace').getByLabel('Area in hectares').fill('1.75');
+ await page.locator('.platform-workspace').getByRole('button',{name:'Add private field'}).click();
+ await expect(page.getByText('Private field record created.')).toBeVisible();
+ await expect(page.getByRole('region',{name:'Private farm fields'}).getByText('North onion field · active',{exact:true})).toBeVisible();
+
  await page.getByRole('tab',{name:'Intelligence & alerts'}).click();
  await expect(page.getByText(/external WhatsApp\/email delivery is disabled/i)).toBeVisible();
  await page.getByRole('tab',{name:'Data & readiness'}).click();
  await expect(page.getByText('generative ai')).toBeVisible();
  await expect(page.locator('.platform-cap').getByText('payments',{exact:true})).toBeVisible();
  await expect(page.getByText('No current, reviewed source snapshots.')).toBeVisible();
+ // All primary module pages in connected mode use PHP records, never fixtures.
+ if(info.project.name.startsWith('mobile'))await page.getByRole('button',{name:'Open menu'}).click();
+ await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('button',{name:'Marketplace'}).click();
+ await expect(page.getByRole('heading',{name:'Marketplace · connected records'})).toBeVisible();
+ await expect(page.getByText('Grow it. Find it. Trade it.')).toHaveCount(0);
+
+});
+
+
+test('connected mode rejects a staging/fixture API rather than claiming an authenticated session',async({page})=>{
+ test.skip(process.env.KG_TEST_PLATFORM!=='1','Explicit production-candidate browser mode only');
+ await page.route('**/api/v1/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  const json=path.endsWith('/platform/modules')?{items:Array.from({length:25},(_,i)=>({
+    module_id:i+1,enabled:true,configured_enabled:true,revision:1,depends_on:[]
+  })),production_policy:true}:path.endsWith('/status')?{
+    ok:true,stage:'M2-fixtures',database:'disabled',fixtures:'fictional'
+  }:{error:'staging_only'};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(json)});
+ });
+ await page.goto('/krishigo/');
+ await expect(page.getByRole('heading',{name:'Connected API unavailable'})).toBeVisible();
+ await expect(page.getByText('production_php_api_required')).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Sign in to KrishiGo'})).toHaveCount(0);
 });

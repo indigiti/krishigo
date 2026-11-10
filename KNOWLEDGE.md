@@ -1,8 +1,8 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-10 (M27 audit + M26 source integration).
+> **Single source of truth for development status.** Updated: 2026-11-10 (M27 audit + M26/M28 source integration).
 > Repository: indigiti/krishigo
-> Branch lineage: main contains M1–M25 via merged PRs #16, #17 and #18; M26 trade source is integrated after the M27 audit; M27 remains a historical snapshot.
+> Branch lineage: main contains M1–M25 via merged PRs #16, #17 and #18; M26/M28 source candidates follow the M27 audit, which remains a historical snapshot.
 >
 > This is a **code and product delivery tracker**, not an attestation of real data, regulatory compliance, live Cloudways deployment, vendor integrations, or final acceptance. The user has requested implementation of remaining modules ahead of hosted verification. Automated code/security tests still apply. **Do not** mark production-ready until evidence exists.
 
@@ -199,6 +199,27 @@ All calculations validate numeric boundaries, do not call network services, and 
 | Integration regression | apps/api-php/tests/platform_integration.py | Disposable _test MySQL |
 | Browser coverage | apps/web/e2e/platform-operations.spec.ts | Production-mode mocked endpoints |
 | Reference | docs/M26_FARMER_BUYER_JOURNEY.md | Operational flow and blocked live-service gates |
+
+
+## M28 — Production module authorization, private fields and real-mode UI (SOURCE CANDIDATE; NOT DEPLOYED)
+
+See docs/M28_PRODUCTION_CORE_GUARDRAILS.md for API contracts, constraints and rollout requirements.
+
+- [x] Add 004_core_guardrails.sql with production module policy, UUIDv7 private fields, and field-to-agronomy case links.
+- [x] Enforce mapped module permissions server-side in the real PHP router, independent of mock browser flags.
+- [x] Add admin-only, CSRF-protected, optimistic-revision policy updates with dependent-module cascade and audit records.
+- [x] Fail closed if production module policy rows are absent or incomplete.
+- [x] Route production-mode primary UI away from fictional data to authenticated PHP workspaces or explicit unavailable states.
+- [x] Restrict production navigation to server-enabled modules; provide real admin controls.
+- [x] Create/edit/archive owner-scoped farm fields with revision protection and private audit.
+- [x] Connect manual crop/label observations to an active field owned by that account in one SQL transaction.
+- [x] Add HTTP/SQL tests for role authorization, CSRF, module cascade, field ownership and case links.
+- [x] Add connected-mode desktop/mobile tests to reject fictional Marketplace content and exercise field creation.
+- [ ] Complete M28 code CI and independent review (record exact successful run).
+- [x] Reconcile M28 against the M26 source integration; final main CI and authorized hosted verification still required.
+- [ ] Hosted Cloudways verification, audited migration, live release and provider integrations are NOT completed.
+
+**Still P0/P1:** Verified email/phone possession, account recovery and MFA; organization/FPO tenancy; certified pesticide registrations and agronomist review; live APMC/IMD/scheme sources; actual OCR/AI; payment/dispatch/WhatsApp; complete 25-module business lifecycles. These remain blocked or unimplemented, not assumed done.
 
 
 ## GitHub evidence and promotion chain

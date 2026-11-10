@@ -24,6 +24,13 @@ export type JourneyDashboard={
 };
 export type JourneyTimelineEvent={id?:string;event_type:string;description:string;created_at:string};
 
+export type FarmField={
+ id:string;field_name:string;district:string;village:string;crop:string;
+ area_hectares:string;status:'active'|'archived';revision:number;
+ created_at:string;updated_at:string
+};
+export type ProductionModuleFlag={module_id:number;enabled:boolean;configured_enabled:boolean;revision:number;depends_on:number[]};
+
 export class ProductionApiClient {
   private csrf = '';
   private async call<T>(method: string, path: string, body?: Record<string, unknown>): Promise<T> {
@@ -37,7 +44,12 @@ export class ProductionApiClient {
     if (!res.ok) throw new Error(typeof json.error === 'string' ? json.error.replaceAll('_', ' ') : `Request failed (${res.status})`);
     return json as T;
   }
-  async initialize() { const result = await this.call<{csrf_token:string}>('GET', 'auth/csrf'); this.csrf = result.csrf_token; }
+  async initialize() {
+    const status=await this.call<{mode?:string;fixture_data?:boolean}>('GET','status');
+    if(status.mode!=='production'||status.fixture_data!==false)throw new Error('production_php_api_required');
+    const result=await this.call<{csrf_token:string}>('GET','auth/csrf');
+    this.csrf=result.csrf_token;
+  }
   async identity() { return this.call<{identity:Identity|null}>('GET','auth/me'); }
   async register(details: Record<string,unknown>) { return this.call<{id:number;verified:boolean}>('POST','auth/register',details); }
   async login(email: string,password:string) {
@@ -68,6 +80,18 @@ export class ProductionApiClient {
   async stagedSnapshots(){return this.call<{items:Array<{id:string;domain:string;label:string;status:string}>}>('GET','editor/data/snapshots');}
   async createSnapshot(fields:Record<string,unknown>){return this.call<{id:string;status:string}>('POST','editor/data/snapshots',fields);}
   async decideSnapshot(id:string,decision:'approve'|'reject',reason:string){return this.call<{id:string;status:string}>('POST','editor/data/snapshots/'+encodeURIComponent(id)+'/review',{decision,reason});}
+  async productionModules(){return this.call<{items:ProductionModuleFlag[];production_policy:true}>('GET','platform/modules');}
+  async updateProductionModule(id:number,enabled:boolean,expected_revision:number){
+    return this.call<{changed:number[];production_policy:true}>('PUT',`admin/platform/modules/${id}`,{enabled,expected_revision});
+  }
+  async productionModuleEvents(){return this.call<{items:Array<{id:string;module_id:number;cause_module_id:number;actor:string;old_enabled:number;new_enabled:number;created_at:string}>;append_only:true}>('GET','admin/platform/modules/events');}
+  async farmFields(){return this.call<{items:FarmField[];private:true}>('GET','me/fields');}
+  async createFarmField(fields:{field_name:string;district:string;village:string;crop:string;area_hectares:number}){
+    return this.call<{id:string;status:string;revision:number}>('POST','me/fields',fields);
+  }
+  async editFarmField(id:string,expected_revision:number,changes:Record<string,unknown>){
+    return this.call<{id:string;revision:number}>('PATCH','me/fields/'+encodeURIComponent(id),{expected_revision,...changes});
+  }
   async farmProfile(){return this.call<{profile:{district:string;crop_focus:string;preferred_language:string}|null}>('GET','me/farm-profile');}
   async saveFarmProfile(fields:{district:string;crop_focus:string;preferred_language:string}){return this.call<{stored:boolean}>('PUT','me/farm-profile',fields);}
   async supplierProfile(){return this.call<{profile:{id:string;business_name:string;district:string;status:string}|null}>('GET','suppliers/profile');}
@@ -86,7 +110,7 @@ export class ProductionApiClient {
   async orders(){return this.call<{items:PlatformOrder[]}>('GET','trade/orders/mine');}
   async confirmOrder(id:string){return this.call<{status:string}>('POST','trade/orders/'+id+'/confirm',{});}
   async assistantSearch(q:string){return this.call<{matches:KnowledgeArticle[];answer:string;generative_ai:false}>('GET','assistant/search?q='+encodeURIComponent(q));}
-  async agronomyCases(){return this.call<{items:Array<{id:string;crop:string;kind:string;observation:string;status:string}>}>('GET','agronomy/mine');}
+  async agronomyCases(){return this.call<{items:Array<{id:string;crop:string;kind:string;observation:string;status:string;field_id:string|null}>}>('GET','agronomy/mine');}
   async createAgronomy(fields:Record<string,unknown>){return this.call<{id:string;status:string;ocr_processed:false}>('POST','agronomy/intake',fields);}
   async notificationPreferences(){return this.call<{items:Array<{topic:string;channel:string;opted_in:number}>}>('GET','me/notification-preferences');}
   async changeNotificationPreference(topic:string,opted_in:boolean){return this.call<{topic:string;opted_in:boolean}>('PUT','me/notification-preferences',{topic,channel:'in_app',opted_in});}

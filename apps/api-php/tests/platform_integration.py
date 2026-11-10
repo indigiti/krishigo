@@ -307,5 +307,110 @@ class PlatformFlow(unittest.TestCase):
         self.assertEqual(states[first_order],'cancelled_by_buyer')
         self.assertEqual(states[second_order],'cancelled_by_seller')
 
+
+    def test_m28_production_policy_and_private_plot_ownership(self):
+        # Separate logical account from existing staff/farmer fixtures. No new IP
+        # registrations: production's five/hour registration throttle stays intact.
+        grower=Client(self.base);grower.prepare()
+        self.assertEqual(grower.login('grower@platform.test')[0],200)
+        st,initial=self.admin.call('GET','/api/v1/platform/modules')
+        self.assertEqual(st,200,initial)
+        self.assertTrue(initial['controls_server_enforced'])
+        self.assertEqual(len(initial['items']),25)
+        def module(snapshot,id):
+            return next(x for x in snapshot['items'] if x['module_id']==id)
+        revision=module(initial,2)['revision']
+        st,_=self.editor.call('PUT','/api/v1/admin/platform/modules/2',
+            {'enabled':False,'expected_revision':revision})
+        self.assertEqual(st,403)
+        st,_=self.admin.call('PUT','/api/v1/admin/platform/modules/2',
+            {'enabled':False,'expected_revision':revision+900})
+        self.assertEqual(st,409)
+        st,off=self.admin.call('PUT','/api/v1/admin/platform/modules/2',
+            {'enabled':False,'expected_revision':revision})
+        self.assertEqual(st,200,off)
+        self.assertEqual(set(off['changed']),{2,3,24})
+        st,audit=self.admin.call('GET','/api/v1/admin/platform/modules/events')
+        self.assertEqual(st,200,audit)
+        self.assertTrue(audit['append_only'])
+        self.assertEqual({e['module_id'] for e in audit['items'] if e['cause_module_id']==2},{2,3,24})
+        st,_=self.editor.call('GET','/api/v1/admin/platform/modules/events')
+        self.assertEqual(st,403)
+        st,flags=self.admin.call('GET','/api/v1/platform/modules')
+        self.assertEqual(st,200)
+        for x in [2,3,24]:self.assertFalse(module(flags,x)['enabled'])
+        st,blocked=grower.call('GET','/api/v1/marketplace/listings')
+        self.assertEqual(st,404,blocked)
+        self.assertEqual(blocked['error'],'module_disabled')
+        st,_=self.admin.call('GET','/api/v1/buyers/requirements')
+        self.assertEqual(st,404)
+        st,_=self.admin.call('GET','/api/v1/knowledge/articles')
+        self.assertEqual(st,200)
+        st,blocked=self.admin.call('PUT','/api/v1/admin/platform/modules/3',
+            {'enabled':True,'expected_revision':module(flags,3)['revision']})
+        self.assertEqual(st,409,blocked)
+        self.assertEqual(blocked['error'],'dependency_required')
+        st,_=self.admin.call('PUT','/api/v1/admin/platform/modules/2',
+            {'enabled':True,'expected_revision':module(flags,2)['revision']})
+        self.assertEqual(st,200)
+        st,restored=self.admin.call('GET','/api/v1/platform/modules')
+        self.assertEqual(st,200)
+        for x in [3,24]:
+            st,_=self.admin.call('PUT',f'/api/v1/admin/platform/modules/{x}',
+                {'enabled':True,'expected_revision':module(restored,x)['revision']})
+            self.assertEqual(st,200)
+        st,restored=self.admin.call('GET','/api/v1/platform/modules')
+        self.assertEqual(st,200)
+        self.assertTrue(all(module(restored,x)['enabled'] for x in [2,3,24]))
+        st,entry=grower.call('POST','/api/v1/me/fields',{
+            'field_name':'Northern Onion Plot','district':'Pune','village':'Sample village',
+            'crop':'Onion','area_hectares':'1.75'})
+        self.assertEqual(st,201,entry)
+        fid=entry['id'];self.assertEqual(entry['revision'],1)
+        st,_=self.admin.call('GET',f'/api/v1/me/fields/{fid}')
+        self.assertEqual(st,404)
+        st,_=self.editor.call('GET','/api/v1/me/fields')
+        self.assertEqual(st,403)
+        st,fields=grower.call('GET','/api/v1/me/fields')
+        self.assertEqual(st,200)
+        self.assertTrue(fields['owner_scoped'])
+        self.assertTrue(any(f['id']==fid for f in fields['items']))
+        case_payload={'crop':'Onion','kind':'plant_observation',
+             'observation':'Initial signs of leaf curl in this owned crop plot',
+             'context_note':'Recorded by a farmer before any expert review',
+             'field_id':fid}
+        st,linked=grower.call('POST','/api/v1/agronomy/intake',case_payload)
+        self.assertEqual(st,201,linked)
+        self.assertEqual(linked['field_id'],fid)
+        st,history=grower.call('GET','/api/v1/agronomy/mine')
+        self.assertEqual(st,200)
+        self.assertTrue(any(x['id']==linked['id'] and x['field_id']==fid for x in history['items']))
+        st,_=self.admin.call('POST','/api/v1/agronomy/intake',case_payload)
+        self.assertEqual(st,404) # no field access despite staff role
+        st,_=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
+            {'expected_revision':1,'crop':'Soybean'},csrf=False,extra={'X-CSRF-Token':'wrong'})
+        self.assertEqual(st,419)
+        st,changed=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
+            {'expected_revision':1,'crop':'Soybean'})
+        self.assertEqual(st,200,changed)
+        self.assertEqual(changed['revision'],2)
+        st,_=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
+            {'expected_revision':1,'crop':'Cotton'})
+        self.assertEqual(st,409)
+        st,profile=grower.call('GET',f'/api/v1/me/fields/{fid}')
+        self.assertEqual(st,200)
+        self.assertEqual(profile['field']['crop'],'Soybean')
+        st,archived=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
+            {'expected_revision':2,'status':'archived'})
+        self.assertEqual(st,200,archived)
+        st,_=grower.call('PATCH',f'/api/v1/me/fields/{fid}',
+            {'expected_revision':3,'crop':'Cotton'})
+        self.assertEqual(st,409)
+        st,_=grower.call('POST','/api/v1/agronomy/intake',case_payload)
+        self.assertEqual(st,404) # archived plot cannot receive new cases
+        st,public=self.admin.call('GET','/api/v1/me/fields')
+        self.assertEqual(st,200)
+        self.assertEqual(public['items'],[])
+
 if __name__=='__main__':
     unittest.main()
