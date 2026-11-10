@@ -6,10 +6,9 @@ KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers,
 
 ## Current source status
 
-- **M1–M15:** merged into main; 25 demo module workspaces with module-specific protected JSON draft contracts and six deeper workflow pilots.
-- **M16–M18:** crop protection and plant nutrition workflows, 42 educational starter guides, moderation and in-app demonstration notices. On [draft PR #16](https://github.com/indigiti/krishigo/pull/16), not merged into main.
-- **M19:** 24 operational field tools in draft PR #17; all PHP/web/browser CI checks passed on M19.
-- **M20–M25 candidate:** source-reviewed knowledge articles, owner-scoped MySQL farm data, manually reviewed source snapshots, provisional quote/order records, safe source-only search, manual label intake, in-app consent, M25 offline readiness report and isolated MySQL testing. In draft PR #18, based on M19; not merged or deployed.
+- **M1–M25:** source-code foundations consolidated on main via PRs #16, #17 and #18, including 25 demo module workspaces, M18 agricultural knowledge, M19 field tools, and M20–M25 opt-in PHP/MySQL candidates.
+- **M26:** guided authenticated farmer-to-buyer lifecycle, draft PR #19. CI passed, but not yet merged or deployed.
+- **M27 audit:** all 25 modules and their advertised features were inspected; see [deep feature audit](docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md). Most modules have L1/L2 functionality and only selected capabilities have partial L3 workflows. No L4 live service is independently accepted.
 - The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
 ## Run the web UI
@@ -34,6 +33,7 @@ See:
 - [Agricultural input workflow scope](docs/M17_AGRI_INPUTS_P1_P4.md)
 - [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
 - [M20–M25 platform candidate and launch gates](docs/M20_M25_PLATFORM_FOUNDATIONS.md)
+- [M27 full 25-module feature-depth audit](docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md)
 
 ## Engineering policy
 

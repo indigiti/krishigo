@@ -1,8 +1,8 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-05 (M20–M25 foundation implementation).
+> **Single source of truth for development status.** Updated: 2026-11-06 (M27 deep feature audit).
 > Repository: indigiti/krishigo
-> Branch lineage: main (M1–M15) → feature/agri-inputs-intelligence (M16–M18, PR #16, not merged) → feature/m19-module-completion-tracker (PR #17) → feature/m20-m25-platform-foundations (current branch).
+> Branch lineage: main contains M1–M25 via merged PRs #16, #17 and #18; M26 remains in draft PR #19. This audit is in a separate documentation-only branch.
 >
 > This is a **code and product delivery tracker**, not an attestation of real data, regulatory compliance, live Cloudways deployment, vendor integrations, or final acceptance. The user has requested implementation of remaining modules ahead of hosted verification. Automated code/security tests still apply. **Do not** mark production-ready until evidence exists.
 
@@ -25,7 +25,7 @@ A module can simultaneously be D+S+C+X. **Never convert “implemented UI” or 
 - Default static DigiOps release: fixture/demo, no server writes, no DB.
 - Opt-in protected PHP staging pilot: private JSON with bounded domains, session/CSRF/roles, reviewer decisions, fail-closed mode. Single staging identity; not genuine tenant ownership.
 - Production candidate MySQL/MariaDB API exists in isolation (M8); not activated. No automatic DB migration or production activation.
-- M18 knowledge library and M17 input operations live in open PR #16; M19 depends on that work.
+- M18 knowledge and M19 field tools plus M20–M25 candidate foundations are merged into main. They are not validated production services.
 - Gate chemical treatment advice behind current locally registered product labels and agronomist review. Never invent pesticide rates or tank-mix compatibility.
 
 ## All 25 modules — implementation inventory
@@ -77,13 +77,13 @@ All calculations validate numeric boundaries, do not call network services, and 
 
 ## Development milestones and checklist
 
-### M19 — Module completion workbench (ACTIVE)
+### M19 — Module completion workbench (SOURCE MERGED, NOT PRODUCTION)
 - [x] Root KNOWLEDGE.md with status vocabulary and 25-module scope.
 - [x] Add 24 domain-specific on-device field tools (12 calculations + 12 action plans); reuse 12 advanced Module 11 workspaces from M18.
 - [x] Reuse existing Module Studio and advanced Module 11 rather than duplicating dashboards.
 - [x] Author unit tests for 24 tools with invalid/overflow input; desktop/mobile browser smoke tests for selected modules.
 - [x] Label simulation and disable external action, verified rates, booking, diagnosis, notifications and delivery.
-- [x] Open dependency-aware draft PR #17 from M19 into the M18 feature branch.
+- [x] PR #17 was merged into main after PR #16.
 - [x] M19 CI #42077996405 passed all PHP, web and browser jobs; no hosted deployment.
 - [ ] Hosted deployment and real provider verification deliberately deferred.
 
@@ -154,14 +154,29 @@ All calculations validate numeric boundaries, do not call network services, and 
 7. Keep this as the **single living status file**. Milestone documents are reference appendices.
 
 ## Documentation debt
-- Root README still describes M1 as in progress; STAGING.md and DEVELOPMENT.md include historical descriptions.
+- Root README and older milestone sections still contain historical pre-merge claims. Use this updated tracker and the M27 deep audit when judging current implementation.
 - Bring README status up to date and reference this file.
-- M18 PR #16 must be integrated before merging M19 against main.
+- PRs #16 (M18), #17 (M19), and #18 (M20–M25) have been merged; M26 PR #19 remains draft.
+
+## M27 — Independent feature-depth audit (documentation-only)
+
+**Audit date: 2026-11-06.** See docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md for all 25 modules, all 12 Agricultural Inputs tools, current evidence and P0/P1 blockers.
+
+- [x] Source-review both 25-module registries and all 25 demo draft schemas.
+- [x] Distinguish mock UI, staging JSON, deterministic local tools and partial MySQL domain workflows.
+- [x] Inspect M26 quote/order/cancellation work separately from consolidated main.
+- [x] Check 12 Agricultural Inputs features against actual registered product/AI/OCR integrations.
+- [x] Check CI coverage, permission/ownership controls, source provenance, onboarding and primary UI data mode.
+- [x] Identify outdated pre-merge documentation and publish remediation priorities.
+- [ ] Independently test hosted Cloudways service, live source/provider authorization and security.
+- [ ] Execute all 25 module-specific role × state × API × UI acceptance matrices before any launch.
+
+**Finding:** 25/25 have L1 and L2 capabilities. Selected features have partial authenticated persistent MySQL workflows. M26 adds deeper internal trade in a draft branch. **0/25 have demonstrated L4 live-provider, real-user operational acceptance.** No production readiness percentage is asserted.
 
 ## GitHub evidence and promotion chain
-- M1–M15 merged on main at 8868e7f24b9f.
-- PR #16, M18 head 5373a2cdfa8968bf72dbfa3143db650ba6389e3d, open/draft. GitHub CI 42067293001 passed.
-- No verified live Cloudways deployment for M18/M19.
 
-- M19 PR #17 targets M18 PR #16. M20–M25 engineering branch builds on M19. All dependent branches remain unmerged into main.
-- M20–M25 full code CI at commit b2ac75d8eee9f9b9f77019cce5ef46399b59366e: GitHub Actions run 42082870201 passed PHP, React/web packaging, isolated MySQL and desktop/mobile Chromium tests. This is NOT a live Cloudways deployment or a substitute for authorized source verification.
+- PR #16 (M18), PR #17 (M19), PR #18 (M20–M25): merged into main in dependency order.
+- Latest checked main commit 1685d3ec3a2af41a9172600a902bf8f25e1e26ec, CI #42088136752 passed.
+- M26 draft PR #19 head fa21e1a2bda678ab9c42d7fba5078dfadeeaac9d; CI #42087702914 passed. Not merged into main.
+- No verified live Cloudways deployment of M20–M26; provider data, statutory licensing, messaging, payments, OCR and generative AI not activated.
+- M27 is an audit and tracker correction only; no runtime or production changes.
