@@ -80,7 +80,7 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await page.locator('.platform-workspace').getByLabel('Area in hectares').fill('1.75');
  await page.locator('.platform-workspace').getByRole('button',{name:'Add private field'}).click();
  await expect(page.getByText('Private field record created.')).toBeVisible();
- await expect(page.getByText('North onion field')).toBeVisible();
+ await expect(page.getByRole('region',{name:'Private farm fields'}).getByText('North onion field · active',{exact:true})).toBeVisible();
 
  await page.getByRole('tab',{name:'Intelligence & alerts'}).click();
  await expect(page.getByText(/external WhatsApp\/email delivery is disabled/i)).toBeVisible();
