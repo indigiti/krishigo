@@ -74,6 +74,7 @@ test('production-only platform panel exposes sourced knowledge, farm operations 
  await page.locator('.platform-workspace').getByRole('button',{name:'Save my preferences'}).click();
  await expect(page.getByText('Private farm profile saved.')).toBeVisible();
  await page.locator('.platform-workspace').getByLabel('Field name').fill('North onion field');
+ await page.getByRole('region',{name:'Private farm fields'}).getByLabel('District').fill('Pune');
  await page.locator('.platform-workspace').getByLabel('Current crop').fill('Onion');
  await page.locator('.platform-workspace').getByLabel('Village (optional)').fill('Sample village');
  await page.locator('.platform-workspace').getByLabel('Area in hectares').fill('1.75');
