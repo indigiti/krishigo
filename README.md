@@ -7,7 +7,7 @@ KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers,
 ## Current source status
 
 - **M1–M25:** source-code foundations consolidated on main via PRs #16, #17 and #18, including 25 demo module workspaces, M18 agricultural knowledge, M19 field tools, and M20–M25 opt-in PHP/MySQL candidates.
-- **M26:** guided authenticated farmer-to-buyer lifecycle, draft PR #19. CI passed, but not yet merged or deployed.
+- **M26:** authenticated internal farmer-to-buyer lifecycle integrated from PR #19, with provisional quote/order, event history and reversible reservation. Source code only; no Cloudways deployment, live payments or fulfillment.
 - **M27 audit:** all 25 modules and their advertised features were inspected; see [deep feature audit](docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md). Most modules have L1/L2 functionality and only selected capabilities have partial L3 workflows. No L4 live service is independently accepted.
 - The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
@@ -34,6 +34,7 @@ See:
 - [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
 - [M20–M25 platform candidate and launch gates](docs/M20_M25_PLATFORM_FOUNDATIONS.md)
 - [M27 full 25-module feature-depth audit](docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md)
+- [M26 farmer-to-buyer lifecycle](docs/M26_FARMER_BUYER_JOURNEY.md)
 
 ## Engineering policy
 

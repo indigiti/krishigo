@@ -1,8 +1,8 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-06 (M27 deep feature audit).
+> **Single source of truth for development status.** Updated: 2026-11-10 (M27 audit + M26 source integration).
 > Repository: indigiti/krishigo
-> Branch lineage: main contains M1–M25 via merged PRs #16, #17 and #18; M26 remains in draft PR #19. This audit is in a separate documentation-only branch.
+> Branch lineage: main contains M1–M25 via merged PRs #16, #17 and #18; M26 trade source is integrated after the M27 audit; M27 remains a historical snapshot.
 >
 > This is a **code and product delivery tracker**, not an attestation of real data, regulatory compliance, live Cloudways deployment, vendor integrations, or final acceptance. The user has requested implementation of remaining modules ahead of hosted verification. Automated code/security tests still apply. **Do not** mark production-ready until evidence exists.
 
@@ -156,7 +156,7 @@ All calculations validate numeric boundaries, do not call network services, and 
 ## Documentation debt
 - Root README and older milestone sections still contain historical pre-merge claims. Use this updated tracker and the M27 deep audit when judging current implementation.
 - Bring README status up to date and reference this file.
-- PRs #16 (M18), #17 (M19), and #18 (M20–M25) have been merged; M26 PR #19 remains draft.
+- PRs #16–#18 and M27 audit PR #21 are merged; M26 source integration is separate from hosted acceptance.
 
 ## M27 — Independent feature-depth audit (documentation-only)
 
@@ -171,12 +171,40 @@ All calculations validate numeric boundaries, do not call network services, and 
 - [ ] Independently test hosted Cloudways service, live source/provider authorization and security.
 - [ ] Execute all 25 module-specific role × state × API × UI acceptance matrices before any launch.
 
-**Finding:** 25/25 have L1 and L2 capabilities. Selected features have partial authenticated persistent MySQL workflows. M26 adds deeper internal trade in a draft branch. **0/25 have demonstrated L4 live-provider, real-user operational acceptance.** No production readiness percentage is asserted.
+**Finding:** 25/25 have L1 and L2 capabilities. Selected features have partial authenticated persistent MySQL workflows. M26 adds deeper internal trade as a source-only candidate. **0/25 have demonstrated L4 live-provider, real-user operational acceptance.** No production readiness percentage is asserted.
+
+## M26 — Farmer-to-buyer operational journey (SOURCE-LEVEL CANDIDATE; NOT DEPLOYED)
+
+**Goal:** Complete a practical, auditable, internally simulated farmer-to-buyer journey using one React/PHP/MySQL architecture, rather than isolated demonstration forms. No real payment, delivery, warehouse booking or customer messaging is implied.
+
+- [x] Add integrated trade dashboard: moderated public lots, seller-owned lots, participant-scoped enquiries, provisional quotes and orders.
+- [x] Replace manual-number quotation entry with guided seller response to an actual owned enquiry.
+- [x] Add buyer lot discovery and enquiry entry in one workspace.
+- [x] Append trade activity history for offers, buyer decisions, seller confirmations and cancellations.
+- [x] Add reversible, reasoned cancellation with listing-row lock to release reserved quantity and prevent double cancellation.
+- [x] Enforce participant-only history and cancellation, owner/role checks, same-origin CSRF and staff-reviewed restricted actions.
+- [x] Add schema 003_trade_lifecycle.sql to disposable MySQL test bootstrap only (no live migration).
+- [x] Add cross-buyer conflict, CSRF, ownership, timeline, idempotency and reservation-release HTTP integration scenarios.
+- [x] Pin Playwright to stable 1.64.1 after previously floating npm range produced ETARGET on main.
+- [x] Full PHP, web, disposable MySQL and desktop/mobile browser acceptance passed in GitHub Actions run 42087215095 at commit 97680b611c24fb8829979e35f93da2f089308687.
+- [x] M26 source reviewed and reconciled with M27 audit; live Cloudways deployment is not authorized.
+- [ ] Real identity verification, independent supplier licences, live inventory, payments, freight, invoicing, disputes and contract policy are still missing.
+
+| M26 asset | Path | Boundary |
+|---|---|---|
+| Internal trade API | apps/api-php/src/Production/TradeJourney.php | Participant-scoped, no external actions |
+| Audit and quotation state changes | apps/api-php/src/Production/CommerceApi.php | Writes transactionally with activity events |
+| Trade history schema | apps/api-php/database/migrations/003_trade_lifecycle.sql | Append-only audit, UUIDv7 |
+| Guided React journey | apps/web/src/features/TradeJourneyWorkspace.tsx | Only explicit PHP production-candidate mode |
+| Integration regression | apps/api-php/tests/platform_integration.py | Disposable _test MySQL |
+| Browser coverage | apps/web/e2e/platform-operations.spec.ts | Production-mode mocked endpoints |
+| Reference | docs/M26_FARMER_BUYER_JOURNEY.md | Operational flow and blocked live-service gates |
+
 
 ## GitHub evidence and promotion chain
 
 - PR #16 (M18), PR #17 (M19), PR #18 (M20–M25): merged into main in dependency order.
 - Latest checked main commit 1685d3ec3a2af41a9172600a902bf8f25e1e26ec, CI #42088136752 passed.
-- M26 draft PR #19 head fa21e1a2bda678ab9c42d7fba5078dfadeeaac9d; CI #42087702914 passed. Not merged into main.
+- M26 PR #19 head fa21e1a2bda678ab9c42d7fba5078dfadeeaac9d; source CI #42087702914 passed before merge reconciliation. Main-branch CI required.
 - No verified live Cloudways deployment of M20–M26; provider data, statutory licensing, messaging, payments, OCR and generative AI not activated.
 - M27 is an audit and tracker correction only; no runtime or production changes.
