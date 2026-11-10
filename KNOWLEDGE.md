@@ -1,8 +1,8 @@
 # KrishiGo — Living Knowledge & Delivery Tracker
 
-> **Single source of truth for development status.** Updated: 2026-11-05 (M26 farmer-to-buyer development).
+> **Single source of truth for development status.** Updated: 2026-11-10 (M27 audit + M26 source integration).
 > Repository: indigiti/krishigo
-> Branch lineage: main (M1–M25 consolidated via PRs #16, #17 and #18) → feature/m26-farmer-buyer-lifecycle (current development branch).
+> Branch lineage: main contains M1–M25 via merged PRs #16, #17 and #18; M26 trade source is integrated after the M27 audit; M27 remains a historical snapshot.
 >
 > This is a **code and product delivery tracker**, not an attestation of real data, regulatory compliance, live Cloudways deployment, vendor integrations, or final acceptance. The user has requested implementation of remaining modules ahead of hosted verification. Automated code/security tests still apply. **Do not** mark production-ready until evidence exists.
 
@@ -25,7 +25,7 @@ A module can simultaneously be D+S+C+X. **Never convert “implemented UI” or 
 - Default static DigiOps release: fixture/demo, no server writes, no DB.
 - Opt-in protected PHP staging pilot: private JSON with bounded domains, session/CSRF/roles, reviewer decisions, fail-closed mode. Single staging identity; not genuine tenant ownership.
 - Production candidate MySQL/MariaDB API exists in isolation (M8); not activated. No automatic DB migration or production activation.
-- M18 knowledge, M19 workbench and M20–M25 candidate foundations are consolidated in main. Production integrations remain disabled.
+- M18 knowledge and M19 field tools plus M20–M25 candidate foundations are merged into main. They are not validated production services.
 - Gate chemical treatment advice behind current locally registered product labels and agronomist review. Never invent pesticide rates or tank-mix compatibility.
 
 ## All 25 modules — implementation inventory
@@ -77,13 +77,13 @@ All calculations validate numeric boundaries, do not call network services, and 
 
 ## Development milestones and checklist
 
-### M19 — Module completion workbench (ACTIVE)
+### M19 — Module completion workbench (SOURCE MERGED, NOT PRODUCTION)
 - [x] Root KNOWLEDGE.md with status vocabulary and 25-module scope.
 - [x] Add 24 domain-specific on-device field tools (12 calculations + 12 action plans); reuse 12 advanced Module 11 workspaces from M18.
 - [x] Reuse existing Module Studio and advanced Module 11 rather than duplicating dashboards.
 - [x] Author unit tests for 24 tools with invalid/overflow input; desktop/mobile browser smoke tests for selected modules.
 - [x] Label simulation and disable external action, verified rates, booking, diagnosis, notifications and delivery.
-- [x] Open dependency-aware draft PR #17 from M19 into the M18 feature branch.
+- [x] PR #17 was merged into main after PR #16.
 - [x] M19 CI #42077996405 passed all PHP, web and browser jobs; no hosted deployment.
 - [ ] Hosted deployment and real provider verification deliberately deferred.
 
@@ -154,11 +154,26 @@ All calculations validate numeric boundaries, do not call network services, and 
 7. Keep this as the **single living status file**. Milestone documents are reference appendices.
 
 ## Documentation debt
-- Root README still describes M1 as in progress; STAGING.md and DEVELOPMENT.md include historical descriptions.
+- Root README and older milestone sections still contain historical pre-merge claims. Use this updated tracker and the M27 deep audit when judging current implementation.
 - Bring README status up to date and reference this file.
-- PRs #16, #17 and #18 are merged; consolidate the remaining historical milestone references when updating documentation.
+- PRs #16–#18 and M27 audit PR #21 are merged; M26 source integration is separate from hosted acceptance.
 
-## M26 — Farmer-to-buyer operational journey (DEVELOPMENT BRANCH)
+## M27 — Independent feature-depth audit (documentation-only)
+
+**Audit date: 2026-11-06.** See docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md for all 25 modules, all 12 Agricultural Inputs tools, current evidence and P0/P1 blockers.
+
+- [x] Source-review both 25-module registries and all 25 demo draft schemas.
+- [x] Distinguish mock UI, staging JSON, deterministic local tools and partial MySQL domain workflows.
+- [x] Inspect M26 quote/order/cancellation work separately from consolidated main.
+- [x] Check 12 Agricultural Inputs features against actual registered product/AI/OCR integrations.
+- [x] Check CI coverage, permission/ownership controls, source provenance, onboarding and primary UI data mode.
+- [x] Identify outdated pre-merge documentation and publish remediation priorities.
+- [ ] Independently test hosted Cloudways service, live source/provider authorization and security.
+- [ ] Execute all 25 module-specific role × state × API × UI acceptance matrices before any launch.
+
+**Finding:** 25/25 have L1 and L2 capabilities. Selected features have partial authenticated persistent MySQL workflows. M26 adds deeper internal trade as a source-only candidate. **0/25 have demonstrated L4 live-provider, real-user operational acceptance.** No production readiness percentage is asserted.
+
+## M26 — Farmer-to-buyer operational journey (SOURCE-LEVEL CANDIDATE; NOT DEPLOYED)
 
 **Goal:** Complete a practical, auditable, internally simulated farmer-to-buyer journey using one React/PHP/MySQL architecture, rather than isolated demonstration forms. No real payment, delivery, warehouse booking or customer messaging is implied.
 
@@ -172,7 +187,7 @@ All calculations validate numeric boundaries, do not call network services, and 
 - [x] Add cross-buyer conflict, CSRF, ownership, timeline, idempotency and reservation-release HTTP integration scenarios.
 - [x] Pin Playwright to stable 1.64.1 after previously floating npm range produced ETARGET on main.
 - [x] Full PHP, web, disposable MySQL and desktop/mobile browser acceptance passed in GitHub Actions run 42087215095 at commit 97680b611c24fb8829979e35f93da2f089308687.
-- [ ] Merge M26 PR after code review and checks; no Cloudways deployment authorized.
+- [x] M26 source reviewed and reconciled with M27 audit; live Cloudways deployment is not authorized.
 - [ ] Real identity verification, independent supplier licences, live inventory, payments, freight, invoicing, disputes and contract policy are still missing.
 
 | M26 asset | Path | Boundary |
@@ -185,13 +200,11 @@ All calculations validate numeric boundaries, do not call network services, and 
 | Browser coverage | apps/web/e2e/platform-operations.spec.ts | Production-mode mocked endpoints |
 | Reference | docs/M26_FARMER_BUYER_JOURNEY.md | Operational flow and blocked live-service gates |
 
+
 ## GitHub evidence and promotion chain
 
-- M1–M15 merged earlier (base 8868e7f24b9f).
-- PR #16 (M18) merged at 0a097322bf94b0f92e7b32fdea402c5bd06724e2.
-- PR #17 (M19) merged at ee520b22a7f6e9b8383bc514184c4cb0f31d1b9d.
-- PR #18 (M20–M25) merged at 2c2204582da55a87683f76c4bf0fd48fe72e50f9.
-- M20–M25 last feature CI #42083434491 passed before consolidation. Main-branch web CI exposed floating Playwright dependency after merge and is being corrected in M26.
-- M26 draft PR #19 targets main. Code and CI milestone verified by run 42087215095; hosted and external integrations not accepted.
-- No authorized Cloudways production-mode activation, real commerce settlement, or live provider verification.
-- No verified live Cloudways deployment of M26 or the M20–M25 candidate. Internal CI results are not deployment acceptance.
+- PR #16 (M18), PR #17 (M19), PR #18 (M20–M25): merged into main in dependency order.
+- Latest checked main commit 1685d3ec3a2af41a9172600a902bf8f25e1e26ec, CI #42088136752 passed.
+- M26 PR #19 head fa21e1a2bda678ab9c42d7fba5078dfadeeaac9d; source CI #42087702914 passed before merge reconciliation. Main-branch CI required.
+- No verified live Cloudways deployment of M20–M26; provider data, statutory licensing, messaging, payments, OCR and generative AI not activated.
+- M27 is an audit and tracker correction only; no runtime or production changes.
