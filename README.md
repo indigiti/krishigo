@@ -6,16 +6,16 @@ KrishiGo is a PHP-first, React-based agricultural ecosystem for farmers, buyers,
 
 ## Current source status
 
-- **M1–M25:** consolidated into main in order through [PR #16](https://github.com/indigiti/krishigo/pull/16), [PR #17](https://github.com/indigiti/krishigo/pull/17) and [PR #18](https://github.com/indigiti/krishigo/pull/18). These are code foundations, not live provider integrations.
-- **M26 (draft [PR #19](https://github.com/indigiti/krishigo/pull/19)):** guided authenticated farmer-to-buyer lot/enquiry/quote/order journey, participant-only order activity history, reasoned cancellation with internal reservation release, optional MySQL migration 003, and isolated regression tests. Not merged or deployed.
-- **M28 core candidate:** server-enforced production module policy and dependencies; owner-scoped fields, crop observation linkage and connected-mode isolation from fictional records. Migration 004, dedicated tests, draft branch based on M26. Not merged or deployed.
-- **CI reliability:** pin the published Playwright stable version to prevent floating prerelease dependency resolution; production acceptance remains separate.
+- **M1–M25:** source-code foundations consolidated on main via PRs #16, #17 and #18, including 25 demo module workspaces, M18 agricultural knowledge, M19 field tools, and M20–M25 opt-in PHP/MySQL candidates.
+- **M26:** authenticated internal farmer-to-buyer lifecycle integrated from PR #19, with provisional quote/order, event history and reversible reservation. Source code only; no Cloudways deployment, live payments or fulfillment.
+- **M28:** production PHP module gating, owner-scoped private farm fields, verified field-to-agronomy association and real-mode UI isolation added as source-only code via PR #22; no live database migration or production activation.
+- **M27 audit:** all 25 modules and their advertised features were inspected; see [deep feature audit](docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md). Most modules have L1/L2 functionality and only selected capabilities have partial L3 workflows. No L4 live service is independently accepted.
 - The standard DigiOps release remains static/demo; **no live DB, trade, AI diagnosis, payments, external alerts or official input registration verification is implied**.
 
 ## Run the web UI
 
     cd apps/web
-    npm install --no-audit --no-fund
+    npm ci
     npm run dev
     npm test
     npm run build
@@ -34,8 +34,9 @@ See:
 - [Agricultural input workflow scope](docs/M17_AGRI_INPUTS_P1_P4.md)
 - [Crop, pest, disease and nutrient knowledge](docs/M18_AGRI_KNOWLEDGE_LIBRARY.md)
 - [M20–M25 platform candidate and launch gates](docs/M20_M25_PLATFORM_FOUNDATIONS.md)
-- [M26 guided farmer-to-buyer lifecycle](docs/M26_FARMER_BUYER_JOURNEY.md)
-- [M28 production module controls, private fields and API-mode isolation](docs/M28_PRODUCTION_CORE_GUARDRAILS.md)
+- [M27 full 25-module feature-depth audit](docs/M27_DEEP_25_MODULE_FEATURE_AUDIT.md)
+- [M26 farmer-to-buyer lifecycle](docs/M26_FARMER_BUYER_JOURNEY.md)
+- [M28 production guardrails](docs/M28_PRODUCTION_CORE_GUARDRAILS.md)
 
 ## Engineering policy
 
