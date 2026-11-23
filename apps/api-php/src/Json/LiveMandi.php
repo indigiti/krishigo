@@ -32,7 +32,7 @@ final class LiveMandi
         foreach (self::FIELDS as $name) {
             $value = trim((string)($query[$name] ?? ''));
             if ($value === '') continue;
-            if (strlen($value) > 80 || preg_match('/^[\pL\pN][\pL\pN .()\\/-]*$/uD', $value) !== 1) {
+            if (strlen($value) > 80 || preg_match('~^[\p{L}\p{N}][\p{L}\p{N} .()/-]*$~uD', $value) !== 1) {
                 throw new \InvalidArgumentException('invalid_' . $name);
             }
             $filters[$name] = $value;
@@ -77,7 +77,7 @@ final class LiveMandi
         $result = [];
         foreach (self::FIELDS as $name) {
             $value = trim((string)($record[$name] ?? ''));
-            $result[$name] = mb_substr($value, 0, 120, 'UTF-8');
+            $result[$name] = function_exists('mb_substr') ? mb_substr($value, 0, 120, 'UTF-8') : substr($value, 0, 120);
         }
         return [...$result, 'arrival_date' => $parsed->format('Y-m-d'), ...$prices,
             'price_unit' => 'INR/quintal',
