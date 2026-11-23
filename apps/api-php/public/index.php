@@ -27,6 +27,13 @@ if (kg_env('KRISHIGO_API_MODE') === 'production') {
     \KrishiGo\Production\Api::dispatch($method, $path);
 }
 
+// Optional government daily mandi feed. Unlike demo fixtures, this endpoint never fabricates rates.
+// Enabled only on reviewed staging hosts with an OGD key and private JSON cache.
+if ($path === '/api/v1/mandi/daily' && kg_env('KRISHIGO_API_MODE') !== 'production') {
+    require_once dirname(__DIR__) . '/src/Json/LiveMandi.php';
+    \KrishiGo\Json\LiveMandi::dispatch($method, $_GET);
+}
+
 // Private module 11 input intelligence: same-origin, staging-only, fail-closed.
 if (str_starts_with($path, '/api/v1/staging/inputs/')) {
     require_once dirname(__DIR__).'/src/Modules/Registry.php';
