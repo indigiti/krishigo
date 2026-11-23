@@ -388,3 +388,44 @@
 @media(max-width:570px){.journey-steps{grid-template-columns:1fr 1fr}.journey-steps>div>svg{display:none}
  .journey-heading{flex-direction:column}.journey-form{grid-template-columns:1fr}.journey-wide{grid-column:auto}
  .journey-card{padding:15px!important}.journey-cancel{width:100%}.journey-cancel .btn{width:100%}}
+
+
+/* Government-source Mandi explorer: responsive, no fake prices in live mode. */
+.mandi-live{display:grid;gap:18px;min-width:0}
+.mandi-live-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.mandi-live-head h2{font-size:clamp(27px,3.5vw,39px);letter-spacing:-.035em;margin:8px 0}
+.mandi-live-head p{color:var(--muted);font-size:14px;max-width:700px;line-height:1.6}
+.mandi-source-strip{display:flex;flex-wrap:wrap;align-items:center;gap:9px;background:var(--panel-soft);color:var(--text);border:1px solid var(--line);border-radius:13px;padding:13px 15px;font-size:13px}
+.mandi-source-strip svg{color:var(--accent)}
+.mandi-source-strip strong{margin-left:auto;font-size:12px;color:var(--accent)}
+.mandi-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) auto;gap:10px;align-items:end;background:var(--panel);border:1px solid var(--line);padding:17px;border-radius:17px}
+.mandi-filters label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:700;min-width:0}
+.mandi-filters input,.mandi-search input{min-width:0;width:100%;padding:12px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-soft);color:var(--text);font-size:14px}
+.mandi-filters .btn{min-height:44px}
+.mandi-alert{display:flex;align-items:flex-start;gap:11px;background:var(--panel-soft);border:1px solid var(--line);border-left:3px solid #cb8433;border-radius:10px;padding:17px;color:var(--text);font-size:13px;line-height:1.6}
+.mandi-alert svg{color:#cb8433;flex-shrink:0}
+.mandi-alert p{color:var(--muted);margin:5px 0 0}
+.mandi-loading{padding:45px 18px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:14px}
+.mandi-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.mandi-toolbar>div:first-child{display:grid;gap:4px}
+.mandi-toolbar strong{font-size:15px}
+.mandi-toolbar small{font-size:12px;color:var(--muted)}
+.mandi-toolbar-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.mandi-search{display:flex;align-items:center;position:relative;gap:7px}
+.mandi-search svg{position:absolute;left:12px;color:var(--muted)}
+.mandi-search input{padding-left:36px}
+.mandi-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:15px;background:var(--panel)}
+.mandi-table-wrap table{width:100%;min-width:900px;border-collapse:collapse;font-size:13px}
+.mandi-table-wrap thead{background:var(--panel-soft)}
+.mandi-table-wrap th,.mandi-table-wrap td{text-align:left;vertical-align:middle;padding:15px 13px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mandi-table-wrap th{color:var(--muted);font-size:12px}
+.mandi-table-wrap th svg{vertical-align:middle}
+.mandi-table-wrap tbody tr:last-child td{border-bottom:0}
+.mandi-table-wrap td strong,.mandi-table-wrap td small{display:block}
+.mandi-table-wrap td small{font-size:11px;color:var(--muted);margin-top:4px}
+.mandi-warning{color:#b47220;font-weight:700}
+.mandi-pagination{display:flex;align-items:center;justify-content:center;gap:15px;flex-wrap:wrap;font-size:13px}
+.mandi-live .tiny-disclaimer{line-height:1.7;font-size:12px}
+.mandi-live .tiny-disclaimer a{text-decoration:underline;color:var(--accent)}
+@media(max-width:1120px){.mandi-filters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.mandi-filters{grid-template-columns:repeat(2,minmax(0,1fr));padding:13px}.mandi-filters .btn{grid-column:1/-1}.mandi-live-head p{font-size:13px}.mandi-source-strip strong{width:100%;margin-left:27px}.mandi-toolbar-actions{width:100%}.mandi-search{flex:1}.mandi-search input{width:100%}.mandi-toolbar-actions .btn{min-height:44px}.mandi-pagination{justify-content:space-between;gap:6px}.mandi-pagination .btn{font-size:12px;padding:10px}}
