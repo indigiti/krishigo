@@ -32,6 +32,7 @@ export default function LiveMandiExplorer() {
  const [commodity, setCommodity] = useState('');
  const [market, setMarket] = useState('');
  const [searchDate, setSearchDate] = useState('');
+ const [activeFilters, setActiveFilters] = useState({ state: 'Maharashtra', district: '', commodity: '', market: '', searchDate: '' });
  const [page, setPage] = useState(1);
  const [refresh, setRefresh] = useState(0);
  const [result, setResult] = useState<MandiResponse | null>(null);
@@ -42,7 +43,7 @@ export default function LiveMandiExplorer() {
   const abort = new AbortController();
   setLoading(true); setError('');
   const params = new URLSearchParams({ page: String(page), limit: '50' });
-  for (const [key,value] of Object.entries({ state, district, commodity, market, date: searchDate })) if (value.trim()) params.set(key, value.trim());
+  for (const [key,value] of Object.entries({ state: activeFilters.state, district: activeFilters.district, commodity: activeFilters.commodity, market: activeFilters.market, date: activeFilters.searchDate })) if (value.trim()) params.set(key, value.trim());
   fetch(ENDPOINT + '?' + params.toString(), { credentials: 'same-origin', signal: abort.signal, headers: { Accept: 'application/json' } })
    .then(async response => {
     const body: unknown = await response.json().catch(() => ({}));
@@ -57,15 +58,14 @@ export default function LiveMandiExplorer() {
    .catch(cause => { if (!abort.signal.aborted) { setResult(null); setError(cause instanceof Error ? cause.message : 'Could not load government mandi prices'); } })
    .finally(() => { if (!abort.signal.aborted) setLoading(false); });
   return () => abort.abort();
- }, [state, district, commodity, market, searchDate, page, refresh]);
+ }, [activeFilters, page, refresh]);
  const visible = useMemo(() => {
   const needle = search.toLocaleLowerCase().trim();
   if (!needle) return result?.records || [];
   return (result?.records || []).filter(r => [r.market,r.commodity,r.district,r.variety,r.grade].some(value => value.toLocaleLowerCase().includes(needle)));
  }, [result, search]);
  const submitted = (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault(); setPage(1);
-  // Search resets to first result page; all filters already drive the feed.
+  event.preventDefault(); setActiveFilters({ state, district, commodity, market, searchDate }); setPage(1);
  };
  return <section className="mandi-live" aria-label="Government mandi daily prices">
   <div className="mandi-live-head">
@@ -74,11 +74,11 @@ export default function LiveMandiExplorer() {
   </div>
   <div className="mandi-source-strip"><ShieldCheck size={18}/><span>Source: AGMARKNET / data.gov.in</span><strong>{result ? (result.stale ? 'Cached · provider unavailable' : 'Government feed') : 'Connection not verified'}</strong></div>
   <form className="mandi-filters" onSubmit={submitted}>
-   <label>State<input value={state} onChange={e=>{setState(e.target.value);setPage(1);}} placeholder="Maharashtra" maxLength={80}/></label>
-   <label>District<input value={district} onChange={e=>{setDistrict(e.target.value);setPage(1);}} placeholder="Pune" maxLength={80}/></label>
-   <label>Commodity<input value={commodity} onChange={e=>{setCommodity(e.target.value);setPage(1);}} placeholder="Onion" maxLength={80}/></label>
-   <label>Market<input value={market} onChange={e=>{setMarket(e.target.value);setPage(1);}} placeholder="Pune" maxLength={80}/></label>
-   <label>Observation date<input type="date" value={searchDate} onChange={e=>{setSearchDate(e.target.value);setPage(1);}} /></label>
+   <label>State<input value={state} onChange={e=>{setState(e.target.value);}} placeholder="Maharashtra" maxLength={80}/></label>
+   <label>District<input value={district} onChange={e=>{setDistrict(e.target.value);}} placeholder="Pune" maxLength={80}/></label>
+   <label>Commodity<input value={commodity} onChange={e=>{setCommodity(e.target.value);}} placeholder="Onion" maxLength={80}/></label>
+   <label>Market<input value={market} onChange={e=>{setMarket(e.target.value);}} placeholder="Pune" maxLength={80}/></label>
+   <label>Observation date<input type="date" value={searchDate} onChange={e=>{setSearchDate(e.target.value);}} /></label>
    <button className="btn btn-primary" type="submit"><SlidersHorizontal size={16}/> Apply</button>
   </form>
   {error && <div className="mandi-alert" role="alert"><AlertTriangle size={19}/><div><strong>Live mandi data unavailable</strong><p>{error}. No sample rates are shown as live values. Configure an authorized API key and a private cache directory on the PHP host.</p></div></div>}
